@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html ng-app="cosmosApp">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Cosmos service consumer</title>
+</head>
+<body  role="document" ng-controller="ServiceConsumerCtrl">
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">Cosmos Framework</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/">Home</a></li>
+            <li class="dropdown" ng-show="loggedIn()">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" ng-bind="userName"><b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="/logout/">Logout</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Settings</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    <div class="container theme-showcase" role="main">
+          <div class="jumbotron">
+            <h3  ng-show="!loggedIn()">Login</h3>
+            <div  ng-show="!loggedIn()">
+                <a class="btn btn-small btn-primary" href="/login/google/">Google</a>
+                <a class="btn btn-small btn-primary" href="/login/facebookgraph/">Facebook</a>
+                <br />
+                <hr />
+                <form action="/login/openid/" method="get">
+                    <label>Openid</label><input type="text" name="openid.op_endpoint">
+                    <input type="submit" value="Login">
+                </form>
+                <hr />
+            </div>
+            <form ng-show="!loggedIn()" role="form" method="post" action="/login/">
+                <div class="form-group">
+                    <label>User name</label>
+                    <input class="form-control" id="username" type="text" name="username"/>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input class="form-control" type="password" id="password" name="password" />
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Login" class="btn btn-primary" />
+                 </div>
+            </form>
+             <div ng-show="loggedIn()">Welcome</div>
+          </div>
+        <div id="status"></div>
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.17/angular.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="/serviceapi.js"></script>
+    <script src="/controllers.js"></script>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+</body>
+</html>

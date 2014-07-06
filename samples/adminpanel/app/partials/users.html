@@ -1,0 +1,28 @@
+<div ng-show="hasError" class="bg-warning">
+    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+    <div><label>Error code:</label><span ng-bind="status" /></div>
+    <div ng-bind="status_data"></div>
+</div>
+
+<h3>Users</h3>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>&nbsp;</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="user in users">
+        <td>{{user.username}}</td><td>{{user.email}}</td>
+        <td>
+            <button class="btn btn-xs btn-warning glyphicon glyphicon-edit" ng-click="editUser($index);"></button>
+            <button class="btn btn-xs btn-danger glyphicon glyphicon-remove" ng-click="removeUser($index);"></button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<button class="btn btn-primary" ng-click="addUser('lg')">Create user</button>

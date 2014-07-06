@@ -1,0 +1,16 @@
+{
+  "name": "cosmos-admin-panel",
+  "description": "Admin panel for cosmos framework",
+  "version": "0.0.0",
+  "homepage": "http://cosmosframework.com",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "1.2.x",
+    "angular-route": "1.2.x",
+    "angular-loader": "1.2.x",
+    "angular-mocks": "~1.2.x",
+    "html5-boilerplate": "~4.3.0",
+    "angular-bootstrap": "~0.11.x"
+  }
+}

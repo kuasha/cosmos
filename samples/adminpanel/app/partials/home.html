@@ -1,0 +1,36 @@
+<div ng-show="hasError" class="bg-warning">
+    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+    <div><label>Error code:</label><span ng-bind="status" /></div>
+    <div ng-bind="status_data"></div>
+</div>
+
+<h3>Operations</h3>
+<form role="form">
+    <div class="form-group">
+        <label>Service URL (relative) *</label>
+        <input class="form-control" id="name" type="text" name="name" ng-model="service" />
+    </div>
+    <div class="form-group">
+        <label>Columns [GET]</label>
+        <input class="form-control" id="columns" type="text" name="columns" ng-model="columns" />
+    </div>
+    <div class="form-group">
+        <label>Filter [GET]</label>
+        <input class="form-control" id="filter" type="text" name="filter" ng-model="filter" />
+    </div>
+    <div class="form-group">
+        <label>Data [* POST|PUT]</label>
+        <textarea class="form-control" id="data" name="data" ng-model="data"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Result</label>
+        <textarea class="form-control" id="result" name="result" ng-model="result"></textarea>
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary" ng-click="get()">  GET </button>
+        <button class="btn btn-primary" ng-click="post()"> POST </button>
+        <button class="btn btn-info" ng-click="put()">  PUT </button>
+        <button class="btn btn-danger" ng-click="delete()">DELETE</button>
+    </div>
+</form>
