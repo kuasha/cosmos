@@ -63,7 +63,14 @@ cosmosadmin new-project
 ```
 
 
-You should now change settings in settings.py run  ```bower install``` and start the server:
+You should now change settings in settings.py run  ```bower install``` and create an andmin account:
+
+```
+python cosmosmain.py new-admin
+```
+
+
+Now start the server:
 
 ```
 python cosmosmain.py
