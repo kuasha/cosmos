@@ -1,7 +1,7 @@
 Cosmos Framework
 ================
 
-Cosmos blog: http://www.cosmosframeowrk.com
+Cosmos blog: http://www.cosmosframework.com/
 
 Python web framework for creating related data objects in mongodb without writing any code.
 
