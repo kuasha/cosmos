@@ -65,6 +65,8 @@ How to create project
 cosmosadmin new-project
 ```
 
+This will create a simple demo project where you can create users/ create and assign roles to users and call GET/POST/PUT/DELETE APIs to read/insert/update/delete documents in json format.
+
 
 You should now change settings in settings.py run  ```bower install``` and create an andmin account:
 
