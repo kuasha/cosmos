@@ -1,0 +1,20 @@
+language: python
+python:
+  - "2.7"
+# command to install dependencies
+install:
+  - pip install tornado
+  - pip install motor
+  - pip install mongolog
+  - pip install mock
+  - pip install requests
+
+services:
+  - mongodb
+
+before_script:
+  - mongo 127.0.0.1/cosmos --eval 'db.cosmos.users.insert({ "username": "admin","roles": [ "43425097-e630-41ea-88eb-17b339339706" ], "email": "admin@cosmosframework.com","password": "hmac:1ddb4e6b0b810f59018babbb5dc0eed4"});'
+
+# command to run tests
+script: python setup.py test
+
