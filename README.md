@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kuasha/cosmos.svg?branch=master)](https://travis-ci.org/kuasha/cosmos)
+
 Cosmos Framework
 ================
 
@@ -6,6 +8,7 @@ Cosmos blog: http://www.cosmosframework.com/
 Python web framework for creating related data objects in mongodb without writing any code.
 
 Please note that cosmos framework is in its ```pre-alpha``` stage. Please give it some time to be matured.
+
 
 
 Prepare Mongodb 
