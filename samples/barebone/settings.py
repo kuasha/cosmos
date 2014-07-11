@@ -1,5 +1,5 @@
-import logging
 import os
+import logging
 
 DEBUG = True
 DB_HOST = "127.0.0.1"
@@ -37,10 +37,11 @@ facebook_scope =  "email,read_stream,offline_access"
 
 CONFIGURE_LOG = False
 START_WEB_SERVER = True
-START_OBJECT_CHANGE_MONITOR = True
+START_OBJECT_CHANGE_MONITOR = False
 
 GOOGLE_OAUTH2_CLIENT_ID = None
 GOOGLE_OAUTH2_CLIENT_SECRET = None
+GOOGLE_OAUTH2_REDIRECT_URI = None
 
 login_url = "/login/"
 
@@ -60,4 +61,4 @@ else:
     LOG_DATABASE_URI = "mongodb://"+ LOG_DB_HOST+":"+str(LOG_DB_PORT)
 
 
-GOOGLE_OAUTH2_SETTINGS = {"key": GOOGLE_OAUTH2_CLIENT_ID, "secret": GOOGLE_OAUTH2_CLIENT_SECRET}
+GOOGLE_OAUTH2_SETTINGS = {"key": GOOGLE_OAUTH2_CLIENT_ID, "secret": GOOGLE_OAUTH2_CLIENT_SECRET, "redirect_uri": GOOGLE_OAUTH2_REDIRECT_URI}

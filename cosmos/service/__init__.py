@@ -15,19 +15,22 @@ import cosmos.dataservice.objectservice;
 from cosmos.dataservice.objectservice import ObjectService
 from cosmos.rbac.object import *
 import cosmos.rbac.service
+import cosmos.rbac.object
 from tornado import gen
-
+import cosmos.service.auth
+import cosmos.processors
 OBSERVER_PRE_PROCESSOR = 0
 OBSERVER_POST_PROCESSOR = 1
 
 class BootLoader():
 
     def init_observers(self, observers):
+        logging.info("init_observers")
         cosmos.dataservice.objectservice.add_operation_preprocessor(cosmos.service.auth.before_user_insert,
                                                                     COSMOS_USERS_OBJECT_NAME,
                                                                     [AccessType.INSERT, AccessType.UPDATE])
 
-        cosmos.dataservice.objectservice.add_operation_preprocessor(cosmos.rbac.service.before_role_insert,
+        cosmos.dataservice.objectservice.add_operation_preprocessor(cosmos.processors.before_role_insert,
                                                                     cosmos.rbac.object.COSMOS_ROLE_OBJECT_NAME,
                                                                     [AccessType.INSERT])
 
@@ -72,7 +75,7 @@ class BootLoader():
         logging.getLogger().addHandler(MongoHandler.to(collection=col))
         logging.getLogger().setLevel(log_level)
 
-
+@gen.coroutine
 def after_role_insert_update_delete(db, object_name, result, access_type):
     assert object_name == COSMOS_ROLE_OBJECT_NAME
     assert access_type == AccessType.INSERT or access_type == AccessType.UPDATE or access_type == AccessType.DELETE

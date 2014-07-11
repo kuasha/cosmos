@@ -3,4 +3,4 @@
  Website: http://cosmosframework.com
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
-""" 
+"""

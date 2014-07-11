@@ -23,7 +23,7 @@ ACCESS_TYPE_OWNER_ONLY = 2
 
 class ObjectService():
     def __init__(self, *args, **kwargs):
-        self.rbac_service = RbacService()
+        self.rbac_service = kwargs.get("rbac_service", RbacService())
 
     def check_access(self, db, user, object_name, properties, access, check_owner=False):
         roles = self.rbac_service.get_roles(user)

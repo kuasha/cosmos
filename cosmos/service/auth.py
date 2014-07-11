@@ -20,8 +20,6 @@ from cosmos.service.utils import MongoObjectJSONEncoder
 from constants import *
 import tornado.auth
 from tornado.concurrent import TracebackFuture, chain_future, return_future
-import settings
-import motor
 
 try:
     import urlparse  # py2
@@ -33,6 +31,8 @@ try:
 except ImportError:
     import urllib as urllib_parse  # py2
 
+
+hmac_key = None
 
 class LogoutHandler(RequestHandler):
     @gen.coroutine
@@ -80,18 +80,16 @@ class CosmosAuthHandler(RequestHandler):
 
         if (yield cursor.fetch_next):
             stored_user_id = cursor.next_object()
-            cursor = object_service.load(SYSTEM_USER, db, COSMOS_USERS_OBJECT_NAME, str(stored_user_id["user_id"]), None)
-            if (yield cursor.fetch_next):
-                user = cursor.next_object()
-            else:
+            user = yield object_service.load(SYSTEM_USER, db, COSMOS_USERS_OBJECT_NAME, str(stored_user_id["user_id"]), [])
+
+            if not user:
                 raise tornado.web.HTTPError(500, "User not found for previously stored identity of this user")
 
             self.set_current_user(user)
-            self.redirect(self.get_argument("next", '/'))
         else:
             create_result = yield self._create_user(user_identity)
 
-            cursor = object_service.find(SYSTEM_USER, db, COSMOS_USERS_OBJECT_NAME, {"_id": str(create_result)}, None)
+            cursor = object_service.find(SYSTEM_USER, db, COSMOS_USERS_OBJECT_NAME, {"_id": create_result}, [])
             if (yield cursor.fetch_next):
                 user = cursor.next_object()
             else:
@@ -100,7 +98,7 @@ class CosmosAuthHandler(RequestHandler):
             result = yield self._create_user_identity(str(user["_id"]), user_identity)
 
             self.set_current_user(user)
-            self.redirect(self.get_argument("next", '/'))
+
 
     def _create_user(self, user_identity):
         db = self.settings['db']
@@ -135,7 +133,7 @@ class CosmosAuthHandler(RequestHandler):
             data.update(id_values)
 
         object_service = ObjectService()
-        return object_service.save(SYSTEM_USER, db, COSMOS_USERS_IDENTITY_OBJECT_NAME, identity)
+        return object_service.save(SYSTEM_USER, db, COSMOS_USERS_IDENTITY_OBJECT_NAME, data)
 
 class OpenidLoginHandler(CosmosAuthHandler, tornado.auth.OpenIdMixin):
     @return_future
@@ -150,6 +148,7 @@ class OpenidLoginHandler(CosmosAuthHandler, tornado.auth.OpenIdMixin):
         callback()
 
     @tornado.web.asynchronous
+    @gen.coroutine
     def get(self):
         #TODO: Evaluate security risk of accepting openid.op_endpoint value of remote site response
         self._OPENID_ENDPOINT = self.get_argument("openid.op_endpoint", None)
@@ -157,39 +156,46 @@ class OpenidLoginHandler(CosmosAuthHandler, tornado.auth.OpenIdMixin):
             raise tornado.web.HTTPError(400, "Endpoint not found")
 
         if self.get_argument("openid.mode", None):
-            self.get_authenticated_user(self.async_callback(self._on_auth))
-            return
+            user = yield self.get_authenticated_user()
+            if not user:
+                raise tornado.web.HTTPError(500, "Openid auth failed")
 
-        callback_uri = self.request.uri
-        url = urlparse.urljoin(self.request.full_url(), callback_uri)
-        urls = url  # url.replace('http','https')
-        self.authenticate_redirect(callback_uri=urls)
+            assert isinstance(user, dict)
 
-    def _on_auth(self, user):
-        if not user:
-            raise tornado.web.HTTPError(500, "Openid auth failed")
+            user['identity_type'] = IDENTITY_TYPE_OPEN_ID
 
-        assert isinstance(user, dict)
+            yield self._authenticate_user(user)
+            self.redirect(self.get_argument("next", '/'))
+        else:
+            callback_uri = self.request.uri
+            url = urlparse.urljoin(self.request.full_url(), callback_uri)
+            urls = url  # url.replace('http','https')
+            yield self.authenticate_redirect(callback_uri=urls)
 
-        user['identity_type'] = IDENTITY_TYPE_FB_GRAPH
-        self.user_created = False
-        self._authenticate_user(user)
 
 class GoogleOAuth2LoginHandler(CosmosAuthHandler, tornado.auth.GoogleOAuth2Mixin):
     @tornado.web.asynchronous
+    @gen.coroutine
     def get(self):
 
-        callback_uri = self.request.uri
-        url = urlparse.urljoin(self.request.full_url(), callback_uri)
-        urls = "http://monohori.com/login/google/"  # url.replace('http','https')
+        #callback_uri = self.request.uri
+        #url = urlparse.urljoin(self.request.full_url(), callback_uri)
+        #urls = url.replace('http','https')
+        urls = self.settings[self._OAUTH_SETTINGS_KEY]['redirect_uri']
 
         if self.get_argument('code', False):
-            self.get_authenticated_user(
-                redirect_uri=urls,
-                callback=self.async_callback(self._on_auth),
-                code=self.get_argument('code'))
+            # The url must match what was used during authorize phase.
+            # It can not accept if there is any mismatch including parameters
+            user = yield self.get_authenticated_user(redirect_uri=urls, code=self.get_argument('code'))
+
+            if not user:
+                raise tornado.web.HTTPError(500, "Google auth failed")
+
+            user["identity_type"] = IDENTITY_TYPE_GOOGLE_OAUTH2
+            yield self._authenticate_user(user)
+            self.redirect(self.get_argument("next", '/'))
         else:
-            self.authorize_redirect(
+            yield self.authorize_redirect(
                 redirect_uri=urls,
                 client_id=self.settings[self._OAUTH_SETTINGS_KEY]['key'],
                 client_secret=self.settings[self._OAUTH_SETTINGS_KEY]['secret'],
@@ -197,12 +203,6 @@ class GoogleOAuth2LoginHandler(CosmosAuthHandler, tornado.auth.GoogleOAuth2Mixin
                 response_type='code',
                 extra_params={'approval_prompt': 'auto'})
 
-    def _on_auth(self, user):
-        if not user:
-            raise tornado.web.HTTPError(500, "Google auth failed")
-        user["identity_type"] = IDENTITY_TYPE_GOOGLE_OAUTH2
-        self.user_created = False
-        self._authenticate_user(user)
 
 def add_params(url, params):
     url_parts = list(urlparse.urlparse(url))
@@ -213,6 +213,7 @@ def add_params(url, params):
 
 class FacebookGraphLoginHandler(CosmosAuthHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.asynchronous
+    @gen.coroutine
     def get(self):
         nextpg = self.get_argument("next", '/')
         params = {'next':nextpg}
@@ -224,23 +225,24 @@ class FacebookGraphLoginHandler(CosmosAuthHandler, tornado.auth.FacebookGraphMix
         redirect_uris = redirect_uri  # redirect_uri.replace('http','https')
 
         if self.get_argument("code", False):
-            self.get_authenticated_user(
+            user = yield self.get_authenticated_user(
                                         redirect_uri= redirect_uris,
                                         client_id=self.settings["facebook_api_key"],
                                         client_secret=self.settings["facebook_secret"],
-                                        code=self.get_argument("code"),
-                                        callback=self.async_callback(self._on_login))
-            return
+                                        code=self.get_argument("code")
+                                        )
+            if user:
+                user['identity_type'] = IDENTITY_TYPE_FB_GRAPH
+                yield self._authenticate_user(user)
+                self.redirect(self.get_argument("next", '/'))
+            else:
+                raise tornado.web.HTTPError(500, "Facebook auth failed")
 
-        self.authorize_redirect(redirect_uri=redirect_uri,
+
+        else:
+            yield self.authorize_redirect(redirect_uri=redirect_uri,
                               client_id= self.settings["facebook_api_key"],
                               extra_params={"scope": self.settings["facebook_scope"]})
-
-    @gen.coroutine
-    def _on_login(self, user_identity):
-        user_identity['identity_type'] = IDENTITY_TYPE_FB_GRAPH
-        self.user_created = False
-        self._authenticate_user(user_identity)
 
 class LoginHandler(RequestHandler):
     @tornado.web.asynchronous
@@ -270,14 +272,15 @@ class LoginHandler(RequestHandler):
         else:
             user = cursor.next_object()
             loaded_password_hash = user.get(PASSWORD_COLUMN_NAME)
-            validate_password(password, loaded_password_hash)
+            hmac_key= self.settings["hmac_key"]
+            validate_password(password, loaded_password_hash, hmac_key)
             del user["password"]
             self.set_current_user(user)
             self.redirect('/')
 
 
-def validate_password(password, saved_password_hash):
-    hmac_password = get_hmac_password(password)
+def validate_password(password, saved_password_hash, hmac_key):
+    hmac_password = get_hmac_password(password, hmac_key)
     try:
         # FIXME: WARNING possible attack: use hmac.compare_digest(a, b) instead (https://docs.python.org/2/library/hmac.html)
         if not saved_password_hash == hmac_password:
@@ -285,13 +288,14 @@ def validate_password(password, saved_password_hash):
     except:
         raise tornado.web.HTTPError(401, "Unauthorized")
 
-def get_hmac_password(password):
-    hmac_key = settings.HMAC_KEY
+def get_hmac_password(password, hmac_key):
     hmac_hex = hmac.new(hmac_key, password).hexdigest()
     hmac_password = "{0}{1}".format(PASSWORD_HMAC_SIGNATURE, hmac_hex)
     return hmac_password
 
+@gen.coroutine
 def before_user_insert(db, object_name, data, access_type):
+    assert isinstance(hmac_key, object)
     assert object_name == COSMOS_USERS_OBJECT_NAME
     assert isinstance(data, dict)
     assert access_type == AccessType.INSERT or access_type == AccessType.UPDATE
@@ -302,14 +306,15 @@ def before_user_insert(db, object_name, data, access_type):
         username = username.lower()
 
         data["username"] = username
-
-        #TODO: Do not allow duplicate entry for username
-        """
         object_service = ObjectService()
         query = {"username": username}
         columns=["username"]
-        object_service.find(SYSTEM_USER, db, COSMOS_USERS_OBJECT_NAME, query, columns, _on_load_check_does_not_exist)
-        """
+        cursor = object_service.find(SYSTEM_USER, db, COSMOS_USERS_OBJECT_NAME, query, columns)
+
+        if(yield cursor.fetch_next):
+            user = cursor.next_object()
+            if user:
+                raise tornado.web.HTTPError(409, "Conflict: Duplicate username")
 
     password = data.get(PASSWORD_COLUMN_NAME)
 
@@ -319,14 +324,6 @@ def before_user_insert(db, object_name, data, access_type):
     if password.find(PASSWORD_HMAC_SIGNATURE) > 0:
         return
 
-    hmac_password = get_hmac_password(password)
+    hmac_password = get_hmac_password(password, hmac_key)
 
     data[PASSWORD_COLUMN_NAME] = hmac_password
-
-
-def _on_load_check_does_not_exist(self, result, error):
-        if error:
-            raise tornado.web.HTTPError(500, error)
-        else:
-            if result and result.__len__() > 0:
-                raise tornado.web.HTTPError(400, "Duplicate value error")

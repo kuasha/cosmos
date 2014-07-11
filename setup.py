@@ -1,10 +1,13 @@
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 setup(
     name='cosmos',
-    version='0.01.00.009',
+    version='0.01.00.010',
     packages=['cosmos', 'cosmos.admin', 'cosmos.admin.samples', 'cosmos.datamonitor', 'cosmos.dataservice', 'cosmos.rbac', 'cosmos.schema',
-              'cosmos.service'],
+              'cosmos.service', 'cosmos.processors', 'test'],
     url='http://cosmosframework.com',
     license='MIT License',
     author='Maruf Maniruzzaman',
@@ -24,11 +27,13 @@ setup(
         'Programming Language :: Python :: 2.7'
     ],
 
-    install_requires=['tornado', 'motor', 'mongolog'],
+    install_requires=['tornado', 'motor', 'mongolog', 'mock', 'requests'],
 
     entry_points = {
         'console_scripts': [
             'cosmosadmin = cosmos.admin.commands:admin_main'
         ]
-    }
+    },
+
+    test_suite="test"
 )

@@ -17,11 +17,15 @@ from tornado import gen
 from cosmos.service.utils import MongoObjectJSONEncoder
 from cosmos.dataservice.objectservice import *
 
+
+
 class ServiceHandler(requesthandler.RequestHandler):
+
     @tornado.web.asynchronous
     @gen.coroutine
     def get(self, object_path):
         params = object_path.split('/')
+        params = filter(len, params)
         if len(params) < 1 or len(params)>2:
             raise tornado.web.HTTPError(404, "Not found")
 
@@ -29,6 +33,7 @@ class ServiceHandler(requesthandler.RequestHandler):
         if not object_name:
             raise tornado.web.HTTPError(404, "Not found")
 
+        id = None
         if len(params)==2:
             id = params[1]
 
@@ -51,7 +56,8 @@ class ServiceHandler(requesthandler.RequestHandler):
 
         preprocessor_list = get_operation_preprocessor(object_name, AccessType.READ)
         for preprocessor in preprocessor_list:
-            preprocessor(db, object_name, query, AccessType.READ)
+            yield  preprocessor(db, object_name, query, AccessType.READ)
+
         result = None
         if id and len(id)>0:
             cursor = obj_serv.load(self.current_user, db, object_name, id, columns)
@@ -70,7 +76,7 @@ class ServiceHandler(requesthandler.RequestHandler):
 
         post_processor_list = get_operation_postprocessor(object_name, AccessType.READ)
         for post_processor in post_processor_list:
-            post_processor(db, object_name, result, AccessType.READ)
+            yield post_processor(db, object_name, result, AccessType.READ)
 
         self.content_type = 'application/json'
         self.write(data)
@@ -81,15 +87,17 @@ class ServiceHandler(requesthandler.RequestHandler):
     def post(self, object_path):
         params = object_path.split('/')
         object_name = params[0]
-
-        data = json.loads(self.request.body)
-        assert isinstance(data, dict)
+        try:
+            data = json.loads(self.request.body)
+            assert isinstance(data, dict)
+        except ValueError, ve:
+            raise tornado.web.HTTPError(400, ve.message)
 
         db = self.settings['db']
 
         preprocessor_list = get_operation_preprocessor(object_name, AccessType.INSERT)
         for preprocessor in preprocessor_list:
-            preprocessor(db, object_name, data, AccessType.INSERT)
+            yield preprocessor(db, object_name, data, AccessType.INSERT)
 
         obj_serv = ObjectService()
         promise = obj_serv.save(self.current_user, db, object_name,data)
@@ -98,7 +106,7 @@ class ServiceHandler(requesthandler.RequestHandler):
 
         post_processor_list = get_operation_postprocessor(object_name, AccessType.INSERT)
         for post_processor in post_processor_list:
-            post_processor(db, object_name, result, AccessType.INSERT)
+            yield  post_processor(db, object_name, result, AccessType.INSERT)
 
         self.write(data)
         self.finish()
@@ -109,9 +117,11 @@ class ServiceHandler(requesthandler.RequestHandler):
         params = object_path.split('/')
         object_name = params[0]
         id = params[1]
-
-        data = json.loads(self.request.body)
-        assert isinstance(data, dict)
+        try:
+            data = json.loads(self.request.body)
+            assert isinstance(data, dict)
+        except ValueError, ve:
+            raise tornado.web.HTTPError(400, ve.message)
 
         db = self.settings['db']
 
@@ -119,7 +129,7 @@ class ServiceHandler(requesthandler.RequestHandler):
 
         preprocessor_list = get_operation_preprocessor(object_name, AccessType.UPDATE)
         for preprocessor in preprocessor_list:
-            preprocessor(db, object_name, data, AccessType.UPDATE)
+            yield preprocessor(db, object_name, data, AccessType.UPDATE)
 
         obj_serv = ObjectService()
         promise = obj_serv.update(self.current_user, db, object_name, id, data)
@@ -128,7 +138,7 @@ class ServiceHandler(requesthandler.RequestHandler):
 
         post_processor_list = get_operation_postprocessor(object_name, AccessType.UPDATE)
         for post_processor in post_processor_list:
-            post_processor(db, object_name, result, AccessType.UPDATE)
+            yield  post_processor(db, object_name, result, AccessType.UPDATE)
 
         self.write(data)
         self.finish()
@@ -144,7 +154,7 @@ class ServiceHandler(requesthandler.RequestHandler):
 
         preprocessor_list = get_operation_preprocessor(object_name, AccessType.DELETE)
         for preprocessor in preprocessor_list:
-            preprocessor(object_name, None, AccessType.DELETE)
+            yield  preprocessor(object_name, None, AccessType.DELETE)
 
         obj_serv = ObjectService()
         promise = obj_serv.delete(self.current_user, db, object_name, id)
@@ -153,7 +163,7 @@ class ServiceHandler(requesthandler.RequestHandler):
 
         post_processor_list = get_operation_postprocessor(object_name, AccessType.DELETE)
         for post_processor in post_processor_list:
-            post_processor(db, object_name, result, AccessType.DELETE)
+            yield  post_processor(db, object_name, result, AccessType.DELETE)
 
         self.write(data)
         self.finish()

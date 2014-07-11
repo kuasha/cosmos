@@ -13,3 +13,8 @@ class MongoObjectJSONEncoder(json.JSONEncoder):
         if isinstance(o, ObjectId):
             return str(o)
         return json.JSONEncoder.default(self, o)
+
+
+class Options:
+    def __init__(self, **entries):
+        self.__dict__.update(entries)

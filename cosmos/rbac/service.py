@@ -4,8 +4,9 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
-
+from argparse import _ActionsContainer
 import tornado
+from tornado import gen
 import collections
 import uuid
 import logging
@@ -14,17 +15,26 @@ from cosmos.rbac.object import *
 
 _active_roles = None
 
-class RbacService():
-    ALLOW_ALL_PROPERTY_NAME = "*"
-    ALLOW_ALL_OBJECT_NAME = "*"
-
+class RoleCache():
     def __init__(self, *args, **kwargs):
         global _active_roles
         if not _active_roles:
             init_roles()
 
-    def get_roles(self, user):
+    def get_roles(self):
         global _active_roles
+        return _active_roles
+
+class RbacService():
+    ALLOW_ALL_PROPERTY_NAME = "*"
+    ALLOW_ALL_OBJECT_NAME = "*"
+
+    def __init__(self, *args, **kwargs):
+        self.role_cache = kwargs.get("role_cache", RoleCache())
+
+
+    def get_roles(self, user):
+        active_roles = self.role_cache.get_roles()
         roles = []
 
         if not user:
@@ -32,7 +42,7 @@ class RbacService():
         else:
             user_role_sids = user.get("roles", [ANONYMOUS_USER_ROLE_SID])
 
-        for role in _active_roles:
+        for role in active_roles:
             if role.sid in user_role_sids:
                 roles.append(role)
 
@@ -167,26 +177,6 @@ def update_role_cache(role_defn):
             return
 
     _active_roles.append(new_role)
-
-
-def before_role_insert(db, object_name, data, access_type):
-    assert object_name == COSMOS_ROLE_OBJECT_NAME
-    assert isinstance(data, dict)
-    assert access_type == AccessType.INSERT
-
-    sid = data.get("sid", None)
-
-    if not sid:
-        data["sid"] = str(uuid.uuid4())
-    try:
-        role_items = data.get("role_items")
-        if len(role_items) < 1:
-            raise ValueError("Role items can not be empty for a role")
-
-        for role_item_def in role_items:
-            check_role_item(role_item_def)
-    except ValueError as ve:
-        raise tornado.web.HTTPError(400, ve.message)
 
 
 

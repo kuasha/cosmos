@@ -9,18 +9,30 @@ import os
 import base64
 
 def get_files(rootdir, excludes):
+    print "Excludes: ", excludes
     file_list = []
     for root, subFolders, files in os.walk(rootdir):
+        skip = False
         for exclude in excludes:
             if root.find(exclude) > -1:
+                skip = True
                 print "Exclude "+root
-                continue
+                break
+        if skip:
+            continue
 
         files = [ file for file in files if not file.endswith( ('.pyc','.tar') ) ]
         for filename in files:
-            if filename in excludes:
-                print "Exclude "+filename
+            skip = False
+            for exclude in excludes:
+                if filename.find(exclude) > -1:
+                    print "Skip "+filename
+                    skip = True
+                    break
+
+            if skip:
                 continue
+
             filePath = os.path.join(root, filename)
             file_list.append(filePath)
 
@@ -28,7 +40,9 @@ def get_files(rootdir, excludes):
 
 
 def package_sample(path, sample_def_path, exclude=["local_settings.py"]):
+    print "----------------------------------------------------------------------"
     print "Packaging application from [{0}] to [{1}]".format(path, sample_def_path)
+    print "----------------------------------------------------------------------"
     file_list = get_files(path, exclude)
     root_len = len(path)
     file_data_list = []
@@ -81,4 +95,4 @@ if __name__ == "__main__":
     path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../samples/adminpanel"))
     sample_def_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "samples/adminpaneldef.py")
 
-    package_sample(path, sample_def_path, ["/app/bower_components", "local_settings.py"])
+    package_sample(path, sample_def_path, ["bower_components", "local_settings.py"])

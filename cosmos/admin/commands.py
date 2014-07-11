@@ -9,6 +9,7 @@ import os
 import sys
 import logging
 import getpass
+from tornado import gen
 import createproject
 
 from cosmos.dataservice.objectservice import *
@@ -45,14 +46,12 @@ class CommandHandler():
 
         return input
 
-    def _admin_user_created(self, result, error):
-        if error:
-            logging.error("Admin user creation failed.")
-            logging.error(error)
-        else:
-            logging.info("Admin user was created successfully.")
-
-        sys.exit(0)
+    def create_user(self, username, password, email, roles):
+        data = {"username": username, "password": password, "email": email, "roles": roles}
+        object_service = ObjectService()
+        result = object_service.save(SYSTEM_USER, self.db, COSMOS_USERS_OBJECT_NAME, data)
+        logging.info("Admin user was created successfully.")
+        return result
 
     def create_admin_user(self):
         username = self.get_input('Enter admin username: ')
@@ -63,9 +62,8 @@ class CommandHandler():
             sys.exit(1)
 
         email = self.get_input('Enter admin email: ')
-        data = {"username":username, "password":password, "email":email, "roles":[ADMIN_USER_ROLE_SID]}
-        object_service = ObjectService()
-        object_service.save(SYSTEM_USER, self.db, COSMOS_USERS_OBJECT_NAME, data, self._admin_user_created)
+        self.method_name(username, password, email, [ADMIN_USER_ROLE_SID])
+        sys.exit(0)
 
 def print_usage():
     print "Unknown command.\ncosmosadmin new-admin\ncosmosadmin new-project [angular]\ncosmosadmin add-heroku-settings\n"
