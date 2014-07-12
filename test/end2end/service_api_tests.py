@@ -115,7 +115,7 @@ class ServiceAPITests(LoggedTestCase):
         monitor.continue_monitor = False
         self.stop_tornado()
         self.thread.join()
-        time.sleep(10)
+        time.sleep(1)
 
     def setUp(self):
         self.service_url = "http://localhost:8080/service/"

@@ -21,6 +21,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+local_settings.py
 
 # Installer logs
 pip-log.txt
@@ -52,3 +53,8 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+#Bower
+bower_components
+
+#Ide
+.idea
