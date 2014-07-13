@@ -29,9 +29,10 @@
   padding: 0;
 }
 
-
 .product {
-   width: 100%;
-   max-width: 200px;
-   display: inline-block;
+    width: 100%;
+    max-width: 200px;
+    height: 250px;
+    display: inline-block;
+    border: 1px solid #EFEFEF;
 }

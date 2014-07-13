@@ -1,19 +1,6 @@
-<div ng-show="hasError" class="bg-warning">
-    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
-    <div><label>Error code:</label><span ng-bind="status" /></div>
-    <div ng-bind="status_data"></div>
+<div>
+    <error ng-include=" 'widget_error_banner.html' " />
 </div>
-
 <h3>{{listConfiguration.title}}</h3>
-<table class="table">
-    <thead>
-    <tr>
-        <th ng-repeat="column in listConfiguration.columns">{{column.title}}</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr ng-repeat="item in data">
-        <td ng-repeat="column in listConfiguration.columns">{{item[column.name]}}</td>
-    </tr>
-    </tbody>
-</table>
+<div class="left-col"></div>
+<div class="right-col" ng-include=" 'widget_product_list.html' " ></div>

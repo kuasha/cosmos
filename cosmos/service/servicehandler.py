@@ -72,7 +72,7 @@ class ServiceHandler(requesthandler.RequestHandler):
                 qry_result=cursor.next_object()
                 result_list.append(qry_result)
             result = result_list
-            data = MongoObjectJSONEncoder().encode(result_list)
+            data = {"_d": MongoObjectJSONEncoder().encode(result_list), "_cosmos_service_array_result_": True};
 
         post_processor_list = get_operation_postprocessor(object_name, AccessType.READ)
         for post_processor in post_processor_list:

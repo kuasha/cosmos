@@ -487,7 +487,8 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('ListDetailCtrl', ['$scope','$routeParams', '$modal', 'CosmosService', function($scope, $routeParams, $modal, CosmosService) {
+    .controller('ListDetailCtrl', ['$scope','$routeParams', '$templateCache', '$modal', 'CosmosService',
+        function($scope, $routeParams, $templateCache, $modal, CosmosService) {
 
         $scope.clearError = function(){
             $scope.hasError = false;
