@@ -5,15 +5,6 @@
  License :: OSI Approved :: MIT License
 """
 
-"""
-1. Test login service
-2. Test create user object and get it back to make sure user password is being hashed
-3. Login with an user with no role assigned and make sure we get 401 for any api call
-3. Assign a owner_access role and make sure user can call API for assigned object
-    but not other objects created by other user
-4. Field level test and sub field level test
-"""
-
 import time
 import random
 import json
