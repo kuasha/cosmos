@@ -4,11 +4,13 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
+import hashlib
 
 import time
 import random
 import json
 from threading import Thread
+from unittest import skip
 
 import tornado
 import requests
@@ -110,6 +112,7 @@ class ServiceAPITests(LoggedTestCase):
 
     def setUp(self):
         self.service_url = "http://localhost:8080/service/"
+        self.gridfs_url = "http://localhost:8080/gridfs/"
         self.admin_username = "admin"
         self.admin_password = "admin"
         self.admin_email = "admin@cosmosframework.com"
@@ -117,6 +120,7 @@ class ServiceAPITests(LoggedTestCase):
         self.standard_user_password = "test123"
         self.test_object_name = "testservice"
         self.test_owned_object_name = "testownobject"
+        self.test_file_collection_name = "userdata.files"
 
     def login(self, username, password):
         params = {'username': username, "password": password}
@@ -266,7 +270,6 @@ class ServiceAPITests(LoggedTestCase):
         response = requests.get(url,cookies=cookies)
         self.failUnless(response.status_code == 404)
 
-
     def _delete_role(self, cookies, role_json):
         _id =role_json["_id"]
         url = self.service_url+"cosmos.rbac.object.role/" + _id + "/"
@@ -276,7 +279,6 @@ class ServiceAPITests(LoggedTestCase):
 
         response = requests.get(url,cookies=cookies)
         self.failUnless(response.status_code == 404)
-
 
     def test_can_create_new_user(self):
         cookies = self.admin_login()
@@ -526,6 +528,71 @@ class ServiceAPITests(LoggedTestCase):
                 self.failUnless(key in expected_columns)
 
         self._delete_user(cookies, user_json)
+
+    def _get_file_delete_role(self):
+        return {'name': "testrole", "type": "object.Role", "role_items": [
+            {
+                "access": [
+                    "INSERT",
+                    "READ",
+                    "WRITE",
+                    "DELETE"
+                ],
+                "object_name": self.test_file_collection_name,
+                "property_name": "*",
+                "type": "object.RoleItem"
+            }
+        ]}
+
+
+    def test_gridfs_upload_download_delete(self):
+        cookies = self.admin_login()
+
+        role_del = self._get_file_delete_role();
+        role_json = self._create_new_given_role(cookies, role_del)
+
+        role = role_json.get("sid")
+        user_json = self._create_user_with_given_roles(cookies, [role])
+
+        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
+
+        url = self.gridfs_url+self.test_file_collection_name+"/"
+
+        file_content = "<html><body>Hello world</body></html>"
+        content_type = "text/html"
+        files = {'uploadedfile': ('coolfile.html', file_content, content_type, {'Expires': '0'})}
+
+        response = requests.post(url, files=files, cookies=user_cookies)
+        self.failUnless(response.status_code == 200)
+
+        self.logger.info(response.text)
+        result = json.loads(response.text)
+
+        self.failUnlessEquals(result.get("file_size"), len(file_content), "file content length must match uploaded content")
+
+        md5_dig = hashlib.md5(file_content).hexdigest()
+
+        self.failUnlessEquals(result.get("md5"), md5_dig, "file md5 length must match uploaded content md5")
+        file_id = result.get("file_id")
+        self.failIfEqual(file_id, None)
+
+        down_url = url + file_id + '/'
+        download_response = requests.get(down_url, cookies=user_cookies)
+
+        self.failUnless(download_response.status_code == 200)
+        self.failUnlessEquals(download_response.text, file_content, "file content of downloaded file must match uploaded file content")
+        self.failUnlessEquals(download_response.headers.get("Content-Type"), content_type, "content of uploaded and downloaded files must match")
+
+        delete_response = requests.delete(down_url, cookies=user_cookies)
+
+        self.failUnless(delete_response.status_code == 200)
+
+        download_response = requests.get(down_url, cookies=user_cookies)
+        self.failUnlessEquals(download_response.status_code, 404, "service should return 404 after deletion of the file")
+
+    @skip("Functionality not implemented yet")
+    def test_gridfs_upload_download_delete_by_owner(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

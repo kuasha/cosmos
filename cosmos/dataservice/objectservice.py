@@ -4,10 +4,13 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
+import hashlib
 
 import inspect
 import datetime
 import logging
+import gridfs
+import motor
 import tornado.ioloop
 import tornado.web
 import tornado.options
@@ -136,6 +139,39 @@ class ObjectService():
 
         return result
 
+    def save_file(self, user, db, collection_name, file):
+        logging.debug("ObjectService::save_file::{0}".format(collection_name))
+
+        properties = ['body', 'content_type', 'filename', 'collection_name', 'createtime', 'owner']
+
+        self.check_access(db, user, collection_name, properties, AccessType.INSERT, True)
+
+        self.create_access_log(db, user, collection_name, AccessType.INSERT)
+
+        return save_file_in_gridfs(db, user, collection_name, file, properties)
+
+    def load_file(self, user, db, collection_name, file_id):
+        logging.debug("ObjectService::save_file::{0}".format(collection_name))
+
+        properties = ['body', 'content_type']
+
+        #TODO: Allow owner_access delete
+        self.check_access(db, user, collection_name, properties, AccessType.READ, False)
+
+        self.create_access_log(db, user, collection_name, AccessType.READ)
+
+        return read_gridfs_file(db, file_id, properties)
+
+    def delete_file(self, user, db, collection_name, file_id):
+        logging.debug("ObjectService::delete::{0}".format(collection_name))
+        assert len(file_id) > 0
+
+        #TODO: Allow owner_access delete
+        allowed_access_type = self.check_access(db, user, collection_name, [], AccessType.DELETE, False)
+
+        self.create_access_log(db, user, collection_name, AccessType.DELETE)
+
+        return delete_gridfs_file(db, file_id)
 
     def get_properties(self, data, namespace=None):
         properties = data.keys()
@@ -160,6 +196,61 @@ class ObjectService():
         access_log = {"username":username, 'module': module, 'function': function}
         access_log['createtime'] = str(datetime.datetime.now())
         #db.audit.access_log.insert(access_log, callback=None)
+
+@gen.coroutine
+def save_file_in_gridfs(db, user, collection_name, file, properties):
+    fs = motor.MotorGridFS(db)
+    gridin = yield fs.new_file()
+
+    length = len(file.body)
+    md5_dig = hashlib.md5(file.body).hexdigest()
+    result = yield gridin.write(file.body)
+
+    # TODO: we can write another chunk- as many times we want-
+    # When support for streaming file comes in mainstram tornado branch
+    # we should use that
+
+    if 'content_type' in properties:
+        yield gridin.set('content_type', file.get("content_type"))
+
+    yield gridin.set('filename', file.get("filename"))
+    yield gridin.set('collection_name', collection_name)
+
+    current_time = str(datetime.datetime.now())
+    yield gridin.set('createtime', current_time)
+    yield gridin.set('owner',str(user.get("_id")))
+
+    yield gridin.close()
+
+    file_id = gridin._id
+    # TODO: dump the gridin object which contains all the interesting fields including md5
+    raise gen.Return({"md5":md5_dig, "file_id":str(file_id),"file_size": length, 'owner': str(user.get("_id")),
+                      'createtime': current_time })
+
+@gen.coroutine
+def read_gridfs_file(db, id, properties):
+    fs = motor.MotorGridFS(db)
+    try:
+        gridout = yield fs.get(ObjectId(id))
+        content_type = gridout.content_type
+        content = yield gridout.read()
+
+        data = {"body": content }
+
+        if "content_type" in properties:
+            data["content_type"] = content_type
+
+        raise gen.Return(data)
+    except gridfs.NoFile:
+        raise tornado.web.HTTPError(404, "File not found")
+
+
+@gen.coroutine
+def delete_gridfs_file(db, file_id):
+    fs = motor.MotorGridFS(db)
+    result = yield fs.delete(ObjectId(file_id))
+    raise gen.Return(result)
+
 
 
 _preprocessors = {

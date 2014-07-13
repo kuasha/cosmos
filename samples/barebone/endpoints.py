@@ -3,6 +3,7 @@ import tornado
 from cosmos.datamonitor.monitor import ChangeMonitor, ChangeRequestHandler
 from cosmos.service.auth import *
 from cosmos.service.servicehandler import *
+from cosmos.service.gridfsservice import *
 from views import IndexHandler
 import settings
 
@@ -14,6 +15,7 @@ END_POINTS = [
     (r"/login/", LoginHandler),
     (r"/logout/", LogoutHandler),
     (r"/service/(.*)", ServiceHandler),
+    (r"/gridfs/(.*)", GridFSServiceHandler),
     #TODO: authenticaion and authorization required for change monitor and handler.
     (r"/changemonitor", ChangeMonitor),
     (r"/handlechange", ChangeRequestHandler),
