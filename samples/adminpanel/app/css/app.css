@@ -35,4 +35,6 @@
     height: 250px;
     display: inline-block;
     border: 1px solid #EFEFEF;
+    margin: 7px;
+    padding: 7px;
 }

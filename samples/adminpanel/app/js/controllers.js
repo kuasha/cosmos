@@ -50,7 +50,9 @@ angular.module('myApp.controllers', [])
                 if(queryStarted){
                     url = url+"&filter="+$scope.filter;
                 }
-                url = url+"?filter="+$scope.filter;
+                else {
+                    url = url + "?filter=" + $scope.filter;
+                }
             }
 
             CosmosService.get(url, function (returnedData) {
@@ -496,13 +498,13 @@ angular.module('myApp.controllers', [])
             $scope.status_data = "";
         };
 
+        $scope.listId = $routeParams.listId;
+
         $scope.processError = function(data, status){
             $scope.hasError = true;
             $scope.status = status;
             $scope.status_data = JSON.stringify(data);
         };
-
-        $scope.listId = $routeParams.listId;
 
         $scope.getConfiguration = function() {
             var url = '/service/userdata.listconfigurations/' + $scope.listId + '/';

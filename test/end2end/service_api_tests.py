@@ -471,8 +471,70 @@ class ServiceAPITests(LoggedTestCase):
         response = requests.get(url, cookies=cookies)
         self.failUnless(response.status_code == 200)
 
+        result = response.json()
+        users = json.loads(result.get("_d"))
+
         users = response.json()
         self.failUnless(len(users)>0)
+
+    def test_filter(self):
+        cookies = self.admin_login()
+        user_json = self._create_new_user(cookies)
+
+        url = self.service_url +'cosmos.users/?filter={"username":"'+ user_json.get("username")+'"}'
+        response = requests.get(url, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+
+        result = response.json()
+        users = json.loads(result.get("_d"))
+        self.failUnless(len(users)==1)
+
+        self._delete_user(cookies, user_json)
+
+    def test_columns(self):
+        cookies = self.admin_login()
+        user_json = self._create_new_user(cookies)
+
+        url = self.service_url +'cosmos.users/?columns=username, password'
+        response = requests.get(url, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+
+        result = response.json()
+        users = json.loads(result.get("_d"))
+        self.failUnless(len(users)>0)
+        expected_columns = ["_id", "username", "password"]
+        for user in users:
+            if user_json.get("_id") == user.get("_id"):
+                self.failUnlessEquals(user_json.get("username"), user.get("username"))
+                self.failUnlessEquals(user_json.get("password"), user.get("password"))
+
+            for key in user.keys():
+                self.failUnless(key in expected_columns)
+
+        self._delete_user(cookies, user_json)
+
+    def test_columns_and_filters_together(self):
+        cookies = self.admin_login()
+        user_json = self._create_new_user(cookies)
+
+        url = self.service_url +'cosmos.users/?columns=username,password&filter={"username":"'+ user_json.get("username")+'"}'
+        response = requests.get(url, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+
+        result = response.json()
+        users = json.loads(result.get("_d"))
+        self.failUnless(len(users)==1)
+        expected_columns = ["_id", "username", "password"]
+
+        for user in users:
+            self.failUnlessEquals(user_json.get("_id"), user.get("_id"), "should return user with same id as created")
+            self.failUnlessEquals(user_json.get("username"), user.get("username"), "username should match for filtered user")
+            self.failUnlessEquals(user_json.get("password"), user.get("password"), "password should match for filtered user")
+
+            for key in user.keys():
+                self.failUnless(key in expected_columns)
+
+        self._delete_user(cookies, user_json)
 
 if __name__ == "__main__":
     unittest.main()
