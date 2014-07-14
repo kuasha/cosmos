@@ -28,3 +28,13 @@
   content: "";
   padding: 0;
 }
+
+.product {
+    width: 100%;
+    max-width: 200px;
+    height: 250px;
+    display: inline-block;
+    border: 1px solid #EFEFEF;
+    margin: 7px;
+    padding: 7px;
+}

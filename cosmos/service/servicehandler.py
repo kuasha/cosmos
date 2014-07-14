@@ -72,7 +72,7 @@ class ServiceHandler(requesthandler.RequestHandler):
                 qry_result=cursor.next_object()
                 result_list.append(qry_result)
             result = result_list
-            data = MongoObjectJSONEncoder().encode(result_list)
+            data = {"_d": MongoObjectJSONEncoder().encode(result_list), "_cosmos_service_array_result_": True};
 
         post_processor_list = get_operation_postprocessor(object_name, AccessType.READ)
         for post_processor in post_processor_list:
@@ -86,6 +86,7 @@ class ServiceHandler(requesthandler.RequestHandler):
     @gen.coroutine
     def post(self, object_path):
         params = object_path.split('/')
+        params = filter(len, params)
         object_name = params[0]
         try:
             data = json.loads(self.request.body)
@@ -115,6 +116,7 @@ class ServiceHandler(requesthandler.RequestHandler):
     @tornado.web.asynchronous
     def put(self, object_path):
         params = object_path.split('/')
+        params = filter(len, params)
         object_name = params[0]
         id = params[1]
         try:
@@ -147,6 +149,7 @@ class ServiceHandler(requesthandler.RequestHandler):
     @gen.coroutine
     def delete(self, object_path):
         params = object_path.split('/')
+        params = filter(len, params)
         object_name = params[0]
         id = params[1]
 

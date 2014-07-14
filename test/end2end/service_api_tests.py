@@ -4,20 +4,13 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
-
-"""
-1. Test login service
-2. Test create user object and get it back to make sure user password is being hashed
-3. Login with an user with no role assigned and make sure we get 401 for any api call
-3. Assign a owner_access role and make sure user can call API for assigned object
-    but not other objects created by other user
-4. Field level test and sub field level test
-"""
+import hashlib
 
 import time
 import random
 import json
 from threading import Thread
+from unittest import skip
 
 import tornado
 import requests
@@ -26,65 +19,6 @@ import cosmos.datamonitor.monitor as monitor
 import samples.barebone.cosmosmain as cosmosmain
 from test import *
 from cosmos.rbac.object import ADMIN_USER_ROLE_SID
-
-
-"""
-class MyTestCase(AsyncLoggedTestCase):
-
-
-    def service_thread(self, options):
-
-        if options.start_web_service:
-            cosmosmain.start_service(options)
-
-        self.logger.info("Starting torando ioloop")
-        tornado.ioloop.IOLoop.instance().start()
-        self.logger.info("Tornado ioloop stopped")
-
-
-    def start_tornado(self):
-        self.thread = Thread(target=self.service_thread, args=(self.options,))
-        self.thread.start()
-        import time
-        time.sleep(5)
-
-    def stop_tornado(self):
-        ioloop = tornado.ioloop.IOLoop.instance()
-        ioloop.add_callback(lambda x: x.stop(), ioloop)
-        self.logger.info("Stopping tornado ioloop")
-
-    def init(self):
-        self.options = cosmosmain.get_options(8080)
-        self.options.db_name = "cosmos_test"
-        self.admin_username = "admin2"
-        self.admin_password = "admin"
-        self.admin_email = "admin@cosmosframework.com"
-        self.admin_roles = [ADMIN_USER_ROLE_SID]
-
-
-    @tornado.testing.gen_test
-    def test_create_admin(self):
-        self.init()
-        command_handler = CommandHandler(db=self.options.db)
-        result = yield command_handler.create_user(self.admin_username, self.admin_password, self.admin_email, self.admin_roles)
-
-
-    def test_login(self):
-        self.init()
-        self.start_tornado()
-
-        params = {'username': self.admin_username, 'password': self.admin_password}
-        response = requests.post("http://localhost:8080/login/", data=params,  allow_redirects=False)
-        self.failUnless(302==response.status_code)
-        #redirect_to = response.getheader("Location")
-        #self.failUnless("/" == redirect_to)
-        cookies = response.cookies
-        url = "http://localhost:8080/service/cosmos.users/"
-        response2 = requests.get(url, cookies=cookies)
-        print response2.json()
-
-        self.stop_tornado()
-"""
 
 class ServiceAPITests(LoggedTestCase):
     @classmethod
@@ -115,10 +49,11 @@ class ServiceAPITests(LoggedTestCase):
         monitor.continue_monitor = False
         self.stop_tornado()
         self.thread.join()
-        time.sleep(10)
+        time.sleep(1)
 
     def setUp(self):
         self.service_url = "http://localhost:8080/service/"
+        self.gridfs_url = "http://localhost:8080/gridfs/"
         self.admin_username = "admin"
         self.admin_password = "admin"
         self.admin_email = "admin@cosmosframework.com"
@@ -126,6 +61,7 @@ class ServiceAPITests(LoggedTestCase):
         self.standard_user_password = "test123"
         self.test_object_name = "testservice"
         self.test_owned_object_name = "testownobject"
+        self.test_file_collection_name = "userdata.files"
 
     def login(self, username, password):
         params = {'username': username, "password": password}
@@ -275,7 +211,6 @@ class ServiceAPITests(LoggedTestCase):
         response = requests.get(url,cookies=cookies)
         self.failUnless(response.status_code == 404)
 
-
     def _delete_role(self, cookies, role_json):
         _id =role_json["_id"]
         url = self.service_url+"cosmos.rbac.object.role/" + _id + "/"
@@ -285,7 +220,6 @@ class ServiceAPITests(LoggedTestCase):
 
         response = requests.get(url,cookies=cookies)
         self.failUnless(response.status_code == 404)
-
 
     def test_can_create_new_user(self):
         cookies = self.admin_login()
@@ -471,8 +405,146 @@ class ServiceAPITests(LoggedTestCase):
         response = requests.get(url, cookies=cookies)
         self.failUnless(response.status_code == 200)
 
+        result = response.json()
+        users = json.loads(result.get("_d"))
+
         users = response.json()
         self.failUnless(len(users)>0)
+
+    def test_filter(self):
+        cookies = self.admin_login()
+        user_json = self._create_new_user(cookies)
+
+        url = self.service_url +'cosmos.users/?filter={"username":"'+ user_json.get("username")+'"}'
+        response = requests.get(url, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+
+        result = response.json()
+        users = json.loads(result.get("_d"))
+        self.failUnless(len(users)==1)
+
+        self._delete_user(cookies, user_json)
+
+    def test_columns(self):
+        cookies = self.admin_login()
+        user_json = self._create_new_user(cookies)
+
+        url = self.service_url +'cosmos.users/?columns=username, password'
+        response = requests.get(url, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+
+        result = response.json()
+        users = json.loads(result.get("_d"))
+        self.failUnless(len(users)>0)
+        expected_columns = ["_id", "username", "password"]
+        for user in users:
+            if user_json.get("_id") == user.get("_id"):
+                self.failUnlessEquals(user_json.get("username"), user.get("username"))
+                self.failUnlessEquals(user_json.get("password"), user.get("password"))
+
+            for key in user.keys():
+                self.failUnless(key in expected_columns)
+
+        self._delete_user(cookies, user_json)
+
+    def test_columns_and_filters_together(self):
+        cookies = self.admin_login()
+        user_json = self._create_new_user(cookies)
+
+        url = self.service_url + 'cosmos.users/?columns=username,password&filter={"username":"' + user_json.get("username")+'"}'
+        response = requests.get(url, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+
+        result = response.json()
+        users = json.loads(result.get("_d"))
+        self.failUnless(len(users)==1)
+        expected_columns = ["_id", "username", "password"]
+
+        for user in users:
+            self.failUnlessEquals(user_json.get("_id"), user.get("_id"),
+                                  "should return user with same id as created")
+            self.failUnlessEquals(user_json.get("username"), user.get("username"),
+                                  "username should match for filtered user")
+            self.failUnlessEquals(user_json.get("password"), user.get("password"),
+                                  "password should match for filtered user")
+
+            for key in user.keys():
+                self.failUnless(key in expected_columns)
+
+        self._delete_user(cookies, user_json)
+
+    def _get_file_delete_role(self):
+        return {'name': "tesdeletetrole", "type": "object.Role", "role_items": [
+            {
+                "access": [
+                    "INSERT",
+                    "READ",
+                    "WRITE",
+                    "DELETE"
+                ],
+                "object_name": self.test_file_collection_name,
+                "property_name": "*",
+                "type": "object.RoleItem"
+            }
+        ]}
+
+
+    def test_gridfs_upload_download_delete(self):
+        cookies = self.admin_login()
+
+        role_del = self._get_file_delete_role();
+        role_json = self._create_new_given_role(cookies, role_del)
+
+        role = role_json.get("sid")
+        user_json = self._create_user_with_given_roles(cookies, [role])
+
+        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
+
+        url = self.gridfs_url+self.test_file_collection_name+"/"
+
+        file_content = "<html><body>Hello world</body></html>"
+        content_type = "text/html"
+        files = {'uploadedfile': ('coolfile.html', file_content, content_type, {'Expires': '0'})}
+
+        response = requests.post(url, files=files, cookies=user_cookies)
+        self.failUnless(response.status_code == 200)
+
+        self.logger.info(response.text)
+        result = json.loads(response.text)
+
+        self.failUnlessEquals(result.get("file_size"), len(file_content),
+                              "file content length must match uploaded content")
+
+        md5_dig = hashlib.md5(file_content).hexdigest()
+
+        self.failUnlessEquals(result.get("md5"), md5_dig, "file md5 length must match uploaded content md5")
+        file_id = result.get("file_id")
+        self.failIfEqual(file_id, None)
+
+        down_url = url + file_id + '/'
+        download_response = requests.get(down_url, cookies=user_cookies)
+
+        self.failUnless(download_response.status_code == 200)
+        self.failUnlessEquals(download_response.text, file_content,
+                              "file content of downloaded file must match uploaded file content")
+        self.failUnlessEquals(download_response.headers.get("Content-Type"), content_type,
+                              "content of uploaded and downloaded files must match")
+
+        delete_response = requests.delete(down_url, cookies=user_cookies)
+
+        self.failUnless(delete_response.status_code == 200)
+
+        download_response = requests.get(down_url, cookies=user_cookies)
+        self.failUnlessEquals(download_response.status_code, 404,
+                              "service should return 404 after deletion of the file")
+
+        self._delete_user(cookies, user_json)
+        self._delete_role(cookies, role_json)
+
+
+    @skip("Functionality not implemented yet")
+    def test_gridfs_upload_download_delete_by_owner(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
