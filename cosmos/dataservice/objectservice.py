@@ -160,7 +160,7 @@ class ObjectService():
 
         self.create_access_log(db, user, collection_name, AccessType.READ)
 
-        return read_gridfs_file(db, file_id, properties)
+        return read_gridfs_file(db, collection_name, file_id, properties)
 
     def delete_file(self, user, db, collection_name, file_id):
         logging.debug("ObjectService::delete::{0}".format(collection_name))
@@ -228,11 +228,18 @@ def save_file_in_gridfs(db, user, collection_name, file, properties):
                       'createtime': current_time })
 
 @gen.coroutine
-def read_gridfs_file(db, id, properties):
+def read_gridfs_file(db, collection_name, id, properties):
     fs = motor.MotorGridFS(db)
     try:
         gridout = yield fs.get(ObjectId(id))
         content_type = gridout.content_type
+
+        got_col_name = gridout.collection_name
+
+        if got_col_name != collection_name:
+            raise tornado.web.HTTPError(404, "File not found")
+
+
         content = yield gridout.read()
 
         data = {"body": content }
