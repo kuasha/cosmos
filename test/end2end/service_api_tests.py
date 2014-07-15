@@ -488,7 +488,6 @@ class ServiceAPITests(LoggedTestCase):
             }
         ]}
 
-
     def test_gridfs_upload_download_delete(self):
         cookies = self.admin_login()
 
@@ -556,7 +555,6 @@ class ServiceAPITests(LoggedTestCase):
             }
         ]}
 
-
     @skip("TestFirst: Functionality not implemented yet")
     def test_gridfs_delete_fails_by_non_owner(self):
         cookies = self.admin_login()
@@ -598,8 +596,6 @@ class ServiceAPITests(LoggedTestCase):
 
         delete_response = requests.delete(delete_url, cookies=user_cookies_non_owner)
         self.failUnless(delete_response.status_code == 401)
-
-
 
 if __name__ == "__main__":
     unittest.main()
