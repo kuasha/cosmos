@@ -487,6 +487,21 @@ class ServiceAPITests(LoggedTestCase):
                 "type": "object.RoleItem"
             }
         ]}
+    
+    def _get_file_owner_access_role(self):
+        return {'name': "tesdeletetrole_owner", "type": "object.Role", "role_items": [
+            {
+                "owner_access": [
+                    "INSERT",
+                    "READ",
+                    "WRITE",
+                    "DELETE"
+                ],
+                "object_name": self.test_file_collection_name,
+                "property_name": "*",
+                "type": "object.RoleItem"
+            }
+        ]}
 
 
     def test_gridfs_upload_download_delete(self):
@@ -542,9 +557,47 @@ class ServiceAPITests(LoggedTestCase):
         self._delete_role(cookies, role_json)
 
 
-    @skip("Functionality not implemented yet")
-    def test_gridfs_upload_download_delete_by_owner(self):
-        pass
+    @skip("TestFirst: Functionality not implemented yet")
+    def test_gridfs_delete_fails_by_non_owner(self):
+        cookies = self.admin_login()
+
+        role_del = self._get_file_access_role();
+        role_json = self._create_new_given_role(cookies, role_del)
+        role = role_json.get("sid")
+        user_json = self._create_user_with_given_roles(cookies, [role])
+        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
+
+        role_del_owner = self._get_file_owner_access_role();
+        role_json_owner = self._create_new_given_role(cookies, role_del_owner)
+        role_owner = role_json.get("sid")
+        user_json_owner = self._create_user_with_given_roles(cookies, [role_owner])
+        user_cookies_non_owner = self.login(user_json_owner.get("username"), self.standard_user_password)
+
+        url = self.gridfs_url+self.test_file_collection_name+"/"
+
+        file_content = "<html><body>Hello world</body></html>"
+        content_type = "text/html"
+        files = {'uploadedfile': ('coolfile.html', file_content, content_type, {'Expires': '0'})}
+
+        response = requests.post(url, files=files, cookies=user_cookies)
+        self.failUnless(response.status_code == 200)
+
+        self.logger.info(response.text)
+        result = json.loads(response.text)
+
+        self.failUnlessEquals(result.get("file_size"), len(file_content),
+                              "file content length must match uploaded content")
+
+        md5_dig = hashlib.md5(file_content).hexdigest()
+
+        self.failUnlessEquals(result.get("md5"), md5_dig, "file md5 length must match uploaded content md5")
+        file_id = result.get("file_id")
+        self.failIfEqual(file_id, None)
+
+        delete_url = url + file_id + '/'
+
+        delete_response = requests.delete(delete_url, cookies=user_cookies_non_owner)
+        self.failUnless(delete_response.status_code == 401)
 
 if __name__ == "__main__":
     unittest.main()
