@@ -473,7 +473,7 @@ class ServiceAPITests(LoggedTestCase):
 
         self._delete_user(cookies, user_json)
 
-    def _get_file_delete_role(self):
+    def _get_file_access_role(self):
         return {'name': "tesdeletetrole", "type": "object.Role", "role_items": [
             {
                 "access": [
@@ -487,27 +487,11 @@ class ServiceAPITests(LoggedTestCase):
                 "type": "object.RoleItem"
             }
         ]}
-    
-    def _get_file_owner_access_role(self):
-        return {'name': "tesdeletetrole_owner", "type": "object.Role", "role_items": [
-            {
-                "owner_access": [
-                    "INSERT",
-                    "READ",
-                    "WRITE",
-                    "DELETE"
-                ],
-                "object_name": self.test_file_collection_name,
-                "property_name": "*",
-                "type": "object.RoleItem"
-            }
-        ]}
-
 
     def test_gridfs_upload_download_delete(self):
         cookies = self.admin_login()
 
-        role_del = self._get_file_delete_role();
+        role_del = self._get_file_access_role();
         role_json = self._create_new_given_role(cookies, role_del)
 
         role = role_json.get("sid")
@@ -556,6 +540,20 @@ class ServiceAPITests(LoggedTestCase):
         self._delete_user(cookies, user_json)
         self._delete_role(cookies, role_json)
 
+    def _get_file_owner_access_role(self):
+        return {'name': "tesdeletetrole", "type": "object.Role", "role_items": [
+            {
+                "owner_access": [
+                    "INSERT",
+                    "READ",
+                    "WRITE",
+                    "DELETE"
+                ],
+                "object_name": self.test_file_collection_name,
+                "property_name": "*",
+                "type": "object.RoleItem"
+            }
+        ]}
 
     @skip("TestFirst: Functionality not implemented yet")
     def test_gridfs_delete_fails_by_non_owner(self):
