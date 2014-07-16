@@ -103,7 +103,6 @@ class ObjectService():
         result = db[object_name].find_one(query, columns_dict)
         return result
 
-
     def update(self, user, db, object_name, id, data):
         logging.debug("ObjectService::update::{0}".format(object_name))
         assert len(id) > 0
@@ -151,25 +150,29 @@ class ObjectService():
         return save_file_in_gridfs(db, user, collection_name, file, properties)
 
     def load_file(self, user, db, collection_name, file_id):
-        logging.debug("ObjectService::save_file::{0}".format(collection_name))
+        logging.debug("ObjectService::load_file::{0}".format(collection_name))
 
         properties = ['body', 'content_type']
 
-        #TODO: Allow owner_access delete
-        self.check_access(db, user, collection_name, properties, AccessType.READ, False)
+        allowed_access_type = self.check_access(db, user, collection_name, properties, AccessType.READ, True)
+
+        if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
+            return read_gridfs_owned_file(user, db, collection_name, file_id, properties)
 
         self.create_access_log(db, user, collection_name, AccessType.READ)
 
         return read_gridfs_file(db, collection_name, file_id, properties)
 
     def delete_file(self, user, db, collection_name, file_id):
-        logging.debug("ObjectService::delete::{0}".format(collection_name))
+        logging.debug("ObjectService::delete_file::{0}".format(collection_name))
         assert len(file_id) > 0
 
-        #TODO: Allow owner_access delete
-        allowed_access_type = self.check_access(db, user, collection_name, [], AccessType.DELETE, False)
+        allowed_access_type = self.check_access(db, user, collection_name, [], AccessType.DELETE, True)
 
         self.create_access_log(db, user, collection_name, AccessType.DELETE)
+
+        if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
+            return delete_gridfs_owned_file(user, db, file_id)
 
         return delete_gridfs_file(db, file_id)
 
@@ -228,10 +231,51 @@ def save_file_in_gridfs(db, user, collection_name, file, properties):
                       'createtime': current_time })
 
 @gen.coroutine
-def read_gridfs_file(db, collection_name, id, properties):
+def read_gridfs_owned_file(user, db, collection_name, file_id, properties):
+    owner_id = user.get("_id")
+
+    if len(owner_id) < 1:
+        raise tornado.web.HTTPError(401, "Unauthorized")
+
     fs = motor.MotorGridFS(db)
     try:
-        gridout = yield fs.get(ObjectId(id))
+        gridout = yield fs.get(ObjectId(file_id))
+
+        if not gridout:
+            raise tornado.web.HTTPError(404, "File not found")
+
+        owner = gridout.owner
+
+        if owner != owner_id:
+            raise tornado.web.HTTPError(401, "Unauthorized")
+
+        content_type = gridout.content_type
+        got_col_name = gridout.collection_name
+
+        if got_col_name != collection_name:
+            raise tornado.web.HTTPError(404, "File not found")
+
+
+        content = yield gridout.read()
+
+        data = {"body": content }
+
+        if "content_type" in properties:
+            data["content_type"] = content_type
+
+        raise gen.Return(data)
+    except gridfs.NoFile:
+        raise tornado.web.HTTPError(404, "File not found")
+
+@gen.coroutine
+def read_gridfs_file(db, collection_name, file_id, properties):
+    fs = motor.MotorGridFS(db)
+    try:
+        gridout = yield fs.get(ObjectId(file_id))
+
+        if not gridout:
+            raise tornado.web.HTTPError(404, "File not found")
+
         content_type = gridout.content_type
 
         got_col_name = gridout.collection_name
@@ -251,20 +295,39 @@ def read_gridfs_file(db, collection_name, id, properties):
     except gridfs.NoFile:
         raise tornado.web.HTTPError(404, "File not found")
 
-
 @gen.coroutine
 def delete_gridfs_file(db, file_id):
     fs = motor.MotorGridFS(db)
     result = yield fs.delete(ObjectId(file_id))
     raise gen.Return(result)
 
+@gen.coroutine
+def delete_gridfs_owned_file(user, db, file_id):
+
+    owner_id = user.get("_id")
+
+    if len(owner_id) < 1:
+        raise tornado.web.HTTPError(401, "Unauthorized")
+
+    fs = motor.MotorGridFS(db)
+
+    gridout = yield fs.get(ObjectId(file_id))
+    if not gridout:
+        raise tornado.web.HTTPError(404, "File not found")
+
+    owner = gridout.owner
+    gridout.close()
+
+    if owner == owner_id:
+        result = yield fs.delete(ObjectId(file_id))
+        raise gen.Return(result)
+    else:
+        raise tornado.web.HTTPError(401, "Unauthorized")
 
 
 _preprocessors = {
 }
-
 _postprocessors = {
-
 }
 
 def add_operation_preprocessor(preprocessor, object_name, access_types):
