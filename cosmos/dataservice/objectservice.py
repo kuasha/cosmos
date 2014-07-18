@@ -82,7 +82,6 @@ class ObjectService():
 
         return result
 
-
     def load(self, user, db, object_name, id, columns):
         logging.debug("ObjectService::load::{0}".format(object_name))
 
@@ -103,6 +102,8 @@ class ObjectService():
         result = db[object_name].find_one(query, columns_dict)
         return result
 
+    # TODO: SECURITY_ISSUE: escape $ sign in values
+    # http://docs.mongodb.org/manual/faq/developers/#dollar-sign-operator-escaping
     def update(self, user, db, object_name, id, data):
         logging.debug("ObjectService::update::{0}".format(object_name))
         assert len(id) > 0
@@ -120,7 +121,6 @@ class ObjectService():
 
         result = db[object_name].update(query, {'$set': data})
         return result
-
 
     def delete(self, user, db, object_name, id):
         logging.debug("ObjectService::delete::{0}".format(object_name))
@@ -162,6 +162,32 @@ class ObjectService():
         self.create_access_log(db, user, collection_name, AccessType.READ)
 
         return read_gridfs_file(db, collection_name, file_id, properties)
+
+    @gen.coroutine
+    def list_file(self, user, db, collection_name):
+        logging.debug("ObjectService::save_file::{0}".format(collection_name))
+        properties = ['body', 'content_type', 'filename', 'collection_name', 'createtime', 'owner', 'md5', 'length']
+        self.check_access(db, user, collection_name, properties, AccessType.INSERT, True)
+
+        allowed_access_type = self.check_access(db, user, collection_name, [], AccessType.DELETE, True)
+
+        query = {'collection_name': collection_name}
+        if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
+            query["owner"] = str(user.get("_id"))
+
+        file_list = []
+
+        fs = motor.MotorGridFS(db)
+        cursor = fs.find(query, timeout=False)
+        while (yield cursor.fetch_next):
+            grid_out = cursor.next_object()
+            file_list.append({"file_id": grid_out._id, "filename":grid_out.filename,
+                              'content_type':grid_out.content_type, 'owner':grid_out.owner, 'md5':grid_out.md5,
+                              'createtime':grid_out.createtime, "length": grid_out.length,
+                              "collection_name":collection_name})
+            grid_out.close()
+
+        raise gen.Return(file_list)
 
     def delete_file(self, user, db, collection_name, file_id):
         logging.debug("ObjectService::delete_file::{0}".format(collection_name))
@@ -226,9 +252,12 @@ def save_file_in_gridfs(db, user, collection_name, file, properties):
     yield gridin.close()
 
     file_id = gridin._id
-    # TODO: dump the gridin object which contains all the interesting fields including md5
-    raise gen.Return({"md5":md5_dig, "file_id":str(file_id),"file_size": length, 'owner': str(user.get("_id")),
-                      'createtime': current_time })
+
+    filename = gridin.filename
+    result = {"md5":md5_dig, "file_id":str(file_id),"length": length, 'owner': str(user.get("_id")),
+                        "collection_name":collection_name, "filename": filename,'createtime': current_time }
+
+    raise gen.Return(result)
 
 @gen.coroutine
 def read_gridfs_owned_file(user, db, collection_name, file_id, properties):

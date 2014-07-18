@@ -99,6 +99,26 @@ class ServiceAPITests(LoggedTestCase):
                 "type": "object.RoleItem"
             },
             {
+                "access": [
+                    "INSERT",
+                    "READ",
+                    "WRITE"
+                ],
+                "object_name": self.test_object_name,
+                "property_name": "profile",
+                "type": "object.RoleItem"
+            },
+            {
+                "access": [
+                    "INSERT",
+                    "READ",
+                    "WRITE"
+                ],
+                "object_name": self.test_object_name,
+                "property_name": "profile.photo",
+                "type": "object.RoleItem"
+            },
+            {
                 "owner_access": [
                         "INSERT",
                         "READ",
@@ -292,10 +312,28 @@ class ServiceAPITests(LoggedTestCase):
 
         url = self.service_url+ self.test_object_name
         self.log_request_url(url)
-        data = json.dumps({"name.lastname": "test"})
+        data = json.dumps({"name": {"lastname": "test"}})
         response = requests.post(url, data=data, cookies=user_cookies)
         self.log_status_code(response.status_code)
         self.failUnless(response.status_code == 401)
+
+        self._delete_user(cookies, user_json)
+        self._delete_role(cookies, role_json)
+
+    def test_user_can_access_nested_field_with_nested_permission(self):
+        cookies = self.admin_login()
+        role_json = self._create_new_role(cookies)
+        role = role_json.get("sid")
+        user_json = self._create_user_with_given_roles(cookies, [role])
+
+        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
+
+        url = self.service_url+ self.test_object_name
+        self.log_request_url(url)
+        data = json.dumps({"profile": {"photo": "test.jpg"}})
+        response = requests.post(url, data=data, cookies=user_cookies)
+        self.log_status_code(response.status_code)
+        self.failUnless(response.status_code == 200)
 
         self._delete_user(cookies, user_json)
         self._delete_role(cookies, role_json)
@@ -337,7 +375,7 @@ class ServiceAPITests(LoggedTestCase):
         self._delete_user(cookies, user_json)
         self._delete_role(cookies, role_json)
 
-    def log_response(self, response):
+    def _log_response(self, response):
         self.logger.info("Response status code = {}".format(response.status_code))
         self.logger.info("Response text = {}".format(response.text))
 
@@ -363,7 +401,7 @@ class ServiceAPITests(LoggedTestCase):
         data = json.dumps({"name": "test"})
         response = requests.put(item_url, data=data, cookies=user_cookies)
 
-        self.log_response(response)
+        self._log_response(response)
 
         response_json = json.loads(response.text)
 
@@ -514,9 +552,9 @@ class ServiceAPITests(LoggedTestCase):
         self.failUnless(response.status_code == 200)
 
         self.logger.info(response.text)
-        result = json.loads(response.text)
+        result = json.loads(json.loads(response.text).get("_d"))[0]
 
-        self.failUnlessEquals(result.get("file_size"), len(file_content),
+        self.failUnlessEquals(result.get("length"), len(file_content),
                               "file content length must match uploaded content")
 
         md5_dig = hashlib.md5(file_content).hexdigest()
@@ -580,7 +618,7 @@ class ServiceAPITests(LoggedTestCase):
         # Upload using admin account
         response = requests.post(url, files=files, cookies=cookies)
         self.failUnless(response.status_code == 200)
-        result = json.loads(response.text)
+        result = json.loads(json.loads(response.text).get("_d"))[0]
         file_id = result.get("file_id")
         self.failIfEqual(file_id, None)
 
@@ -621,7 +659,7 @@ class ServiceAPITests(LoggedTestCase):
         # Upload using admin account
         response = requests.post(url, files=files, cookies=cookies)
         self.failUnless(response.status_code == 200)
-        result = json.loads(response.text)
+        result = json.loads(json.loads(response.text).get("_d"))[0]
         file_id = result.get("file_id")
         self.failIfEqual(file_id, None)
 
@@ -659,9 +697,9 @@ class ServiceAPITests(LoggedTestCase):
         self.failUnless(response.status_code == 200)
 
         self.logger.info(response.text)
-        result = json.loads(response.text)
+        result = json.loads(json.loads(response.text).get("_d"))[0]
 
-        self.failUnlessEquals(result.get("file_size"), len(file_content),
+        self.failUnlessEquals(result.get("length"), len(file_content),
                               "file content length must match uploaded content")
 
         md5_dig = hashlib.md5(file_content).hexdigest()
@@ -686,6 +724,35 @@ class ServiceAPITests(LoggedTestCase):
 
         self._delete_user(cookies, user_json_owner)
         self._delete_role(cookies, role_json_owner)
+
+    def test_gridfs_directory_listing(self):
+        cookies = self.admin_login()
+        url = self.gridfs_url+self.test_file_collection_name+"/"
+
+        file_content = "<html><body>Hello world</body></html>"
+        content_type = "text/html"
+        files = {'uploadedfile': ('coolfile.html', file_content, content_type, {'Expires': '0'})}
+
+        response = requests.post(url, files=files, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+        result = json.loads(json.loads(response.text).get("_d"))[0]
+        file_id = result.get("file_id")
+        self.failIfEqual(file_id, None)
+
+        response = requests.get(url, cookies=cookies)
+
+        self.failUnless(response.status_code == 200)
+
+        self.logger.info(response.text)
+        result = json.loads(json.loads(response.text).get("_d"))
+
+        #TODO: Add more validation
+        self.failUnless(len(result)>0)
+
+        delete_url = url + file_id + '/'
+        delete_response = requests.delete(delete_url, cookies=cookies)
+        self.failUnless(delete_response.status_code == 200)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -16,6 +16,7 @@ config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/roles', {templateUrl: 'partials/roles.html', controller: 'RolesCtrl'});
     $routeProvider.when('/list/:listId/', {templateUrl: 'partials/widget-host.html', controller: 'ListDetailCtrl'});
     $routeProvider.when('/list/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
+    $routeProvider.when('/content/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
     $routeProvider.otherwise({redirectTo: '/home'});
 }]);
 

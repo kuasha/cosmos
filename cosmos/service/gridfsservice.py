@@ -58,11 +58,23 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
             if content_type:
                 self.set_header("Content-Type", content_type)
         else:
-            self.write('''
-            <form enctype="multipart/form-data" method="POST">
-                File tu upload: <input name="uploadedfile" type="file" /><br />
-                <input type="submit" value="Upload File" />
-            </form>''')
+            list_allowed = self.settings.get("directory_listing_allowed")
+            if list_allowed:
+                obj_serv = ObjectService()
+                promise = obj_serv.list_file(self.current_user, db, object_full_name)
+                result = yield promise
+                data = {"_d": MongoObjectJSONEncoder().encode(result), "_cosmos_service_array_result_": True};
+
+                self.write(json.dumps(data))
+            else:
+                raise tornado.web.HTTPError(403, "Directory listing forbidden.")
+                """
+                self.write('''
+                <form enctype="multipart/form-data" method="POST">
+                    File tu upload: <input name="uploadedfile" type="file" /><br />
+                    <input type="submit" value="Upload File" />
+                </form>''')
+                """
 
         post_processor_list = get_operation_postprocessor(object_full_name, AccessType.READ)
         for post_processor in post_processor_list:
@@ -78,24 +90,28 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
         object_name = params[0]
 
         object_full_name = object_name
-        file = self.request.files["uploadedfile"][0]
+        files = self.request.files["uploadedfile"]
 
         db = self.settings['db']
-
-        preprocessor_list = get_operation_preprocessor(object_full_name, AccessType.INSERT)
-        for preprocessor in preprocessor_list:
-            yield preprocessor(db, object_full_name, file, AccessType.INSERT)
-
         obj_serv = ObjectService()
-        promise = obj_serv.save_file(self.current_user, db, object_full_name, file)
-        result = yield promise
+        result_list = []
+        for file in files:
+            preprocessor_list = get_operation_preprocessor(object_full_name, AccessType.INSERT)
+            for preprocessor in preprocessor_list:
+                yield preprocessor(db, object_full_name, file, AccessType.INSERT)
 
-        self.write(json.dumps(result))
+            promise = obj_serv.save_file(self.current_user, db, object_full_name, file)
+            result = yield promise
 
-        post_processor_list = get_operation_postprocessor(object_full_name, AccessType.INSERT)
-        for post_processor in post_processor_list:
-            yield  post_processor(db, object_full_name, result, AccessType.INSERT)
+            result_list.append(result)
 
+            post_processor_list = get_operation_postprocessor(object_full_name, AccessType.INSERT)
+            for post_processor in post_processor_list:
+                yield  post_processor(db, object_full_name, result, AccessType.INSERT)
+
+        data = {"_d": MongoObjectJSONEncoder().encode(result_list), "_cosmos_service_array_result_": True};
+
+        self.write(data)
         self.finish()
 
     @tornado.web.asynchronous

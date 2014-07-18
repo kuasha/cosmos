@@ -35,6 +35,8 @@ facebook_client_id='000000000000000'
 facebook_client_secret='00000000000000000000000000000000'
 facebook_scope =  "email,read_stream,offline_access"
 
+directory_listing_allowed = True
+
 CONFIGURE_LOG = False
 START_WEB_SERVER = True
 START_OBJECT_CHANGE_MONITOR = False

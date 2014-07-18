@@ -37,7 +37,8 @@ def start_web_service(options):
                 facebook_api_key=options.facebook_api_key,
                 facebook_secret=options.facebook_secret,
                 facebook_scope=options.facebook_scope,
-                google_oauth=options.google_oauth
+                google_oauth=options.google_oauth,
+                directory_listing_allowed=options.directory_listing_allowed
             )
 
     application = tornado.web.Application(
