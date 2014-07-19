@@ -20,33 +20,33 @@ from cosmos.rbac.object import ADMIN_USER_ROLE_SID
 
 class ServiceAPITests(LoggedTestCase):
     @classmethod
-    def service_thread(self, options):
+    def service_thread(cls, options):
         if options.start_web_service:
             cosmosmain.start_service(options)
 
-        self.logger.info("Starting torando ioloop")
+        cls.logger.info("Starting torando ioloop")
         tornado.ioloop.IOLoop.instance().start()
-        self.logger.info("Tornado ioloop stopped")
+        cls.logger.info("Tornado ioloop stopped")
 
     @classmethod
-    def setUpClass(self):
-        self.options = cosmosmain.get_options(8080)
+    def setUpClass(cls):
+        cls.options = cosmosmain.get_options(8080)
 
-        self.thread = Thread(target=self.service_thread, args=(self.options,))
-        self.thread.start()
+        cls.thread = Thread(target=cls.service_thread, args=(cls.options,))
+        cls.thread.start()
         time.sleep(5)
 
     @classmethod
-    def stop_tornado(self):
+    def stop_tornado(cls):
         ioloop = tornado.ioloop.IOLoop.instance()
         ioloop.add_callback(lambda x: x.stop(), ioloop)
-        self.logger.info("Stopping tornado ioloop")
+        cls.logger.info("Stopping tornado ioloop")
 
     @classmethod
-    def tearDownClass(self):
+    def tearDownClass(cls):
         monitor.continue_monitor = False
-        self.stop_tornado()
-        self.thread.join()
+        cls.stop_tornado()
+        cls.thread.join()
         time.sleep(1)
 
     def setUp(self):
@@ -282,7 +282,6 @@ class ServiceAPITests(LoggedTestCase):
         self.failUnless(response.status_code == 200)
         return user_json
 
-
     def test_user_with_role_has_access(self):
         cookies = self.admin_login()
 
@@ -483,6 +482,10 @@ class ServiceAPITests(LoggedTestCase):
 
         self._delete_user(cookies, user_json)
 
+    @skip("Test not implemented")
+    def test_user_can_not_access_column_without_role(self):
+        pass
+
     def test_columns_and_filters_together(self):
         cookies = self.admin_login()
         user_json = self._create_new_user(cookies)
@@ -606,7 +609,6 @@ class ServiceAPITests(LoggedTestCase):
 
         url = self.gridfs_url+self.test_file_collection_name+"/"
 
-
         file_content = "<html><body>Hello world</body></html>"
         content_type = "text/html"
         files = {'uploadedfile': ('coolfile.html', file_content, content_type, {'Expires': '0'})}
@@ -637,12 +639,6 @@ class ServiceAPITests(LoggedTestCase):
     def test_gridfs_delete_fails_by_non_owner(self):
         cookies = self.admin_login()
 
-        role_del = self._get_file_access_role();
-        role_json = self._create_new_given_role(cookies, role_del)
-        role = role_json.get("sid")
-        user_json = self._create_user_with_given_roles(cookies, [role])
-        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
-
         role_del_owner = self._get_file_owner_access_role();
         role_json_owner = self._create_new_given_role(cookies, role_del_owner)
         role_owner = role_json_owner.get("sid")
@@ -650,7 +646,6 @@ class ServiceAPITests(LoggedTestCase):
         user_cookies_non_owner = self.login(user_json_owner.get("username"), self.standard_user_password)
 
         url = self.gridfs_url+self.test_file_collection_name+"/"
-
 
         file_content = "<html><body>Hello world</body></html>"
         content_type = "text/html"
@@ -673,8 +668,6 @@ class ServiceAPITests(LoggedTestCase):
         delete_response = requests.delete(delete_url, cookies=user_cookies_non_owner)
         self.failUnlessEqual(delete_response.status_code, 401, "Non owner should not be allowed to delete item.")
 
-        self._delete_user(cookies, user_json)
-        self._delete_role(cookies, role_json)
         self._delete_user(cookies, user_json_owner)
         self._delete_role(cookies, role_json_owner)
 
@@ -753,6 +746,9 @@ class ServiceAPITests(LoggedTestCase):
         delete_response = requests.delete(delete_url, cookies=cookies)
         self.failUnless(delete_response.status_code == 200)
 
+    @skip("Feature not implemented")
+    def test_user_can_not_access_dir_listing_without_role(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

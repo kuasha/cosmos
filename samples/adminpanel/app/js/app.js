@@ -12,11 +12,14 @@ var myApp = angular.module('myApp', [
 ]).
 config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/home', {templateUrl: 'partials/home.html', controller: 'HomeCtrl'});
+
     $routeProvider.when('/users', {templateUrl: 'partials/users.html', controller: 'UsersCtrl'});
     $routeProvider.when('/roles', {templateUrl: 'partials/roles.html', controller: 'RolesCtrl'});
     $routeProvider.when('/list/:listId/', {templateUrl: 'partials/widget-host.html', controller: 'ListDetailCtrl'});
     $routeProvider.when('/list/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
     $routeProvider.when('/content/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
+    $routeProvider.when('/form/:formId/', {templateUrl: 'partials/form-widget.html', controller: 'FormController'});
+
     $routeProvider.otherwise({redirectTo: '/home'});
 }]);
 

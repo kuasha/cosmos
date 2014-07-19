@@ -1,0 +1,53 @@
+<style>
+    ul {
+        list-style: none;
+    }
+    .composite {
+        margin-left: 24px;
+    }
+</style>
+
+<script type="text/ng-template"  id="text-field.html">
+    <label>{{field.title}}</label>
+    <input ng-class="field.className" type = "text" name="{{field.model}}" />
+</script>
+
+<script type="text/ng-template"  id="textarea-field.html">
+    <label>{{field.title}}</label>
+    <textarea ng-class="field.className" name="{{field.model}}" />
+</script>
+
+<script type="text/ng-template"  id="checkbox-field.html">
+    <input type="checkbox" ng-class="field.className" name="{{field.model}}" >
+    <label class="control-label">{{field.title}}</label>
+</script>
+
+<script type="text/ng-template"  id="radiogroup-field.html">
+    <label class="control-label">{{field.title}}</label>
+    <div class="composite" ng-repeat="option in field.options">
+        <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="option.value">
+        <label class="control-label">{{option.title}}</label>
+    </div>
+</script>
+
+
+<script type="text/ng-template"  id="composite-fields.html">
+    <div >
+        <div ng-include="field.type+'-field.html'"></div>
+    </div>
+    <div ng-if="field.type === 'composite'">
+        <label class="control-label">{{field.title}}</label>
+        <div class="composite" ng-repeat="field in field.fields" ng-include="'composite-fields.html'"></div>
+    </div>
+</script>
+
+<form role="form" id="{{form.id}}">
+    <div>
+        <label>{{form.title}}</label>
+    </div>
+    <div class="composite">
+        <div ng-repeat="field in form.fields" ng-include="'composite-fields.html'"></div>
+    </div>
+    <button class="btn btn-primary" ng-click="onSubmit()">Submit</button>
+</form>
+

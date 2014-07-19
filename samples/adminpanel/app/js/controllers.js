@@ -569,7 +569,7 @@ angular.module('myApp.controllers', [])
             $('#submit-iframe').remove();
             jQuery("#fileList").empty();
             jQuery("#fileList").append(jQuery('<input class="file-selector" name="uploadedfile" type="file" onchange="angular.element(this).scope().fileNameChanged()" />'));
-        }
+        };
 
         $scope.uploadFile = function () {
             jQuery("#iFramePlaceholder").html("<iframe name='submit-iframe' id='submit-iframe' style='display: none;'></iframe>");
@@ -617,6 +617,135 @@ angular.module('myApp.controllers', [])
 
         $scope.getFiles();
 
-  }])
+    }])
+
+    .controller('FormController', ['$scope','$routeParams', '$templateCache', '$modal', 'CosmosService', function(
+      $scope, $routeParams, $templateCache, $modal, CosmosService) {
+
+        /*
+        $scope.form_sample = {
+            "id":"myform",
+            "title":"Test form",
+            "action":"/service/userdata.person/",
+            "method":"POST",
+            "fields":[
+                {"name": "name", "title":"Name", "type":"composite", "fields":[
+                    {"name":"fname", "title":"First name", "type":"text"},
+                    {"name":"lname", "title":"Last name", "type":"text"}
+                ]
+                },
+                {"name":"email", "title":"Email", "type":"text"},
+                {"name": "address", "title": "Address", "type":"composite", "fields": [
+                    {"name":"street", "title":"Street", "type":"text"},
+                    {"name":"city", "title":"City", "type":"text"},
+                    {"name":"zip", "title":"Zip/Postal Code", "type":"text"}
+                ]},
+                {"name": "notes", "title": "Notes", "type":"textarea"}
+            ]
+        };
+        */
+
+        $scope.form = {};
+
+        $scope.clearError = function(){
+            $scope.hasError = false;
+            $scope.status = "";
+            $scope.status_data = "";
+        };
+
+        $scope.formId = $routeParams.formId;
+
+        $scope.processError = function(data, status){
+            $scope.hasError = true;
+            $scope.status = status;
+            $scope.status_data = JSON.stringify(data);
+        };
+
+        $scope.getConfiguration = function() {
+            var url = '/service/cosmos.forms/' + $scope.formId + '/';
+
+            CosmosService.get(url, function (data) {
+                    $scope.form = data;
+                    $scope.prepareFormMetadata($scope.form.fields, 'data');
+                },
+                function(data, status){
+                    $scope.processError(data, status);
+                }
+            );
+        };
+
+        $scope.data = {};
+        $scope.formElementNames = [];
+
+        $scope.prepareFormMetadata = function(fields, parentModel){
+            angular.forEach(fields, function(field, index){
+               if(field.type == "composite"){
+                   $scope.prepareFormMetadata(field.fields, parentModel+'.'+field.name);
+               }
+               else{
+                   var elName = parentModel + '.' + field.name;
+                   field.model = elName;
+                   $scope.formElementNames.push(elName);
+               }
+            });
+        };
+
+        $scope.populateData = function(fields, data, parentModel, flat_data){
+            angular.forEach(fields, function(field, index){
+               if(field.type == "composite"){
+                   data[field.name] = {};
+                   $scope.populateData(field.fields, data[field.name], parentModel+'.'+field.name, flat_data);
+               }
+               else{
+                   var elName = parentModel + '.' + field.name;
+                   data[field.name] = flat_data[elName];
+               }
+            });
+        };
+
+        $scope.collectValues = function(form_id){
+            var form = document.getElementById (form_id);
+
+            var flat_data = {};
+
+            angular.forEach($scope.formElementNames, function(elName, index){
+                var el = form.elements[elName];
+                var value;
+                if(el.type === "checkbox"){
+                    value = el.checked;
+                }
+                else {
+                    value = el.value;
+                }
+
+                console.log(elName + "="+value);
+                flat_data[elName] = value;
+            });
+
+            return flat_data;
+        };
+
+        $scope.onSubmit = function (){
+            $scope.result = null;
+            var form_id = $scope.form.id;
+
+            var flat_data = $scope.collectValues(form_id);
+
+            $scope.populateData($scope.form.fields, $scope.data, 'data', flat_data);
+            var data = $scope.data;
+
+            CosmosService.post($scope.form.action, data, function (data) {
+                    $scope.result = data;
+                },
+                function(data, status){
+                    $scope.processError(data, status);
+                }
+            );
+
+        };
+
+        $scope.getConfiguration();
+
+    }])
 
 ;
