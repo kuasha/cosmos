@@ -14,7 +14,7 @@
 
 <script type="text/ng-template"  id="textarea-field.html">
     <label>{{field.title}}</label>
-    <textarea ng-class="field.className" name="{{field.model}}" />
+    <textarea ng-class="field.className" name="{{field.model}}"></textarea>
 </script>
 
 <script type="text/ng-template"  id="checkbox-field.html">
@@ -30,6 +30,25 @@
     </div>
 </script>
 
+<script type="text/ng-template"  id="select-field.html">
+    <label class="control-label">{{field.title}}</label>
+    <select ng-class="field.className" name="{{field.model}}">
+        <option ng-if="field.nullable === true" ng-value=""> --- Select ---</option>
+        <option ng-value="option.value" ng-repeat="option in field.options">{{option.title}}</option>
+    </select>
+</script>
+
+<script type="text/ng-template"  id="lookup-field.html">
+    <label class="control-label">{{field.title}}</label>
+    <select ng-class="field.className" ng-model="fieldOptions['lookup.'+field.model]"
+            ng-options="lookup.lookupname for lookup in field.options.lookups"
+            ng-change="updateOptions(field, lookup)">
+    </select>
+
+    <select ng-class="field.className" name="{{field.model}}">
+        <option ng-value="option['_id']" ng-repeat="option in field.optionData">{{option["username"]}}</option>
+    </select>
+</script>
 
 <script type="text/ng-template"  id="composite-fields.html">
     <div >

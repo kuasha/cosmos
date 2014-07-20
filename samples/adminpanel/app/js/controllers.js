@@ -622,28 +622,103 @@ angular.module('myApp.controllers', [])
     .controller('FormController', ['$scope','$routeParams', '$templateCache', '$modal', 'CosmosService', function(
       $scope, $routeParams, $templateCache, $modal, CosmosService) {
 
-        /*
         $scope.form_sample = {
-            "id":"myform",
-            "title":"Test form",
-            "action":"/service/userdata.person/",
-            "method":"POST",
-            "fields":[
-                {"name": "name", "title":"Name", "type":"composite", "fields":[
-                    {"name":"fname", "title":"First name", "type":"text"},
-                    {"name":"lname", "title":"Last name", "type":"text"}
-                ]
+            "title": "Test form",
+            "fields": [
+                {
+                    "fields": [
+                        {
+                            "type": "text",
+                            "name": "fname",
+                            "title": "First name"
+                        },
+                        {
+                            "type": "text",
+                            "name": "lname",
+                            "title": "Last name"
+                        }
+                    ],
+                    "type": "composite",
+                    "name": "name",
+                    "title": "Name"
                 },
-                {"name":"email", "title":"Email", "type":"text"},
-                {"name": "address", "title": "Address", "type":"composite", "fields": [
-                    {"name":"street", "title":"Street", "type":"text"},
-                    {"name":"city", "title":"City", "type":"text"},
-                    {"name":"zip", "title":"Zip/Postal Code", "type":"text"}
-                ]},
-                {"name": "notes", "title": "Notes", "type":"textarea"}
-            ]
+                {
+                    "type": "text",
+                    "name": "email",
+                    "title": "Email"
+                },
+                {
+                    "title": "Gender",
+                    "type": "radiogroup",
+                    "options": [
+                        {
+                            "value": "male",
+                            "title": "Male"
+                        },
+                        {
+                            "value": "female",
+                            "title": "Female"
+                        }
+                    ],
+                    "name": "gender"
+                },
+                {
+                    "title": "Nationality",
+                    "type": "select",
+                    "options": [
+                        {
+                            "value": "BD",
+                            "title": "Bangladesh"
+                        },
+                        {
+                            "value": "US",
+                            "title": "United States"
+                        }
+                    ],
+                    "name": "nationality",
+                    "nullable": true
+                },
+                {
+                    "type": "checkbox",
+                    "name": "subscribe",
+                    "title": "Subscribe to newsletter"
+                },
+                {
+                    "fields": [
+                        {
+                            "type": "text",
+                            "name": "street",
+                            "title": "Street"
+                        },
+                        {
+                            "type": "text",
+                            "name": "city",
+                            "title": "City"
+                        },
+                        {
+                            "type": "text",
+                            "name": "zip",
+                            "title": "Zip/Postal Code"
+                        }
+                    ],
+                    "type": "composite",
+                    "name": "address",
+                    "title": "Address"
+                },
+                {
+                    "type": "textarea",
+                    "name": "notes",
+                    "title": "Notes"
+                }
+            ],
+            "id": "myform",
+            "createtime": "2014-07-19 13:21:06.842626",
+            "owner": "53b8d4408c66ab04ba0aef98",
+            "modifytime": "2014-07-19 13:46:30.429590",
+            "action": "/service/userdata.person/",
+            "_id": "53cad3328c66ab6922b9c47f",
+            "method": "POST"
         };
-        */
 
         $scope.form = {};
 
@@ -676,6 +751,7 @@ angular.module('myApp.controllers', [])
 
         $scope.data = {};
         $scope.formElementNames = [];
+        $scope.fieldOptions = {};
 
         $scope.prepareFormMetadata = function(fields, parentModel){
             angular.forEach(fields, function(field, index){
@@ -701,6 +777,19 @@ angular.module('myApp.controllers', [])
                    data[field.name] = flat_data[elName];
                }
             });
+        };
+
+        $scope.updateOptions = function(field){
+            var lookup = $scope.fieldOptions['lookup.'+field.model]
+            var url = lookup.url;
+
+            CosmosService.get(url, function (data) {
+                    field.optionData = data;
+                },
+                function(data, status){
+                    $scope.processError(data, status);
+                }
+            );
         };
 
         $scope.collectValues = function(form_id){
@@ -741,7 +830,6 @@ angular.module('myApp.controllers', [])
                     $scope.processError(data, status);
                 }
             );
-
         };
 
         $scope.getConfiguration();
