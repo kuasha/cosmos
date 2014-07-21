@@ -12,6 +12,7 @@ END_POINTS = [
     (r"/login/google/", GoogleOAuth2LoginHandler),
     (r"/login/openid/", OpenidLoginHandler),
     (r"/login/facebookgraph/", FacebookGraphLoginHandler),
+    (r"/login/github/", GithubOAuth2LoginHandler),
     (r"/login/", LoginHandler),
     (r"/logout/", LogoutHandler),
     (r"/service/(.*)", ServiceHandler),

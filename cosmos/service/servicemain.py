@@ -38,6 +38,7 @@ def start_web_service(options):
                 facebook_secret=options.facebook_secret,
                 facebook_scope=options.facebook_scope,
                 google_oauth=options.google_oauth,
+                github_oauth=options.github_oauth,
                 directory_listing_allowed=options.directory_listing_allowed
             )
 

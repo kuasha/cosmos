@@ -60,14 +60,18 @@ class CosmosAuthHandler(RequestHandler):
         #TODO: define methods and override in subclasses so we do not require these ifs and in functions below
         if identity_type == IDENTITY_TYPE_FB_GRAPH:
             fb_userid = user_identity["id"]
-            query={"id": fb_userid}
+            query={"id": fb_userid, "identity_type": IDENTITY_TYPE_FB_GRAPH}
             columns = ["identity_type", "id", "user_id"]
         elif identity_type == IDENTITY_TYPE_GOOGLE_OAUTH2:
             id_token = user_identity["id_token"]
             id_values = get_jwt_payload_json(id_token)
             sub = id_values.get("sub")
-            query = {"sub": sub, "identity_type" : IDENTITY_TYPE_GOOGLE_OAUTH2}
+            query = {"sub": sub, "identity_type": IDENTITY_TYPE_GOOGLE_OAUTH2}
             columns = ["identity_type", "sub", "user_id"]
+        elif identity_type == IDENTITY_TYPE_GITHUB_OAUTH2:
+            gh_userid = user_identity["id"]
+            query={"id": gh_userid, "identity_type": IDENTITY_TYPE_GITHUB_OAUTH2}
+            columns = ["identity_type", "id", "user_id"]
         else:
             claimed_id = user_identity.get("claimed_id")
             query = {"claimed_id":claimed_id}
@@ -203,6 +207,66 @@ class GoogleOAuth2LoginHandler(CosmosAuthHandler, tornado.auth.GoogleOAuth2Mixin
                 response_type='code',
                 extra_params={'approval_prompt': 'auto'})
 
+class GithubOAuth2LoginHandler(CosmosAuthHandler, tornado.auth.OAuth2Mixin):
+    _OAUTH_AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
+    _OAUTH_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token"
+    _OAUTH_SETTINGS_KEY = 'github_oauth'
+
+    @gen.coroutine
+    def get_authenticated_user(self, redirect_uri, code, callback=None):
+        body = urllib_parse.urlencode({
+            "redirect_uri": redirect_uri,
+            "code": code,
+            "client_id": self.settings[self._OAUTH_SETTINGS_KEY]['client_id'],
+            "client_secret": self.settings[self._OAUTH_SETTINGS_KEY]['secret'],
+            "grant_type": "authorization_code",
+        })
+        http = tornado.httpclient.AsyncHTTPClient()
+
+        response = yield http.fetch(self._OAUTH_ACCESS_TOKEN_URL,
+                   method="POST", headers={'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}, body=body)
+
+        if response.error:
+            tornado.AuthError('Github auth error: %s' % str(response))
+
+        user_token = escape.json_decode(response.body)
+        url = "https://api.github.com/user?access_token="+user_token.get("access_token")
+        response = yield http.fetch(url,
+                   method="GET", headers={"User-Agent": "Cosmos", 'Accept': 'application/json'})
+
+        result = escape.json_decode(response.body)
+        result.update(user_token)
+
+        raise gen.Return(result)
+
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def get(self):
+
+        #callback_uri = self.request.uri
+        #url = urlparse.urljoin(self.request.full_url(), callback_uri)
+        #urls = url.replace('http','https')
+        urls = self.settings[self._OAUTH_SETTINGS_KEY]['redirect_uri']
+
+        if self.get_argument('code', False):
+            # The url must match what was used during authorize phase.
+            # It can not accept if there is any mismatch including parameters
+            user = yield self.get_authenticated_user(redirect_uri=urls, code=self.get_argument('code'))
+
+            if not user:
+                raise tornado.web.HTTPError(500, "Github auth failed")
+
+            user["identity_type"] = IDENTITY_TYPE_GITHUB_OAUTH2
+            yield self._authenticate_user(user)
+            self.redirect(self.get_argument("next", '/'))
+        else:
+            yield self.authorize_redirect(
+                redirect_uri=urls,
+                client_id=self.settings[self._OAUTH_SETTINGS_KEY]['client_id'],
+                client_secret=self.settings[self._OAUTH_SETTINGS_KEY]['secret'],
+                scope=['user'],
+                response_type='code',
+                extra_params={'approval_prompt': 'auto'})
 
 def add_params(url, params):
     url_parts = list(urlparse.urlparse(url))
