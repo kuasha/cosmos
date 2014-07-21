@@ -5,6 +5,8 @@
 var myApp = angular.module('myApp', [
     'ngRoute',
     'ui.bootstrap',
+    'gen.genericDirectives',
+    'ui.sortable',
     'myApp.filters',
     'myApp.services',
     'myApp.directives',
@@ -19,6 +21,8 @@ config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/list/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
     $routeProvider.when('/content/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
     $routeProvider.when('/form/:formId/', {templateUrl: 'partials/form-widget.html', controller: 'FormController'});
+    $routeProvider.when('/formdesign/', {templateUrl: 'partials/form-design.html', controller: 'SortableController'});
+
 
     $routeProvider.otherwise({redirectTo: '/home'});
 }]);
