@@ -838,93 +838,63 @@ angular.module('myApp.controllers', [])
     }])
 
     .controller('SortableController', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
-    function ($scope, $routeParams, $templateCache, $modal, CosmosService) {
+        function ($scope, $routeParams, $templateCache, $modal, CosmosService) {
 
-        var toolsList = [
-            { title: 'Text', type: 'text'},
-            { title: 'Textarea', type: 'textarea' },
-            { title: 'Select', type: 'select' },
-            { title: 'Checkbox', type: 'checkbox' },
-            { title: 'Options', type: 'radiogroup' },
-            { title: 'Group box', type:'composite', selectedScreens:[] }
-        ];
+            $scope.selectItem = function (item) {
+                $scope.selectedItem = item;
+            };
 
-        $scope.selectedItem = null;
-        $scope.sourceScreens = jQuery.extend(true, [], toolsList);
-        $scope.selectedScreens = [];
+            $scope.toolsList = [
+                {title: 'Text', type: "text"},
+                {title: 'Text Area', type: "textarea"},
+                { title: 'Select', type: 'select', options:[]},
+                { title: 'Checkbox', type: 'checkbox'},
+                { title: 'Options', type: 'radiogroup', options:[]},
+                {title: 'Group', type: "composite", fields: []}
+            ];
 
-        $scope.sortingLog = [];
 
-        $scope.selectItem = function (item) {
-            $scope.selectedItem = item;
-        };
+            $scope.components = jQuery.extend(true, [], $scope.toolsList);
 
-        $scope.getView = function (item) {
-            if (item) {
-                return item.type + '-field.html';
-            }
-        };
+            $scope.form = {
+                title: 'Form',
+                type: "form",
+                fields: []
+            };
 
-        $scope.sortableOptions = {
-            connectWith: ".connected-apps-container",
-            placeholder: "beingDragged",
-            stop: function (e, ui) {
-                // if the element is removed from the first container
-                if ($(e.target).hasClass('first') &&
-                    ui.item.sortable.droptarget &&
-                    e.target != ui.item.sortable.droptarget[0]) {
-                    // clone the original model to restore the removed item
-                    $scope.sourceScreens = jQuery.extend(true, [], toolsList);
-                }
-            }
-            /*
-             ,update: function(event, ui) {
-                 if(ui.item.hasClass("composite")){
-                     //ui.item.sortable.cancel();
-                     /*
-                     var item = angular.element(ui.item).scope().app;
-                     var data = {"title": item.title, "type": item.type};
-                     angular.element(ui.item).scope().app = data;
+            $scope.items = $scope.form.fields;
 
-                     if(!angular.element(ui.item).scope().$parent.selectedScreens) {
-                         angular.element(ui.item).scope().$parent.selectedScreens = [];
-                     }
-                     angular.element(ui.item).scope().$parent.selectedScreens.splice(ui.item.sortable.dropindex, 0, data);
-                     * /
-                 }
-             }
-             */
-        };
-
-        $scope.createForm = function(data, items){
-            var form = [];
-            angular.forEach(items, function(data, index){
-                var field = {"type":data.type};
-                form.splice(index, 0, field);
-                if(field.type === "composite") {
-                    $scope.createForm(field, data.selectedScreens);
-                }
-
-            });
-            data["fields"] = form;
-        };
-
-        $scope.save = function () {
-            var form = {"type":"form"};
-            $scope.createForm(form, $scope.selectedScreens);
-            console.log(form)
-        };
-
-        $scope.logModels = function () {
             $scope.sortingLog = [];
-            var screenCategories = [$scope.sourceScreens, $scope.selectedScreens];
-            for (var i = 0; i < screenCategories.length; i++) {
-                var logEntry = screenCategories[i].map(function (x) {
-                    return x.title;
-                }).join(', ');
-                logEntry = 'container ' + (i + 1) + ': ' + logEntry;
-                $scope.sortingLog.push(logEntry);
-            }
-        };
-    }])
+
+            $scope.sortableOptions = {
+                connectWith: ".apps-container",
+                placeholder: "beingDragged",
+                stop: function (e, ui) {
+                    // if the element is removed from the first container
+                    if ($(e.target).hasClass('first') &&
+                        ui.item.sortable.droptarget &&
+                        e.target != ui.item.sortable.droptarget[0]) {
+                        // clone the original model to restore the removed item
+                        $scope.components = jQuery.extend(true, [], $scope.toolsList);
+                    }
+                }
+
+            };
+
+            $scope.getView = function (item) {
+                if (item) {
+                    if(item.type == "form"){
+                        return "composite-field.html";
+                    }
+
+                    return item.type+"-field.html";
+                }
+                return null;
+            };
+
+            $scope.removeField = function(field){
+                field.deleted = true;
+            };
+
+        }])
 ;

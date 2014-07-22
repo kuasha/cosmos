@@ -1,178 +1,166 @@
 <style>
-.list {
-	list-style: none outside none;
-	margin: 10px 0 30px;
-}
+    .list {
+        list-style: none outside none;
+        margin: 10px 0 30px;
+    }
 
-.apps-container {
-  border: 2px solid darkgrey;
-  margin: 10px 10px 0 0;
-  padding: 5px;
+    .apps-container {
+        border: 1px dashed lightgray;
+        min-height: 24px;
+        min-width: 128px;
+        padding-bottom: 10px;
+    }
 
-}
-.connected-apps-container{
-    width: 600px;
-    min-height: 64px;
-}
-.app {
-	width: 250px;
-	padding: 5px 10px;
-	margin: 5px 0;
-	cursor: move;
-    border: 1px;
-    border:1px solid;
-}
-.form {
-	width: 99%;
-	padding: 5px 10px;
-	margin: 5px 0;
-	cursor: move;
-    border: 1px;
-}
+    .form {
+        min-width: 800px;
+        margin-left: 32px;
+        min-height: 64px;
+    }
 
-.properties {
-	margin-top: 10px;
-	width: 250px;
-	min-height: 300px;
-	padding: 5px 15px;
-	border: 2px solid darkgrey;
-}
+    .form ul {
+        list-style-type: none;
+    }
 
+    .floatleft {
+        float: left;
+    }
 
-.logItem {
-  margin-bottom: 10px;
-}
+    .floatright {
+        float: right;
+    }
 
-.logList:before {
-	content: 'log';
-	padding: 0 5px;
-	position: relative;
-	top: -1.1em;
-	background-color: #FFF;
-}
+    .clear {
+        clear: both;
+    }
 
-.floatleft {
-  float: left;
-}
+    .gen-dynamic-directive {
+        display: block;
+    }
 
-.floatright {
-  float: right;
-}
-
-.clear {
-  clear: both;
-}
-
-.beingDragged {
-    height: 24px;
-    margin-bottom: .5em !important;
-    border: 2px dotted #ccc !important;
-    background: none !important;
-}
-
+    .beingDragged {
+        height: 32px;
+        margin-bottom: .5em !important;
+        border: 1px dashed #ccc !important;
+    }
 </style>
 
-<script type="text/ng-template"  id="text-field.html">
+<script type="text/ng-template" id="text-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
+        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeField(field, ngModelItem.fields, $index);"></button>
         <label>{{field.title}}</label>
-        <input ng-class="field.className" type = "text" name="{{field.model}}" />
+        <input ng-class="field.className" type="text" name="{{field.model}}" readonly="readonly" disabled="disabled"/>
     </div>
 </script>
 
-<script type="text/ng-template"  id="textarea-field.html">
-    <div ng-click="selectItem(field);">
+<script type="text/ng-template" id="textarea-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
         <label>{{field.title}}</label>
-        <textarea ng-class="field.className" name="{{field.model}}"></textarea>
+        <textarea ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled"></textarea>
     </div>
 </script>
 
-<script type="text/ng-template"  id="checkbox-field.html">
+<script type="text/ng-template" id="checkbox-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <input type="checkbox" ng-class="field.className" name="{{field.model}}" >
+        <input type="checkbox" ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled">
         <label class="control-label">{{field.title}}</label>
     </div>
 </script>
 
-<script type="text/ng-template"  id="radiogroup-field.html">
+<script type="text/ng-template" id="radiogroup-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <label class="control-label">{{field.title}}</label>
+
         <div class="composite" ng-repeat="option in field.options">
-            <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="option.value">
+            <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="option.value"
+                   readonly="readonly" disabled="disabled">
             <label class="control-label">{{option.title}}</label>
         </div>
     </div>
 </script>
 
-<script type="text/ng-template"  id="select-field.html">
+<script type="text/ng-template" id="select-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <label class="control-label">{{field.title}}</label>
-        <select ng-class="field.className" name="{{field.model}}">
+        <select ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled">
             <option ng-if="field.nullable === true" ng-value=""> --- Select ---</option>
             <option ng-value="option.value" ng-repeat="option in field.options">{{option.title}}</option>
         </select>
     </div>
 </script>
 
-<script type="text/ng-template"  id="lookup-field.html">
+<script type="text/ng-template" id="lookup-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <label class="control-label">{{field.title}}</label>
         <select ng-class="field.className" ng-model="fieldOptions['lookup.'+field.model]"
                 ng-options="lookup.lookupname for lookup in field.options.lookups"
-                ng-change="updateOptions(field, lookup)">
+                ng-change="updateOptions(field, lookup)" readonly="readonly" disabled="disabled">
         </select>
-        <select ng-class="field.className" name="{{field.model}}">
+        <select ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled">
             <option ng-value="option['_id']" ng-repeat="option in field.optionData">{{option["username"]}}</option>
         </select>
     </div>
 </script>
 
-<script type="text/ng-template"  id="composite-field.html">
-    <div  ng-click="selectItem(field); $event.stopPropagation();">
+<script type="text/ng-template" id="old-composite-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
         <label class="control-label">{{field.title}}</label>
-        <div ui-sortable="sortableOptions" class="apps-container connected-apps-container" ng-model="field.selectedScreens">
+
+        <div ui-sortable="sortableOptions" class="apps-container connected-apps-container"
+             ng-model="field.selectedScreens">
             <div class="form" ng-repeat="field in field.selectedScreens track by $index">
-              <gen-dynamic-directive ng-model="field" gen-get-dynamic-view="getView">
-              </gen-dynamic-directive>
+                <gen-dynamic-directive ng-model="field" gen-get-dynamic-view="getView">
+                </gen-dynamic-directive>
             </div>
         </div>
     </div>
 </script>
 
-<script type="text/ng-template"  id="item.html">
-    <div ng-include="field.type+'-field.html'"></div>
+<script type="text/ng-template" id="composite-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{ngModelItem.title}}</label>
+        <ul ng-if="ngModelItem.type === 'composite' || ngModelItem.type === 'form'" class="apps-container" ui-sortable="sortableOptions"
+            ng-model="ngModelItem.fields">
+            <li class="innerCont" ng-repeat="field in ngModelItem.fields">
+                <gen-dynamic-directive ng-if="!field.deleted" ng-model="field" gen-get-dynamic-view="getView">
+                </gen-dynamic-directive>
+            </li>
+        </ul>
+    </div>
 </script>
 
 <div ng-show="hasError" class="bg-warning">
     <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
-    <div><label>Error code:</label><span ng-bind="status" /></div>
+    <div><label>Error code:</label><span ng-bind="status"/></div>
     <div ng-bind="status_data"></div>
 </div>
 
-<div>
-  <div class="floatleft">
+<div class="container">
     <div class="floatleft">
-      <div ui-sortable="sortableOptions" class="apps-container screen floatleft first" ng-model="sourceScreens">
-        <div class="app" ng-class="field.type" ng-repeat="field in sourceScreens track by $index">{{field.title}}</div>
-      </div>
+        <label>Tools</label>
+        <ul class="apps-container first" ui-sortable="sortableOptions" ng-model="components">
+            <li ng-repeat="comp in components">
+                {{comp.title}}
+            </li>
+        </ul>
     </div>
-    <div class="floatleft">
-      <div ui-sortable="sortableOptions" class="apps-container connected-apps-container screen floatleft" ng-model="selectedScreens">
-        <div class="form" ng-repeat="field in selectedScreens track by $index">
-          <gen-dynamic-directive ng-model="field" gen-get-dynamic-view="getView">
-          </gen-dynamic-directive>
-        </div>
 
-      </div>
+    <div class="floatleft form">
+        <gen-dynamic-directive ng-model="form" gen-get-dynamic-view="getView">
+        </gen-dynamic-directive>
     </div>
+
     <div style="clear: both;"></div>
-</div>
 
-  <div class="floatright">
-      <button class="btn btn-success" ng-click="save()">Save</button>
-    <div class="properties">
-        <span ng-bind="selectedItem.title"></span>
+    <div>
+        <label>Data</label>
+        <p>{{items}}</p>
     </div>
-  </div>
 
-  <div class="clear"></div>
+    <div class="clear"></div>
+    <div>
+        <label>Selected</label>
+        <p>{{ selectedItem }}</p>
+    </div>
 </div>
+
+
