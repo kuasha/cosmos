@@ -847,7 +847,7 @@ angular.module('myApp.controllers', [])
             $scope.toolsList = [
                 {title: 'Text', type: "text"},
                 {title: 'Text Area', type: "textarea"},
-                { title: 'Select', type: 'select', options:[]},
+                { title: 'Select', type: 'select', options:['option1', 'option2']},
                 { title: 'Checkbox', type: 'checkbox'},
                 { title: 'Options', type: 'radiogroup', options:[]},
                 {title: 'Group', type: "composite", fields: []}

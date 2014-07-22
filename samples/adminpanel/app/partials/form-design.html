@@ -128,6 +128,12 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="field-options.html">
+    <div>
+
+    </div>
+</script>
+
 <div ng-show="hasError" class="bg-warning">
     <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
     <div><label>Error code:</label><span ng-bind="status"/></div>
@@ -159,7 +165,17 @@
     <div class="clear"></div>
     <div>
         <label>Selected</label>
-        <p>{{ selectedItem }}</p>
+        <div>
+            <label>Title</label>
+            <input type="text" ng-model="selectedItem.title" />
+            <div>
+                <label>Options</label>
+                <div ng-repeat="option in selectedItem.options">
+                    <label>{{$index}}</label><input type="text" ng-model="selectedItem.options[$index]" />
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
