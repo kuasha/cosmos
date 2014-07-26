@@ -82,6 +82,13 @@ class ServiceHandler(requesthandler.RequestHandler):
         self.write(data)
         self.finish()
 
+    def clean_data(self, data):
+        assert isinstance(data, dict)
+        reserved_words = ["_id", "createtime", "modifytime", "owner"]
+        for word in reserved_words:
+            if word in data:
+                del data[word]
+
     @tornado.web.asynchronous
     @gen.coroutine
     def post(self, object_path):
@@ -93,6 +100,8 @@ class ServiceHandler(requesthandler.RequestHandler):
             assert isinstance(data, dict)
         except ValueError, ve:
             raise tornado.web.HTTPError(400, ve.message)
+
+        self.clean_data(data)
 
         db = self.settings['db']
 
@@ -124,6 +133,8 @@ class ServiceHandler(requesthandler.RequestHandler):
             assert isinstance(data, dict)
         except ValueError, ve:
             raise tornado.web.HTTPError(400, ve.message)
+
+        self.clean_data(data)
 
         db = self.settings['db']
 

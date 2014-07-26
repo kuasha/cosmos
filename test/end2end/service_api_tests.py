@@ -748,6 +748,12 @@ class ServiceAPITests(LoggedTestCase):
 
     @skip("Feature not implemented")
     def test_user_can_not_access_dir_listing_without_role(self):
+        # Data may not contain _id, createtime, modifytime or owner values.
+        # Should raise 400
+        pass
+
+    @skip("Test not implemented")
+    def test_operation_fails_if_data_contains_reserved_keys(self):
         pass
 
 if __name__ == "__main__":

@@ -817,7 +817,7 @@ angular.module('myApp.controllers', [])
 
         $scope.onSubmit = function () {
             $scope.result = null;
-            var form_id = $scope.form.id;
+            var form_id = $scope.form._id;
 
             var flat_data = $scope.collectValues(form_id);
 
@@ -866,6 +866,7 @@ angular.module('myApp.controllers', [])
 
             $scope.components = jQuery.extend(true, [], $scope.toolsList);
 
+            /*
             $scope.form = {
                     "title": "Test form",
                     type: "form",
@@ -983,15 +984,22 @@ angular.module('myApp.controllers', [])
                     "_id": "53cad3328c66ab6922b9c47f",
                     "method": "POST"
                 };
+            */
 
-            /*
             $scope.form = {
                 "title": "Untitled form",
                 "type": "form",
                 "fields": []
             };
-            */
+
+
             $scope.formId = $routeParams.formId;
+
+            $scope.clearError = function () {
+                $scope.hasError = false;
+                $scope.status = "";
+                $scope.status_data = "";
+            };
 
             $scope.processError = function (data, status) {
                 $scope.hasError = true;
@@ -1005,7 +1013,6 @@ angular.module('myApp.controllers', [])
 
                     CosmosService.get(url, function (data) {
                             $scope.form = data;
-                            $scope.apply();
                         },
                         function (data, status) {
                             $scope.processError(data, status);
@@ -1065,21 +1072,33 @@ angular.module('myApp.controllers', [])
             };
 
             $scope.saveForm = function(){
+                $scope.clearError();
                 $scope.result = null;
                 var form_id = $scope.form._id;
+                var url = '/service/cosmos.forms/';
 
-                var url = '/service/cosmos.forms/' + (form_id)?form_id:'';
-
-                CosmosService.post(url, $scope.form, function (data) {
-                        $scope.result = data;
-                    },
-                    function (data, status) {
-                        $scope.processError(data, status);
-                    }
-                );
+                if(form_id) {
+                    url = url + form_id;
+                    CosmosService.put(url, $scope.form, function (data) {
+                            $scope.result = data;
+                        },
+                        function (data, status) {
+                            $scope.processError(data, status);
+                        }
+                    );
+                }
+                else{
+                    CosmosService.post(url, $scope.form, function (data) {
+                            $scope.result = data;
+                        },
+                        function (data, status) {
+                            $scope.processError(data, status);
+                        }
+                    );
+                }
             };
 
-            //$scope.getConfiguration();
+            $scope.getConfiguration();
 
         }])
 ;
