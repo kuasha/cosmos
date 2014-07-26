@@ -12,8 +12,7 @@
     }
 
     .form {
-        min-width: 800px;
-        margin-left: 32px;
+        min-width: 650px;
         min-height: 64px;
     }
 
@@ -42,11 +41,18 @@
         margin-bottom: .5em !important;
         border: 1px dashed #ccc !important;
     }
+    .properties{
+        margin-left: 10px;
+    }
+    .settings-tab-container{
+        min-width: 300px;
+        width:400px;
+    }
+
 </style>
 
 <script type="text/ng-template" id="text-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeField(field, ngModelItem.fields, $index);"></button>
         <label>{{field.title}}</label>
         <input ng-class="field.className" type="text" name="{{field.model}}" readonly="readonly" disabled="disabled"/>
     </div>
@@ -70,10 +76,10 @@
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <label class="control-label">{{field.title}}</label>
 
-        <div class="composite" ng-repeat="option in field.options">
-            <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="option.value"
+        <div class="composite" ng-repeat="choice in field.options.choices">
+            <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="choice.value"
                    readonly="readonly" disabled="disabled">
-            <label class="control-label">{{option.title}}</label>
+            <label class="control-label">{{choice.title}}</label>
         </div>
     </div>
 </script>
@@ -83,7 +89,7 @@
         <label class="control-label">{{field.title}}</label>
         <select ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled">
             <option ng-if="field.nullable === true" ng-value=""> --- Select ---</option>
-            <option ng-value="option.value" ng-repeat="option in field.options">{{option.title}}</option>
+            <option ng-value="option.value" ng-repeat="choice in field.options.choices">{{choice.title}}</option>
         </select>
     </div>
 </script>
@@ -101,27 +107,14 @@
     </div>
 </script>
 
-<script type="text/ng-template" id="old-composite-field.html">
-    <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label class="control-label">{{field.title}}</label>
-
-        <div ui-sortable="sortableOptions" class="apps-container connected-apps-container"
-             ng-model="field.selectedScreens">
-            <div class="form" ng-repeat="field in field.selectedScreens track by $index">
-                <gen-dynamic-directive ng-model="field" gen-get-dynamic-view="getView">
-                </gen-dynamic-directive>
-            </div>
-        </div>
-    </div>
-</script>
-
 <script type="text/ng-template" id="composite-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <label class="control-label">{{ngModelItem.title}}</label>
         <ul ng-if="ngModelItem.type === 'composite' || ngModelItem.type === 'form'" class="apps-container" ui-sortable="sortableOptions"
             ng-model="ngModelItem.fields">
             <li class="innerCont" ng-repeat="field in ngModelItem.fields">
-                <gen-dynamic-directive ng-if="!field.deleted" ng-model="field" gen-get-dynamic-view="getView">
+                <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem(ngModelItem.fields, $index);"></button>
+                <gen-dynamic-directive ng-model="field" gen-get-dynamic-view="getView">
                 </gen-dynamic-directive>
             </li>
         </ul>
@@ -134,6 +127,16 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="control-tab-tools.html">
+    <div>
+        <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
+            <li ng-repeat="comp in components">
+                 {{comp.title}}
+            </li>
+        </ul>
+    </div>
+</script>
+
 <div ng-show="hasError" class="bg-warning">
     <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
     <div><label>Error code:</label><span ng-bind="status"/></div>
@@ -141,42 +144,63 @@
 </div>
 
 <div class="container">
-    <div class="floatleft">
-        <label>Tools</label>
-        <ul class="apps-container first" ui-sortable="sortableOptions" ng-model="components">
-            <li ng-repeat="comp in components">
-                {{comp.title}}
-            </li>
-        </ul>
+    <div class="floatleft settings-tab-container">
+        <tabset justified="true">
+            <tab heading="Tools" acive="toolsActive();" select="selectTab('tools')">
+                <div>
+                    <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
+                        <li ng-repeat="comp in components">
+                             {{comp.title}}
+                        </li>
+                    </ul>
+                </div>
+            </tab>
+            <tab heading="Settings" acive="settingsActive();" select="selectTab('settings');">
+                <div>
+                    <div ng-if="selectedItem">
+                        <label>Title</label>
+                        <input type="text" ng-model="selectedItem.title" />
+                        <div ng-if="selectedItem.type === 'select' || selectedItem.type === 'radiogroup'">
+                            <label>Options</label>
+                            <table class="table">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Value</th>
+                                    <th>Display</th>
+                                </tr>
+                                <tr ng-repeat="option in selectedItem.options.choices">
+                                    <td>{{$index}}</td>
+                                    <td><input type="text" ng-model="selectedItem.options.choices[$index].value" /></td>
+                                    <td><input type="text" ng-model="selectedItem.options.choices[$index].title" /></td>
+                                    <td>
+                                        <button class="btn btn-xs btn-success glyphicon glyphicon-plus" ng-click="insertItem(selectedItem.options.choices, $index+1, {'value':'', 'title':''});"></button>
+                                        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove" ng-click="removeItem(selectedItem.options.choices, $index);"></button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </tab>
+        </tabset>
     </div>
 
     <div class="floatleft form">
         <gen-dynamic-directive ng-model="form" gen-get-dynamic-view="getView">
         </gen-dynamic-directive>
+
     </div>
 
     <div style="clear: both;"></div>
-
+    <div>
+        <button class="btn btn-success" ng-click="saveForm()">Save</button>
+    </div>
     <div>
         <label>Data</label>
-        <p>{{items}}</p>
+        <p>{{form}}</p>
     </div>
-
-    <div class="clear"></div>
-    <div>
-        <label>Selected</label>
-        <div>
-            <label>Title</label>
-            <input type="text" ng-model="selectedItem.title" />
-            <div>
-                <label>Options</label>
-                <div ng-repeat="option in selectedItem.options">
-                    <label>{{$index}}</label><input type="text" ng-model="selectedItem.options[$index]" />
-                </div>
-            </div>
-        </div>
-
-    </div>
+    {{activeTab}}
 </div>
+
 
 

@@ -24,9 +24,9 @@
 
 <script type="text/ng-template"  id="radiogroup-field.html">
     <label class="control-label">{{field.title}}</label>
-    <div class="composite" ng-repeat="option in field.options">
-        <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="option.value">
-        <label class="control-label">{{option.title}}</label>
+    <div class="composite" ng-repeat="choice in field.options.choices">
+        <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="choice.value">
+        <label class="control-label">{{choice.title}}</label>
     </div>
 </script>
 
@@ -34,7 +34,7 @@
     <label class="control-label">{{field.title}}</label>
     <select ng-class="field.className" name="{{field.model}}">
         <option ng-if="field.nullable === true" ng-value=""> --- Select ---</option>
-        <option ng-value="option.value" ng-repeat="option in field.options">{{option.title}}</option>
+        <option ng-value="option.value" ng-repeat="choice in field.options.choices">{{choice.title}}</option>
     </select>
 </script>
 

@@ -621,7 +621,7 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('FormController', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService', function ($scope, $routeParams, $templateCache, $modal, CosmosService) {
+    .controller('FormViewController', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService', function ($scope, $routeParams, $templateCache, $modal, CosmosService) {
 
         $scope.form_sample = {
             "title": "Test form",
@@ -651,7 +651,7 @@ angular.module('myApp.controllers', [])
                 {
                     "title": "Gender",
                     "type": "radiogroup",
-                    "options": [
+                    "options": { "choices":[
                         {
                             "value": "male",
                             "title": "Male"
@@ -660,13 +660,13 @@ angular.module('myApp.controllers', [])
                             "value": "female",
                             "title": "Female"
                         }
-                    ],
+                    ]},
                     "name": "gender"
                 },
                 {
                     "title": "Nationality",
                     "type": "select",
-                    "options": [
+                    "options":{ "choices": [
                         {
                             "value": "BD",
                             "title": "Bangladesh"
@@ -675,7 +675,7 @@ angular.module('myApp.controllers', [])
                             "value": "US",
                             "title": "United States"
                         }
-                    ],
+                    ]},
                     "name": "nationality",
                     "nullable": true
                 },
@@ -837,32 +837,189 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('SortableController', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
+    .controller('FormDesignController', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
         function ($scope, $routeParams, $templateCache, $modal, CosmosService) {
+
+            $scope.designMode = true;
+            $scope.activeTab = "tools";
 
             $scope.selectItem = function (item) {
                 $scope.selectedItem = item;
+                $scope.activeTab = "settings";
+            };
+
+            $scope.toolsActive = function(){
+                return $scope.activeTab === "tools";
+            };
+            $scope.settingsActive = function(){
+                return $scope.activeTab === "settings";
             };
 
             $scope.toolsList = [
                 {title: 'Text', type: "text"},
-                {title: 'Text Area', type: "textarea"},
-                { title: 'Select', type: 'select', options:['option1', 'option2']},
-                { title: 'Checkbox', type: 'checkbox'},
-                { title: 'Options', type: 'radiogroup', options:[]},
-                {title: 'Group', type: "composite", fields: []}
+                {title: 'Text Area', type: "textarea", options:{}},
+                { title: 'Select', type: 'select', options:{choices:[{'value':'option1', 'title':'option1'},{'value':'option2', 'title':'option2'}]}},
+                { title: 'Checkbox', type: 'checkbox', options:{}},
+                { title: 'Options', type: 'radiogroup', options:{ choices:[{'value':'option1', 'title':'option1'},{'value':'option2', 'title':'option2'}]}},
+                {title: 'Group', type: "composite", options:{}, fields: []}
             ];
-
 
             $scope.components = jQuery.extend(true, [], $scope.toolsList);
 
             $scope.form = {
-                title: 'Form',
-                type: "form",
-                fields: []
+                    "title": "Test form",
+                    type: "form",
+                    "fields": [
+                        {
+                            "fields": [
+                                {
+                                    "type": "text",
+                                    "name": "fname",
+                                    "title": "First name"
+                                },
+                                {
+                                    "type": "text",
+                                    "name": "lname",
+                                    "title": "Last name"
+                                }
+                            ],
+                            "type": "composite",
+                            "name": "name",
+                            "title": "Name"
+                        },
+                        {
+                            "type": "text",
+                            "name": "email",
+                            "title": "Email"
+                        },
+                        {
+                            "title": "Created by",
+                            "type": "lookup",
+                            "options": {
+                                "lookups": [
+                                    {
+                                        "url": "/service/cosmos.users/?columns=username",
+                                        "lookupname": "Users",
+                                        "value": "_id",
+                                        "title": "username"
+                                    }
+                                ]
+                            },
+                            "name": "createdby"
+                        },
+                        {
+                            "title": "Gender",
+                            "type": "radiogroup",
+                            "options": {
+                                "choices": [
+                                    {
+                                        "value": "male",
+                                        "title": "Male"
+                                    },
+                                    {
+                                        "value": "female",
+                                        "title": "Female"
+                                    }
+                                ]
+                            },
+                            "name": "gender"
+                        },
+                        {
+                            "title": "Nationality",
+                            "type": "select",
+                            "options": {
+                                "choices": [
+                                    {
+                                        "value": "BD",
+                                        "title": "Bangladesh"
+                                    },
+                                    {
+                                        "value": "US",
+                                        "title": "United States"
+                                    }
+                                ]
+                            },
+                            "name": "nationality",
+                            "nullable": true
+                        },
+                        {
+                            "type": "checkbox",
+                            "name": "subscribe",
+                            "title": "Subscribe to newsletter"
+                        },
+                        {
+                            "fields": [
+                                {
+                                    "type": "text",
+                                    "name": "street",
+                                    "title": "Street"
+                                },
+                                {
+                                    "type": "text",
+                                    "name": "city",
+                                    "title": "City"
+                                },
+                                {
+                                    "type": "text",
+                                    "name": "zip",
+                                    "title": "Zip/Postal Code"
+                                }
+                            ],
+                            "type": "composite",
+                            "name": "address",
+                            "title": "Address"
+                        },
+                        {
+                            "type": "textarea",
+                            "name": "notes",
+                            "title": "Notes"
+                        }
+                    ],
+                    "id": "myform",
+                    "createtime": "2014-07-19 13:21:06.842626",
+                    "owner": "53b8d4408c66ab04ba0aef98",
+                    "modifytime": "2014-07-25 06:20:55.419572",
+                    "action": "/service/userdata.person/",
+                    "_id": "53cad3328c66ab6922b9c47f",
+                    "method": "POST"
+                };
+
+            /*
+            $scope.form = {
+                "title": "Untitled form",
+                "type": "form",
+                "fields": []
+            };
+            */
+            $scope.formId = $routeParams.formId;
+
+            $scope.processError = function (data, status) {
+                $scope.hasError = true;
+                $scope.status = status;
+                $scope.status_data = JSON.stringify(data);
             };
 
-            $scope.items = $scope.form.fields;
+            $scope.getConfiguration = function () {
+                if($scope.formId) {
+                    var url = '/service/cosmos.forms/' + $scope.formId + '/';
+
+                    CosmosService.get(url, function (data) {
+                            $scope.form = data;
+                            $scope.apply();
+                        },
+                        function (data, status) {
+                            $scope.processError(data, status);
+                        }
+                    );
+                }
+                else {
+                    $scope.form = {
+                        "title": "Test form",
+                        "type": "form",
+                        "fields": []
+                    };
+                }
+            };
 
             $scope.sortingLog = [];
 
@@ -877,9 +1034,12 @@ angular.module('myApp.controllers', [])
                         // clone the original model to restore the removed item
                         $scope.components = jQuery.extend(true, [], $scope.toolsList);
                     }
-                }
 
+                    $scope.selectedItem = null;
+                }
             };
+
+            $scope.sortableToolsOptions = $scope.sortableOptions;
 
             $scope.getView = function (item) {
                 if (item) {
@@ -892,9 +1052,34 @@ angular.module('myApp.controllers', [])
                 return null;
             };
 
-            $scope.removeField = function(field){
-                field.deleted = true;
+            $scope.removeItem = function(fields, index){
+                fields.splice(index, 1);
             };
+
+            $scope.insertItem = function(fields, index, data){
+                fields.splice(index, 0, data);
+            };
+
+            $scope.selectTab = function(tab){
+                $scope.activeTab = tab;
+            };
+
+            $scope.saveForm = function(){
+                $scope.result = null;
+                var form_id = $scope.form._id;
+
+                var url = '/service/cosmos.forms/' + (form_id)?form_id:'';
+
+                CosmosService.post(url, $scope.form, function (data) {
+                        $scope.result = data;
+                    },
+                    function (data, status) {
+                        $scope.processError(data, status);
+                    }
+                );
+            };
+
+            //$scope.getConfiguration();
 
         }])
 ;
