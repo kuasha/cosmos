@@ -56,4 +56,19 @@ angular.module('myApp.services', [])
             }
         };
     }])
-    .value('version', '0.1');
+    .value('version', '0.1')
+    .factory('message', ['$http', function($http) {
+        var msgs = [];
+        return{
+            push: function(msg) {
+                msgs.push(msg);
+            },
+            pop: function(){
+                return msgs.shift();
+            },
+            hasMessage: function(){
+                return (msgs && msgs.length >0);
+            }
+        };
+    }])
+;

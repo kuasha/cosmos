@@ -136,6 +136,26 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="form-options.html">
+    <div>
+        <label>Action</label>
+        <input type="text" ng-model="selectedItem.action" />
+    </div>
+    <div>
+        <label>On success</label>
+        <div>
+            <div>
+                <label>Type</label>
+                <select ng-model="selectedItem.onsuccess.type" ng-options="otype.name as otype.title for otype in onsuccess_types"></select>
+            </div>
+            <div>
+                <label>Value</label>
+                <input type="text" ng-model="selectedItem.onsuccess.value" />
+            </div>
+        </div>
+    </div>
+</script>
+
 <div ng-show="hasError" class="bg-warning">
     <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
     <div><label>Error code:</label><span ng-bind="status"/></div>
@@ -157,10 +177,16 @@
             <tab heading="Settings" acive="settingsActive();" select="selectTab('settings');">
                 <div>
                     <div ng-if="selectedItem">
-                        <label>Title</label>
-                        <input type="text" ng-model="selectedItem.title" />
-                        <label>Name</label>
-                        <input type="text" ng-model="selectedItem.name" />
+                        <div>
+                            <label>Title</label>
+                            <input type="text" ng-model="selectedItem.title" />
+                        </div>
+                        <div>
+                            <label>Name</label>
+                            <input type="text" ng-model="selectedItem.name" />
+                        </div>
+                        <div ng-if="selectedItem.type === 'form'" ng-include="'form-options.html'">
+                        </div>
                         <div ng-if="selectedItem.type === 'select' || selectedItem.type === 'radiogroup'">
                             <label>Options</label>
                             <table class="table">

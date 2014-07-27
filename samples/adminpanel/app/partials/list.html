@@ -14,8 +14,8 @@
     </thead>
     <tbody>
     <tr ng-repeat="list in lists">
-        <td><a href="#/list/{{list._id}}/">{{list._id}}</a></td>
-        <td><a href="#/list/{{list._id}}/">{{list.title}}</a></td>
+        <td><a href="#/{{serviceName}}/{{list._id}}/">{{list._id}}</a></td>
+        <td><a href="#/{{serviceName}}/{{list._id}}/">{{list.title}}</a></td>
     </tr>
     </tbody>
 </table>

@@ -15,12 +15,15 @@ var myApp = angular.module('myApp', [
 config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/home', {templateUrl: 'partials/home.html', controller: 'HomeCtrl'});
 
+    $routeProvider.when('/message', {templateUrl: 'partials/message.html', controller: 'MessageViewCtrl'});
+
     $routeProvider.when('/users', {templateUrl: 'partials/users.html', controller: 'UsersCtrl'});
     $routeProvider.when('/roles', {templateUrl: 'partials/roles.html', controller: 'RolesCtrl'});
-    $routeProvider.when('/list/:listId/', {templateUrl: 'partials/widget-host.html', controller: 'ListDetailCtrl'});
-    $routeProvider.when('/list/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
+    $routeProvider.when('/lists/:listId/', {templateUrl: 'partials/widget-host.html', controller: 'ListDetailCtrl'});
+    $routeProvider.when('/lists/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
     $routeProvider.when('/content/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
-    $routeProvider.when('/form/:formId/', {templateUrl: 'partials/form-widget.html', controller: 'FormViewController'});
+    $routeProvider.when('/forms/:formId/', {templateUrl: 'partials/form-widget.html', controller: 'FormViewController'});
+    $routeProvider.when('/forms/', {templateUrl: 'partials/list.html', controller: 'FormListCtrl'});
     $routeProvider.when('/formdesign/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
 
 
