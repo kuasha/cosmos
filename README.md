@@ -9,7 +9,9 @@ Python web framework for creating related data objects in mongodb without writin
 
 Please note that cosmos framework is in its ```pre-alpha``` stage. Please give it some time to be matured.
 
-
+Why use cosmos 
+==============
+It is supposed to save most of the time people spend on forms, lists, charts, models, security related code.
 
 Prepare Mongodb 
 ===============
