@@ -113,7 +113,7 @@
         <ul ng-if="field.type === 'composite' || field.type === 'form'" class="apps-container" ui-sortable="sortableOptions"
             ng-model="field.fields">
             <li class="innerCont" ng-repeat="field in field.fields">
-                <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem(field.fields, $index);"></button>
+                <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
                 <div ng-include="field.type+'-field.html'"></div>
             </li>
         </ul>
@@ -217,7 +217,7 @@
             <label class="control-label">{{form.title}}</label>
             <ul class="apps-container" ui-sortable="sortableOptions" ng-model="form.fields">
                 <li class="innerCont" ng-repeat="field in form.fields">
-                    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem(field.fields, $index);"></button>
+                    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem(form.fields, $index);"></button>
                     <div ng-include="field.type+'-field.html'"></div>
                 </li>
             </ul>

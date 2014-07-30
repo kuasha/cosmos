@@ -497,6 +497,7 @@ angular.module('myApp.controllers', [])
     .controller('FormListCtrl', ['$scope', '$routeParams', '$modal', 'CosmosService', function ($scope, $routeParams, $modal, CosmosService) {
 
         $scope.serviceName = "forms";
+        $scope.links = [{"href":"#/formdesign/", "title":"Create new form" }];
 
         $scope.clearError = function () {
             $scope.hasError = false;
@@ -760,6 +761,34 @@ angular.module('myApp.controllers', [])
 
         $scope.form = {};
 
+        /*
+        $scope.rawData = {
+            "name":"Barak Obama",
+            "address":{
+                "street": "1 White House Street",
+                "city": "Columbia"
+            },
+            "notes":"President of Unites States"
+        };
+        */
+
+        $scope.dataId = $routeParams.dataId;
+        $scope.currentData = {};
+
+        $scope.initData = function(rawData, parent){
+            for(var prop in rawData){
+                if (rawData.hasOwnProperty(prop)) {
+                    var curKey = parent + '.' + prop;
+                    if ((typeof rawData[prop]) === "object") {
+                        $scope.initData(rawData[prop], curKey)
+                    }
+                    else {
+                        $scope.currentData[curKey] = rawData[prop];
+                    }
+                }
+            }
+        };
+
         $scope.clearError = function () {
             $scope.hasError = false;
             $scope.status = "";
@@ -774,12 +803,27 @@ angular.module('myApp.controllers', [])
             $scope.status_data = JSON.stringify(data);
         };
 
+        $scope.getData = function(){
+            if($scope.dataId){
+                var url = $scope.form.action + '/'+ $scope.dataId + '/';
+                CosmosService.get(url, function (data) {
+                        $scope.rawData = data;
+                        $scope.initData($scope.rawData, 'data');
+                    },
+                    function (data, status) {
+                        $scope.processError(data, status);
+                    }
+                );
+            }
+        };
+
         $scope.getConfiguration = function () {
             var url = '/service/cosmos.forms/' + $scope.formId + '/';
 
             CosmosService.get(url, function (data) {
                     $scope.form = data;
                     $scope.prepareFormMetadata($scope.form.fields, 'data');
+                    $scope.getData();
                 },
                 function (data, status) {
                     $scope.processError(data, status);
@@ -818,7 +862,7 @@ angular.module('myApp.controllers', [])
         };
 
         $scope.updateOptions = function (field) {
-            var lookup = $scope.fieldOptions['lookup.' + field.model]
+            var lookup = $scope.fieldOptions['lookup.' + field.model];
             var url = lookup.url;
 
             CosmosService.get(url, function (data) {
@@ -858,7 +902,7 @@ angular.module('myApp.controllers', [])
                     window.location.href = form.onsuccess.value;
                 }
                 else if(form.onsuccess.type === "message"){
-                    message.push({"message":form.onsuccess.value, "title":"Sucess"});
+                    message.push({"message":form.onsuccess.value, "title":"Sucess", "data": result});
                     $location.path('/message');
                 }
             }
@@ -875,13 +919,25 @@ angular.module('myApp.controllers', [])
 
             if($scope.form.action) {
                 if($scope.form.action) {
-                    CosmosService.post($scope.form.action, data, function (data) {
-                            $scope.processResult($scope.form, data);
-                        },
-                        function (data, status) {
-                            $scope.processError(data, status);
-                        }
-                    );
+                    if(!$scope.dataId) {
+                        CosmosService.post($scope.form.action, data, function (data) {
+                                $scope.processResult($scope.form, data);
+                            },
+                            function (data, status) {
+                                $scope.processError(data, status);
+                            }
+                        );
+                    }
+                    else{
+                        var url = $scope.form.action + '/'+ $scope.dataId + '/';
+                        CosmosService.put(url, data, function (data) {
+                                $scope.processResult($scope.form, data);
+                            },
+                            function (data, status) {
+                                $scope.processError(data, status);
+                            }
+                        );
+                    }
                 }
             }
         };

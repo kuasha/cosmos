@@ -9,30 +9,31 @@
 
 <script type="text/ng-template"  id="text-field.html">
     <label>{{field.title}}</label>
-    <input ng-class="field.className" type = "text" name="{{field.model}}" />
+    <input ng-class="field.className" type = "text" name="{{field.model}}" ng-model="currentData[field.model]" />
 </script>
 
 <script type="text/ng-template"  id="textarea-field.html">
     <label>{{field.title}}</label>
-    <textarea ng-class="field.className" name="{{field.model}}"></textarea>
+    <textarea ng-class="field.className" name="{{field.model}}" ng-model="currentData[field.model]"></textarea>
 </script>
 
 <script type="text/ng-template"  id="checkbox-field.html">
-    <input type="checkbox" ng-class="field.className" name="{{field.model}}" >
+    <input type="checkbox" ng-class="field.className" name="{{field.model}}" ng-model="currentData[field.model]">
     <label class="control-label">{{field.title}}</label>
 </script>
 
 <script type="text/ng-template"  id="radiogroup-field.html">
     <label class="control-label">{{field.title}}</label>
     <div class="composite" ng-repeat="choice in field.options.choices">
-        <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="choice.value">
+        <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="choice.value"
+               ng-model="currentData[field.model]">
         <label class="control-label">{{choice.title}}</label>
     </div>
 </script>
 
 <script type="text/ng-template"  id="select-field.html">
     <label class="control-label">{{field.title}}</label>
-    <select ng-class="field.className" name="{{field.model}}">
+    <select ng-class="field.className" name="{{field.model}}" ng-model="currentData[field.model]">
         <option ng-if="field.nullable === true" ng-value=""> --- Select ---</option>
         <option ng-value="option.value" ng-repeat="choice in field.options.choices">{{choice.title}}</option>
     </select>
@@ -51,7 +52,7 @@
 </script>
 
 <script type="text/ng-template"  id="composite-fields.html">
-    <div >
+    <div ng-if="field.type != 'composite'">
         <div ng-include="field.type+'-field.html'"></div>
     </div>
     <div ng-if="field.type === 'composite'">
