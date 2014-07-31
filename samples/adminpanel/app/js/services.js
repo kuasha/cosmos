@@ -22,7 +22,11 @@ angular.module('myApp.services', [])
             },
             post: function(uri, data, callback, error_callback){
                 $http.post(uri, data).success(function(data) {
-                    callback(data);
+                    var returned_data = data;
+                    if(data && data._cosmos_service_array_result_){
+                        returned_data = JSON.parse(data._d);
+                    }
+                    callback(returned_data);
                 })
                 .error(function(data, status){
                     if(error_callback) {
@@ -52,4 +56,19 @@ angular.module('myApp.services', [])
             }
         };
     }])
-    .value('version', '0.1');
+    .value('version', '0.1')
+    .factory('message', ['$http', function($http) {
+        var msgs = [];
+        return{
+            push: function(msg) {
+                msgs.push(msg);
+            },
+            pop: function(){
+                return msgs.shift();
+            },
+            hasMessage: function(){
+                return (msgs && msgs.length >0);
+            }
+        };
+    }])
+;

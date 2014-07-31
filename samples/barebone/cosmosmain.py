@@ -80,8 +80,10 @@ def get_options(port):
         facebook_secret=settings.facebook_client_secret,
         facebook_scope=settings.facebook_scope,
         google_oauth=settings.GOOGLE_OAUTH2_SETTINGS,
+        github_oauth=settings.GITHUB_OAUTH_SETTINGS,
         start_db_monitor=settings.START_OBJECT_CHANGE_MONITOR,
-        start_web_service=settings.START_WEB_SERVER
+        start_web_service=settings.START_WEB_SERVER,
+        directory_listing_allowed=settings.directory_listing_allowed,
     ))
 
     options.db = init_database(options)

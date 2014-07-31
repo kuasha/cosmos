@@ -35,6 +35,8 @@ facebook_client_id='000000000000000'
 facebook_client_secret='00000000000000000000000000000000'
 facebook_scope =  "email,read_stream,offline_access"
 
+directory_listing_allowed = True
+
 CONFIGURE_LOG = False
 START_WEB_SERVER = True
 START_OBJECT_CHANGE_MONITOR = False
@@ -42,6 +44,10 @@ START_OBJECT_CHANGE_MONITOR = False
 GOOGLE_OAUTH2_CLIENT_ID = None
 GOOGLE_OAUTH2_CLIENT_SECRET = None
 GOOGLE_OAUTH2_REDIRECT_URI = None
+
+GITHUB_CLIENT_ID = None
+GITHUB_CLIENT_SECRET = None
+GITHUB_OAUTH2_CALLBACK_URI = None
 
 login_url = "/login/"
 
@@ -62,3 +68,5 @@ else:
 
 
 GOOGLE_OAUTH2_SETTINGS = {"key": GOOGLE_OAUTH2_CLIENT_ID, "secret": GOOGLE_OAUTH2_CLIENT_SECRET, "redirect_uri": GOOGLE_OAUTH2_REDIRECT_URI}
+
+GITHUB_OAUTH_SETTINGS = {"client_id": GITHUB_CLIENT_ID, "secret": GITHUB_CLIENT_SECRET, "redirect_uri": GITHUB_OAUTH2_CALLBACK_URI}

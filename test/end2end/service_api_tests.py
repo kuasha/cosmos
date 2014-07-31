@@ -4,17 +4,15 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
-import hashlib
 
+import hashlib
 import time
 import random
 import json
 from threading import Thread
 from unittest import skip
-
 import tornado
 import requests
-
 import cosmos.datamonitor.monitor as monitor
 import samples.barebone.cosmosmain as cosmosmain
 from test import *
@@ -22,33 +20,33 @@ from cosmos.rbac.object import ADMIN_USER_ROLE_SID
 
 class ServiceAPITests(LoggedTestCase):
     @classmethod
-    def service_thread(self, options):
+    def service_thread(cls, options):
         if options.start_web_service:
             cosmosmain.start_service(options)
 
-        self.logger.info("Starting torando ioloop")
+        cls.logger.info("Starting torando ioloop")
         tornado.ioloop.IOLoop.instance().start()
-        self.logger.info("Tornado ioloop stopped")
+        cls.logger.info("Tornado ioloop stopped")
 
     @classmethod
-    def setUpClass(self):
-        self.options = cosmosmain.get_options(8080)
+    def setUpClass(cls):
+        cls.options = cosmosmain.get_options(8080)
 
-        self.thread = Thread(target=self.service_thread, args=(self.options,))
-        self.thread.start()
+        cls.thread = Thread(target=cls.service_thread, args=(cls.options,))
+        cls.thread.start()
         time.sleep(5)
 
     @classmethod
-    def stop_tornado(self):
+    def stop_tornado(cls):
         ioloop = tornado.ioloop.IOLoop.instance()
         ioloop.add_callback(lambda x: x.stop(), ioloop)
-        self.logger.info("Stopping tornado ioloop")
+        cls.logger.info("Stopping tornado ioloop")
 
     @classmethod
-    def tearDownClass(self):
+    def tearDownClass(cls):
         monitor.continue_monitor = False
-        self.stop_tornado()
-        self.thread.join()
+        cls.stop_tornado()
+        cls.thread.join()
         time.sleep(1)
 
     def setUp(self):
@@ -98,6 +96,26 @@ class ServiceAPITests(LoggedTestCase):
                 ],
                 "object_name": self.test_object_name,
                 "property_name": "name",
+                "type": "object.RoleItem"
+            },
+            {
+                "access": [
+                    "INSERT",
+                    "READ",
+                    "WRITE"
+                ],
+                "object_name": self.test_object_name,
+                "property_name": "profile",
+                "type": "object.RoleItem"
+            },
+            {
+                "access": [
+                    "INSERT",
+                    "READ",
+                    "WRITE"
+                ],
+                "object_name": self.test_object_name,
+                "property_name": "profile.photo",
                 "type": "object.RoleItem"
             },
             {
@@ -264,7 +282,6 @@ class ServiceAPITests(LoggedTestCase):
         self.failUnless(response.status_code == 200)
         return user_json
 
-
     def test_user_with_role_has_access(self):
         cookies = self.admin_login()
 
@@ -294,10 +311,28 @@ class ServiceAPITests(LoggedTestCase):
 
         url = self.service_url+ self.test_object_name
         self.log_request_url(url)
-        data = json.dumps({"name.lastname": "test"})
+        data = json.dumps({"name": {"lastname": "test"}})
         response = requests.post(url, data=data, cookies=user_cookies)
         self.log_status_code(response.status_code)
         self.failUnless(response.status_code == 401)
+
+        self._delete_user(cookies, user_json)
+        self._delete_role(cookies, role_json)
+
+    def test_user_can_access_nested_field_with_nested_permission(self):
+        cookies = self.admin_login()
+        role_json = self._create_new_role(cookies)
+        role = role_json.get("sid")
+        user_json = self._create_user_with_given_roles(cookies, [role])
+
+        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
+
+        url = self.service_url+ self.test_object_name
+        self.log_request_url(url)
+        data = json.dumps({"profile": {"photo": "test.jpg"}})
+        response = requests.post(url, data=data, cookies=user_cookies)
+        self.log_status_code(response.status_code)
+        self.failUnless(response.status_code == 200)
 
         self._delete_user(cookies, user_json)
         self._delete_role(cookies, role_json)
@@ -339,7 +374,7 @@ class ServiceAPITests(LoggedTestCase):
         self._delete_user(cookies, user_json)
         self._delete_role(cookies, role_json)
 
-    def log_response(self, response):
+    def _log_response(self, response):
         self.logger.info("Response status code = {}".format(response.status_code))
         self.logger.info("Response text = {}".format(response.text))
 
@@ -365,7 +400,7 @@ class ServiceAPITests(LoggedTestCase):
         data = json.dumps({"name": "test"})
         response = requests.put(item_url, data=data, cookies=user_cookies)
 
-        self.log_response(response)
+        self._log_response(response)
 
         response_json = json.loads(response.text)
 
@@ -447,6 +482,10 @@ class ServiceAPITests(LoggedTestCase):
 
         self._delete_user(cookies, user_json)
 
+    @skip("Test not implemented")
+    def test_user_can_not_access_column_without_role(self):
+        pass
+
     def test_columns_and_filters_together(self):
         cookies = self.admin_login()
         user_json = self._create_new_user(cookies)
@@ -488,12 +527,19 @@ class ServiceAPITests(LoggedTestCase):
             }
         ]}
 
+    def test_gridfs_404_file_not_found(self):
+        cookies = self.admin_login()
+        file_id = "53c5dfe78c66ab65112aadc0"
+        url = self.gridfs_url+self.test_file_collection_name+"/"
+        down_url = url + str(file_id) + '/'
+        download_response = requests.get(down_url, cookies=cookies)
+        self.failUnless(download_response.status_code == 404)
+
     def test_gridfs_upload_download_delete(self):
         cookies = self.admin_login()
 
         role_del = self._get_file_access_role();
         role_json = self._create_new_given_role(cookies, role_del)
-
         role = role_json.get("sid")
         user_json = self._create_user_with_given_roles(cookies, [role])
 
@@ -509,9 +555,9 @@ class ServiceAPITests(LoggedTestCase):
         self.failUnless(response.status_code == 200)
 
         self.logger.info(response.text)
-        result = json.loads(response.text)
+        result = json.loads(json.loads(response.text).get("_d"))[0]
 
-        self.failUnlessEquals(result.get("file_size"), len(file_content),
+        self.failUnlessEquals(result.get("length"), len(file_content),
                               "file content length must match uploaded content")
 
         md5_dig = hashlib.md5(file_content).hexdigest()
@@ -541,7 +587,7 @@ class ServiceAPITests(LoggedTestCase):
         self._delete_role(cookies, role_json)
 
     def _get_file_owner_access_role(self):
-        return {'name': "tesdeletetrole", "type": "object.Role", "role_items": [
+        return {'name': "tesdeletet_owner_role", "type": "object.Role", "role_items": [
             {
                 "owner_access": [
                     "INSERT",
@@ -555,19 +601,47 @@ class ServiceAPITests(LoggedTestCase):
             }
         ]}
 
-    @skip("TestFirst: Functionality not implemented yet")
+    def test_upload_download_delete_fails_without_access_role(self):
+        cookies = self.admin_login()
+
+        user_json = self._create_user_with_given_roles(cookies, [])
+        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
+
+        url = self.gridfs_url+self.test_file_collection_name+"/"
+
+        file_content = "<html><body>Hello world</body></html>"
+        content_type = "text/html"
+        files = {'uploadedfile': ('coolfile.html', file_content, content_type, {'Expires': '0'})}
+
+        # Try to upload by user without access
+        response = requests.post(url, files=files, cookies=user_cookies)
+        self.failUnless(response.status_code == 401)
+
+        # Upload using admin account
+        response = requests.post(url, files=files, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+        result = json.loads(json.loads(response.text).get("_d"))[0]
+        file_id = result.get("file_id")
+        self.failIfEqual(file_id, None)
+
+        # Try to download using non-owner user with owner access
+        down_url = url + file_id + '/'
+        download_response = requests.get(down_url, cookies=user_cookies)
+        self.failUnless(download_response.status_code == 401)
+
+        # Try to delete using non-owner user with owner access
+        delete_url = url + file_id + '/'
+        delete_response = requests.delete(delete_url, cookies=user_cookies)
+        self.failUnlessEqual(delete_response.status_code, 401, "Non owner should not be allowed to delete item.")
+
+        self._delete_user(cookies, user_json)
+
     def test_gridfs_delete_fails_by_non_owner(self):
         cookies = self.admin_login()
 
-        role_del = self._get_file_access_role();
-        role_json = self._create_new_given_role(cookies, role_del)
-        role = role_json.get("sid")
-        user_json = self._create_user_with_given_roles(cookies, [role])
-        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
-
         role_del_owner = self._get_file_owner_access_role();
         role_json_owner = self._create_new_given_role(cookies, role_del_owner)
-        role_owner = role_json.get("sid")
+        role_owner = role_json_owner.get("sid")
         user_json_owner = self._create_user_with_given_roles(cookies, [role_owner])
         user_cookies_non_owner = self.login(user_json_owner.get("username"), self.standard_user_password)
 
@@ -577,13 +651,48 @@ class ServiceAPITests(LoggedTestCase):
         content_type = "text/html"
         files = {'uploadedfile': ('coolfile.html', file_content, content_type, {'Expires': '0'})}
 
-        response = requests.post(url, files=files, cookies=user_cookies)
+        # Upload using admin account
+        response = requests.post(url, files=files, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+        result = json.loads(json.loads(response.text).get("_d"))[0]
+        file_id = result.get("file_id")
+        self.failIfEqual(file_id, None)
+
+        # Try to download using non-owner user with owner access
+        down_url = url + file_id + '/'
+        download_response = requests.get(down_url, cookies=user_cookies_non_owner)
+        self.failUnless(download_response.status_code == 401)
+
+        # Try to delete using non-owner user with owner access
+        delete_url = url + file_id + '/'
+        delete_response = requests.delete(delete_url, cookies=user_cookies_non_owner)
+        self.failUnlessEqual(delete_response.status_code, 401, "Non owner should not be allowed to delete item.")
+
+        self._delete_user(cookies, user_json_owner)
+        self._delete_role(cookies, role_json_owner)
+
+    def test_gridfs_upload_download_delete_works_by_owner(self):
+        cookies = self.admin_login()
+
+        role_del_owner = self._get_file_owner_access_role();
+        role_json_owner = self._create_new_given_role(cookies, role_del_owner)
+        role_owner = role_json_owner.get("sid")
+        user_json_owner = self._create_user_with_given_roles(cookies, [role_owner])
+        user_cookies_owner = self.login(user_json_owner.get("username"), self.standard_user_password)
+
+        url = self.gridfs_url+self.test_file_collection_name+"/"
+
+        file_content = "<html><body>Hello world</body></html>"
+        content_type = "text/html"
+        files = {'uploadedfile': ('coolfile.html', file_content, content_type, {'Expires': '0'})}
+
+        response = requests.post(url, files=files, cookies=user_cookies_owner)
         self.failUnless(response.status_code == 200)
 
         self.logger.info(response.text)
-        result = json.loads(response.text)
+        result = json.loads(json.loads(response.text).get("_d"))[0]
 
-        self.failUnlessEquals(result.get("file_size"), len(file_content),
+        self.failUnlessEquals(result.get("length"), len(file_content),
                               "file content length must match uploaded content")
 
         md5_dig = hashlib.md5(file_content).hexdigest()
@@ -592,12 +701,60 @@ class ServiceAPITests(LoggedTestCase):
         file_id = result.get("file_id")
         self.failIfEqual(file_id, None)
 
-        delete_url = url + file_id + '/'
+        down_url = url + file_id + '/'
+        download_response = requests.get(down_url, cookies=user_cookies_owner)
 
-        delete_response = requests.delete(delete_url, cookies=user_cookies_non_owner)
-        self.failUnless(delete_response.status_code == 401)
+        self.failUnless(download_response.status_code == 200)
+        self.failUnlessEquals(download_response.text, file_content,
+                              "file content of downloaded file must match uploaded file content")
+        self.failUnlessEquals(download_response.headers.get("Content-Type"), content_type,
+                              "content of uploaded and downloaded files must match")
+
+        delete_url = url + file_id + '/'
+        delete_response = requests.delete(delete_url, cookies=user_cookies_owner)
+        self.failUnlessEqual(delete_response.status_code, 200,
+                             "Owner with owner access should not be allowed to delete item.")
+
+        self._delete_user(cookies, user_json_owner)
+        self._delete_role(cookies, role_json_owner)
+
+    def test_gridfs_directory_listing(self):
+        cookies = self.admin_login()
+        url = self.gridfs_url+self.test_file_collection_name+"/"
+
+        file_content = "<html><body>Hello world</body></html>"
+        content_type = "text/html"
+        files = {'uploadedfile': ('coolfile.html', file_content, content_type, {'Expires': '0'})}
+
+        response = requests.post(url, files=files, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+        result = json.loads(json.loads(response.text).get("_d"))[0]
+        file_id = result.get("file_id")
+        self.failIfEqual(file_id, None)
+
+        response = requests.get(url, cookies=cookies)
+
+        self.failUnless(response.status_code == 200)
+
+        self.logger.info(response.text)
+        result = json.loads(json.loads(response.text).get("_d"))
+
+        #TODO: Add more validation
+        self.failUnless(len(result)>0)
+
+        delete_url = url + file_id + '/'
+        delete_response = requests.delete(delete_url, cookies=cookies)
+        self.failUnless(delete_response.status_code == 200)
+
+    @skip("Feature not implemented")
+    def test_user_can_not_access_dir_listing_without_role(self):
+        # Data may not contain _id, createtime, modifytime or owner values.
+        # Should raise 400
+        pass
+
+    @skip("Test not implemented")
+    def test_operation_fails_if_data_contains_reserved_keys(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
-
-
