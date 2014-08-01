@@ -63,6 +63,7 @@ angular.module('myApp.controllers', [])
                 }
             );
         };
+
         $scope.post = function () {
             $scope.clearResult();
             var url = $scope.service;
@@ -74,6 +75,7 @@ angular.module('myApp.controllers', [])
                 }
             );
         };
+
         $scope.put = function () {
             $scope.clearResult();
             var url = $scope.service;
@@ -85,6 +87,7 @@ angular.module('myApp.controllers', [])
                 }
             );
         };
+
         $scope.delete = function () {
             $scope.clearResult();
             var url = $scope.service;
@@ -163,12 +166,12 @@ angular.module('myApp.controllers', [])
             });
         };
 
-        $scope.editUser = function (roleIndex) {
-            $scope.addUser('lg', $scope.users[roleIndex]);
+        $scope.editUser = function (userIndex) {
+            $scope.addUser('lg', $scope.users[userIndex]);
         };
 
-        $scope.removeUser = function (roleIndex) {
-            var user = $scope.users[roleIndex];
+        $scope.removeUser = function (userIndex) {
+            var user = $scope.users[userIndex];
 
             if (confirm('Are you sure you want to delete the user ' + user.username + '?')) {
                 var user_id = user._id;
@@ -326,7 +329,7 @@ angular.module('myApp.controllers', [])
 
         $scope.removeRole = function (index) {
             $scope.user.roles.splice(index, 1);
-        }
+        };
 
         $scope.addRole = function (selected_role) {
             if (!selected_role || selected_role.length < 1) {
@@ -661,116 +664,7 @@ angular.module('myApp.controllers', [])
     .controller('FormViewController', ['$scope', '$routeParams', '$templateCache', '$modal','$location', 'CosmosService', 'message',
         function ($scope, $routeParams, $templateCache, $modal, $location, CosmosService, message) {
 
-        $scope.form_sample = {
-            "title": "Test form",
-            "fields": [
-                {
-                    "fields": [
-                        {
-                            "type": "text",
-                            "name": "fname",
-                            "title": "First name"
-                        },
-                        {
-                            "type": "text",
-                            "name": "lname",
-                            "title": "Last name"
-                        }
-                    ],
-                    "type": "composite",
-                    "name": "name",
-                    "title": "Name"
-                },
-                {
-                    "type": "text",
-                    "name": "email",
-                    "title": "Email"
-                },
-                {
-                    "title": "Gender",
-                    "type": "radiogroup",
-                    "options": { "choices":[
-                        {
-                            "value": "male",
-                            "title": "Male"
-                        },
-                        {
-                            "value": "female",
-                            "title": "Female"
-                        }
-                    ]},
-                    "name": "gender"
-                },
-                {
-                    "title": "Nationality",
-                    "type": "select",
-                    "options":{ "choices": [
-                        {
-                            "value": "BD",
-                            "title": "Bangladesh"
-                        },
-                        {
-                            "value": "US",
-                            "title": "United States"
-                        }
-                    ]},
-                    "name": "nationality",
-                    "nullable": true
-                },
-                {
-                    "type": "checkbox",
-                    "name": "subscribe",
-                    "title": "Subscribe to newsletter"
-                },
-                {
-                    "fields": [
-                        {
-                            "type": "text",
-                            "name": "street",
-                            "title": "Street"
-                        },
-                        {
-                            "type": "text",
-                            "name": "city",
-                            "title": "City"
-                        },
-                        {
-                            "type": "text",
-                            "name": "zip",
-                            "title": "Zip/Postal Code"
-                        }
-                    ],
-                    "type": "composite",
-                    "name": "address",
-                    "title": "Address"
-                },
-                {
-                    "type": "textarea",
-                    "name": "notes",
-                    "title": "Notes"
-                }
-            ],
-            "id": "myform",
-            "createtime": "2014-07-19 13:21:06.842626",
-            "owner": "53b8d4408c66ab04ba0aef98",
-            "modifytime": "2014-07-19 13:46:30.429590",
-            "action": "/service/userdata.person/",
-            "_id": "53cad3328c66ab6922b9c47f",
-            "method": "POST"
-        };
-
         $scope.form = {};
-
-        /*
-        $scope.rawData = {
-            "name":"Barak Obama",
-            "address":{
-                "street": "1 White House Street",
-                "city": "Columbia"
-            },
-            "notes":"President of Unites States"
-        };
-        */
 
         $scope.dataId = $routeParams.dataId;
         $scope.currentData = {};
@@ -780,7 +674,13 @@ angular.module('myApp.controllers', [])
                 if (rawData.hasOwnProperty(prop)) {
                     var curKey = parent + '.' + prop;
                     if ((typeof rawData[prop]) === "object") {
-                        $scope.initData(rawData[prop], curKey)
+                        if(rawData[prop] instanceof Array) {
+                            //Add for editors without array support
+                            $scope.currentData[curKey] = JSON.stringify(rawData[prop], undefined, 4);
+                        }
+                        else {
+                            $scope.initData(rawData[prop], curKey);
+                        }
                     }
                     else {
                         $scope.currentData[curKey] = rawData[prop];

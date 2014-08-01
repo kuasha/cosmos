@@ -84,5 +84,17 @@ Now start the server:
 python cosmosmain.py
 ```
 
+Features
+--------
 
+1. INSERT, READ, EDIT, DELETE objects by name
+2. Filter on READ
+3. Select columns on READ
+4. Role based security (RBAC) on objects and columns for all operations
+5. Sign in using Facebook, Google, Github, OpenId and username password
+6. Upload and get files with RBAC security
+7. Design forms
+8. Design page using widgets
+9. Design object list
+10. Test coverage
 
