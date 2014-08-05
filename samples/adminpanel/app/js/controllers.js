@@ -1219,4 +1219,114 @@ angular.module('myApp.controllers', [])
             $scope.getConfiguration();
 
         }])
+
+    .controller('FormViewCtrl', function ($scope) {
+        $scope.data =
+        {
+            "name": "mar",
+            "address": {"street": "989",
+                "members": [
+                    {"name": "k"}
+                ]
+            },
+            "subscribe":false,
+            "nationality":"BD",
+            "gender":"male",
+            "assets": [
+                {"type": "my", "price": "100",
+                    "brand": {"name": "nike", "locations": [
+                        {"city": "bel"},
+                        {"city": "red"}
+                    ]
+                    }}
+            ]
+        };
+        $scope.form = {'name': 'form', "title": "Test form", 'type': 'composite',
+            'fields': [
+                {'name': 'name', "title": "Name", 'type': 'text'},
+                {'name': 'address', "title": "Address", 'type': 'composite',
+                    'fields': [
+                        {'name': 'street', "title": "Street", 'type': 'textarea'},
+                        {'name': 'city', "title": "City", 'type': 'text'},
+                        {'name': 'zip', "title": "Zip/Postal", 'type': 'text'},
+                        {'name': 'state', "title": "State", 'type': 'text'},
+                        {'name': 'members', "title": "Members", 'type': 'array',
+                            'fields': [
+                                {'name': 'name', "title": "Name", 'type': 'text'}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "Nationality",
+                    "type": "select",
+                    "options": { "choices": [
+                        {
+                            "value": "BD",
+                            "title": "Bangladesh"
+                        },
+                        {
+                            "value": "US",
+                            "title": "United States"
+                        }
+                    ]},
+                    "name": "nationality",
+                    "nullable": true
+                },
+                {
+                    "title": "Created by",
+                    "type": "lookup",
+                    "options": {
+                        "lookups": [
+                            {
+                                "url": "/service/cosmos.users/?columns=username",
+                                "lookupname": "Users",
+                                "value": "_id",
+                                "title": "username"
+                            },
+                            {
+                                "url": "/service/cosmos.users/?columns=username",
+                                "lookupname": "Organizations",
+                                "value": "_id",
+                                "title": "username"
+                            }
+                        ]
+                    },
+                    "name": "createdby"
+                },
+                {
+                    "title": "Gender",
+                    "type": "radiogroup",
+                    "options": { "choices": [
+                        {
+                            "value": "male",
+                            "title": "Male"
+                        },
+                        {
+                            "value": "female",
+                            "title": "Female"
+                        }
+                    ]},
+                    "name": "gender"
+                },
+                {"name": "subscribe", "title": "Subscribe to newsletter", "type": "checkbox"},
+                {'name': 'assets', "title": "Assets", 'type': 'array',
+                    'fields': [
+                        {'name': 'type', "title": "Type", 'type': 'text'},
+                        {'name': 'price', "title": "Price", 'type': 'text'},
+                        {'name': 'brand', "title": "Brand", 'type': 'composite',
+                            'fields': [
+                                {'name': 'name', "title": "Name", 'type': 'text'},
+                                {'name': 'locations', "title": "Locations", 'type': 'array',
+                                    'fields': [
+                                        {'name': 'city', "title": "City", 'type': 'text'}
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+    })
 ;
