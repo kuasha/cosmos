@@ -150,7 +150,16 @@ WELL_KNOWN_ROLES = [
     Role(
             name='Anonymous',
             sid=ANONYMOUS_USER_ROLE_SID,
-            role_items = [],
+            role_items = [
+                RoleItem(**{
+                    "access": [
+                        "READ"
+                    ],
+                    "object_name": "userdata.widgets",
+                    "property_name": "*",
+                    "type": "object.RoleItem"
+                })
+            ],
             type="object.Role"
     )
 ]

@@ -38,3 +38,7 @@
     margin: 7px;
     padding: 7px;
 }
+
+.editor{
+    min-width: 400px;
+}
