@@ -1181,12 +1181,14 @@ angular.module('myApp.controllers', [])
                             {
                                 "url": "/service/cosmos.users/?columns=username",
                                 "lookupname": "Users",
+                                "ref":"user",
                                 "value": "_id",
                                 "title": "username"
                             },
                             {
                                 "url": "/service/cosmos.users/?columns=username",
                                 "lookupname": "Organizations",
+                                "ref":"organization",
                                 "value": "_id",
                                 "title": "username"
                             }

@@ -47,23 +47,19 @@ angular.module('myApp.directives', []).
                     $scope.val.splice(index, 1);
                 };
 
-                $scope.updateOptions = function (field, lookup) {
-                    field.lookup = lookup;
-                    if(lookup.optionData){
-                        field.optionData = lookup.optionData;
-                    }
-                    else {
+                $scope.updateOptions = function (field) {
 
-                        var url = lookup.url;
+                        var url = field.lookup.url;
+                        $scope.val.ref = field.lookup.ref || field.lookup.lookupname;
 
                         CosmosService.get(url, function (data) {
-                                lookup.optionData = data;
+                                $scope.optionData = data;
                             },
                             function (data, status) {
                                 $scope.processError(data, status);
                             }
                         );
-                    }
+
                 };
 
                 $scope.getTemplate = function (itemType) {
@@ -96,13 +92,13 @@ angular.module('myApp.directives', []).
                         case "lookup":
                             template = ''+
                                 '<label class="control-label">{{item.title}}</label>'+
-                                '<select ng-model="val"'+
+                                '<select ng-model="item.lookup"'+
                                         'ng-options="lookup.lookupname for lookup in item.options.lookups"'+
-                                        'ng-change="updateOptions(item, lookup)">'+
+                                        'ng-change="updateOptions(item)">'+
                                 '</select>'+
 
-                                '<select>'+
-                                '    <option ng-value="option[field.lookup.value]" ng-repeat="option in field.optionData">{{option[field.lookup.title]}}</option>'+
+                                '<select ng-model="val.data">'+
+                                '    <option ng-value="option[item.lookup.value]" ng-repeat="option in optionData">{{option[item.lookup.title]}}</option>'+
                                 '</select>';
                             break;
 
@@ -148,6 +144,12 @@ angular.module('myApp.directives', []).
                         scope.add_item();
                     }
                 }
+                if (scope.item.type === "lookup") {
+                    if (!scope.val) {
+                        scope.val = {"ref":null, "data":null};
+                    }
+                }
+
 
                 var newElement = angular.element(template);
                 $compile(newElement)(scope);
