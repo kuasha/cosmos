@@ -1139,7 +1139,8 @@ angular.module('myApp.controllers', [])
                         {"city": "red"}
                     ]
                     }}
-            ]
+            ],
+            "createdby":{"ref":"organization","data":"53b8b5fc8c66ab67c5bc3db2"}
         };
         $scope.form = {'name': 'form', "title": "Test form", 'type': 'composite',
             'fields': [

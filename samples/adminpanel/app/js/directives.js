@@ -47,19 +47,32 @@ angular.module('myApp.directives', []).
                     $scope.val.splice(index, 1);
                 };
 
+                $scope.getLookup = function(field, ref){
+                    var lookupFound;
+                    angular.forEach(field.options.lookups, function(lookup, index){
+                        if(lookup.ref === ref){
+                            lookupFound = lookup;
+                        }
+                    });
+                    return lookupFound;
+                };
+
                 $scope.updateOptions = function (field) {
-
-                        var url = field.lookup.url;
-                        $scope.val.ref = field.lookup.ref || field.lookup.lookupname;
-
+                    var lookup = $scope.getLookup(field, $scope.val.ref);
+                    if(field.optionData[lookup.ref]) {
+                        $scope.optionData = field.optionData[lookup.ref];
+                    }
+                    else{
+                        var url = lookup.url;
                         CosmosService.get(url, function (data) {
                                 $scope.optionData = data;
+                                field.optionData[lookup.ref] = data;
                             },
                             function (data, status) {
                                 $scope.processError(data, status);
                             }
                         );
-
+                    }
                 };
 
                 $scope.getTemplate = function (itemType) {
@@ -68,12 +81,15 @@ angular.module('myApp.directives', []).
                         case "text":
                             template = '<span><label>{{item.title}}</label><input type="text" ng-model="val"/></span>';
                             break;
+
                         case "textarea":
                             template = '<span><label>{{item.title}}</label><textarea ng-model="val"/></span>';
                             break;
+
                         case "checkbox":
                             template = '<input type="checkbox" ng-model="val"> <label class="control-label">{{item.title}}</label>';
                             break;
+
                         case "select":
                             template = '' +
                                 '<label class="control-label">{{item.title}}</label>' +
@@ -81,6 +97,7 @@ angular.module('myApp.directives', []).
                                 '   <option ng-if="item.nullable === true"> --- Select ---</option>' +
                                 '</select>';
                             break;
+
                         case "radiogroup":
                             template='' +
                                 '<label class="control-label">{{item.title}}</label>'+
@@ -89,16 +106,20 @@ angular.module('myApp.directives', []).
                                 '   <label class="control-label">{{choice.title}}</label>'+
                                 '</div>';
                             break;
+
                         case "lookup":
                             template = ''+
                                 '<label class="control-label">{{item.title}}</label>'+
-                                '<select ng-model="item.lookup"'+
-                                        'ng-options="lookup.lookupname for lookup in item.options.lookups"'+
+                                '<select ng-model="val.ref"'+
+                                        'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"'+
                                         'ng-change="updateOptions(item)">'+
+                                '   <option ng-value="null">---</option>'+
                                 '</select>'+
 
-                                '<select ng-model="val.data">'+
-                                '    <option ng-value="option[item.lookup.value]" ng-repeat="option in optionData">{{option[item.lookup.title]}}</option>'+
+                                '<select ng-model="val.data">' +
+                                '    <option ng-value="option[getLookup(item, val.ref).value]"' +
+                                '    ng-selected="option[getLookup(item, val.ref).value] === val.data"'+
+                                '        ng-repeat="option in optionData">{{option[getLookup(item, val.ref).title]}}</option>'+
                                 '</select>';
                             break;
 
@@ -113,6 +134,7 @@ angular.module('myApp.directives', []).
                                 '   </li>' +
                                 '</ul>';
                             break;
+
                         case "array":
                             template =
                                 '<div>' +
@@ -127,6 +149,7 @@ angular.module('myApp.directives', []).
                                 '   </li>' +
                                 '</ul>';
                             break;
+
                         default:
                             template = '<span><label>{{item.title}}</label>{{val}}</span>';
                             break;
@@ -145,8 +168,12 @@ angular.module('myApp.directives', []).
                     }
                 }
                 if (scope.item.type === "lookup") {
+                    scope.item.optionData = {};
                     if (!scope.val) {
                         scope.val = {"ref":null, "data":null};
+                    }
+                    else if(scope.val.ref){
+                        scope.updateOptions(scope.item);
                     }
                 }
 
