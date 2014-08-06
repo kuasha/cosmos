@@ -22,10 +22,9 @@ config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/lists/:listId/', {templateUrl: 'partials/widget-host.html', controller: 'ListDetailCtrl'});
     $routeProvider.when('/lists/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
     $routeProvider.when('/content/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
-    $routeProvider.when('/forms/:formId/:dataId?', {templateUrl: 'partials/form-widget.html', controller: 'FormViewController'});
     $routeProvider.when('/forms/', {templateUrl: 'partials/list.html', controller: 'FormListCtrl'});
     $routeProvider.when('/formdesign/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
-    $routeProvider.when('/newform/:formId?/:dataId?', {templateUrl: 'partials/formview.html', controller: 'FormViewCtrl'});
+    $routeProvider.when('/forms/:formId?/:dataId?', {templateUrl: 'partials/formview.html', controller: 'FormViewCtrl'});
 
     $routeProvider.otherwise({redirectTo: '/home'});
 }]);

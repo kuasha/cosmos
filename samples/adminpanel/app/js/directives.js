@@ -47,10 +47,10 @@ angular.module('myApp.directives', []).
                     $scope.val.splice(index, 1);
                 };
 
-                $scope.getLookup = function(field, ref){
+                $scope.getLookup = function (field, ref) {
                     var lookupFound;
-                    angular.forEach(field.options.lookups, function(lookup, index){
-                        if(lookup.ref === ref){
+                    angular.forEach(field.options.lookups, function (lookup, index) {
+                        if (lookup.ref === ref) {
                             lookupFound = lookup;
                         }
                     });
@@ -59,10 +59,10 @@ angular.module('myApp.directives', []).
 
                 $scope.updateOptions = function (field) {
                     var lookup = $scope.getLookup(field, $scope.val.ref);
-                    if(field.optionData[lookup.ref]) {
+                    if (field.optionData[lookup.ref]) {
                         $scope.optionData = field.optionData[lookup.ref];
                     }
-                    else{
+                    else {
                         var url = lookup.url;
                         CosmosService.get(url, function (data) {
                                 $scope.optionData = data;
@@ -99,30 +99,31 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "radiogroup":
-                            template='' +
-                                '<label class="control-label">{{item.title}}</label>'+
-                                '<div class="composite" ng-repeat="choice in item.options.choices">'+
-                                '   <input type="radio" ng-value="choice.value" ng-model="$parent.val">'+
-                                '   <label class="control-label">{{choice.title}}</label>'+
+                            template = '' +
+                                '<label class="control-label">{{item.title}}</label>' +
+                                '<div class="composite" ng-repeat="choice in item.options.choices">' +
+                                '   <input type="radio" ng-value="choice.value" ng-model="$parent.val">' +
+                                '   <label class="control-label">{{choice.title}}</label>' +
                                 '</div>';
                             break;
 
                         case "lookup":
-                            template = ''+
-                                '<label class="control-label">{{item.title}}</label>'+
-                                '<select ng-model="val.ref"'+
-                                        'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"'+
-                                        'ng-change="updateOptions(item)">'+
-                                '   <option ng-value="null">---</option>'+
-                                '</select>'+
+                            template = '' +
+                                '<label class="control-label">{{item.title}}</label>' +
+                                '<select ng-model="val.ref"' +
+                                'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"' +
+                                'ng-change="updateOptions(item)">' +
+                                '   <option ng-value="null">---</option>' +
+                                '</select>' +
 
                                 '<select ng-model="val.data">' +
                                 '    <option ng-value="option[getLookup(item, val.ref).value]"' +
-                                '    ng-selected="option[getLookup(item, val.ref).value] === val.data"'+
-                                '        ng-repeat="option in optionData">{{option[getLookup(item, val.ref).title]}}</option>'+
+                                '    ng-selected="option[getLookup(item, val.ref).value] === val.data"' +
+                                '        ng-repeat="option in optionData">{{option[getLookup(item, val.ref).title]}}</option>' +
                                 '</select>';
                             break;
 
+                        case "form":
                         case "composite":
                             template = '' +
                                 '<div>' +
@@ -151,7 +152,7 @@ angular.module('myApp.directives', []).
                             break;
 
                         default:
-                            template = '<span><label>{{item.title}}</label>{{val}}</span>';
+                            template = null; //'<span><label>{{item.title}}</label>{{val}}</span>';
                             break;
                     }
                     return template;
@@ -160,6 +161,9 @@ angular.module('myApp.directives', []).
 
             link: function (scope, element, attributes) {
                 var template = scope.getTemplate(scope.item.type);
+                if (!template) {
+                    return;
+                }
 
                 if (scope.item.type === "array") {
                     if (!scope.val || scope.val.length < 1) {
@@ -167,12 +171,17 @@ angular.module('myApp.directives', []).
                         scope.add_item();
                     }
                 }
+                if (scope.item.type === "composite" || scope.item.type === "form") {
+                    if (!scope.val) {
+                        scope.val = {};
+                    }
+                }
                 if (scope.item.type === "lookup") {
                     scope.item.optionData = {};
                     if (!scope.val) {
-                        scope.val = {"ref":null, "data":null};
+                        scope.val = {"ref": null, "data": null};
                     }
-                    else if(scope.val.ref){
+                    else if (scope.val.ref) {
                         scope.updateOptions(scope.item);
                     }
                 }
@@ -183,7 +192,22 @@ angular.module('myApp.directives', []).
                 element.replaceWith(newElement);
             }
         };
-    });
+    })
+    .directive('errorBanner', function ($compile) {
+        //TODO: create sub-scope with its own data attribute and clearError() method
+            return {
+                restrict: "E",
+                template: '<div ng-show="hasError" class="bg-warning">' +
+                    '    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>' +
+                    '    <div>' +
+                    '        <label>Error code:</label>' +
+                    '        <span ng-bind="status" />' +
+                    '    </div>' +
+                    '   <div ng-bind="status_data"></div>' +
+                    '</div>'
+            }
+    })
+;
 
 //Following directive is copied from:  https://gist.github.com/thgreasi/7152499c0e91973c4820
 angular.module('gen.genericDirectives', [])

@@ -667,6 +667,8 @@ angular.module('myApp.controllers', [])
         $scope.form = {};
 
         $scope.dataId = $routeParams.dataId;
+        $scope.formId = $routeParams.formId;
+
         $scope.currentData = {};
 
         $scope.initData = function(rawData, parent){
@@ -694,8 +696,6 @@ angular.module('myApp.controllers', [])
             $scope.status = "";
             $scope.status_data = "";
         };
-
-        $scope.formId = $routeParams.formId;
 
         $scope.processError = function (data, status) {
             $scope.hasError = true;
@@ -1120,116 +1120,91 @@ angular.module('myApp.controllers', [])
 
         }])
 
-    .controller('FormViewCtrl', function ($scope) {
-        $scope.data =
-        {
-            "name": "mar",
-            "address": {"street": "989",
-                "members": [
-                    {"name": "k"}
-                ]
-            },
-            "subscribe":false,
-            "nationality":"BD",
-            "gender":"male",
-            "assets": [
-                {"type": "my", "price": "100",
-                    "brand": {"name": "nike", "locations": [
-                        {"city": "bel"},
-                        {"city": "red"}
-                    ]
-                    }}
-            ],
-            "createdby":{"ref":"organization","data":"53b8b5fc8c66ab67c5bc3db2"}
+    .controller('FormViewCtrl',['$scope', '$routeParams', '$location', 'CosmosService','message',
+        function ($scope, $routeParams, $location, CosmosService,message) {
+        $scope.form = {};
+        $scope.data = {};
+        $scope.formId = $routeParams.formId;
+        $scope.dataId = $routeParams.dataId;
+
+        $scope.clearError = function () {
+            $scope.hasError = false;
+            $scope.status = "";
+            $scope.status_data = "";
         };
-        $scope.form = {'name': 'form', "title": "Test form", 'type': 'composite',
-            'fields': [
-                {'name': 'name', "title": "Name", 'type': 'text'},
-                {'name': 'address', "title": "Address", 'type': 'composite',
-                    'fields': [
-                        {'name': 'street', "title": "Street", 'type': 'textarea'},
-                        {'name': 'city', "title": "City", 'type': 'text'},
-                        {'name': 'zip', "title": "Zip/Postal", 'type': 'text'},
-                        {'name': 'state', "title": "State", 'type': 'text'},
-                        {'name': 'members', "title": "Members", 'type': 'array',
-                            'fields': [
-                                {'name': 'name', "title": "Name", 'type': 'text'}
-                            ]
-                        }
-                    ]
+
+        $scope.processError = function (data, status) {
+            $scope.hasError = true;
+            $scope.status = status;
+            $scope.status_data = JSON.stringify(data);
+        };
+
+        $scope.getConfiguration = function () {
+            var url = '/service/cosmos.forms/' + $scope.formId + '/';
+
+            CosmosService.get(url, function (data) {
+                    $scope.data = {};
+                    $scope.form = data;
+                    $scope.getData();
                 },
-                {
-                    "title": "Nationality",
-                    "type": "select",
-                    "options": { "choices": [
-                        {
-                            "value": "BD",
-                            "title": "Bangladesh"
-                        },
-                        {
-                            "value": "US",
-                            "title": "United States"
-                        }
-                    ]},
-                    "name": "nationality",
-                    "nullable": true
-                },
-                {
-                    "title": "Created by",
-                    "type": "lookup",
-                    "options": {
-                        "lookups": [
-                            {
-                                "url": "/service/cosmos.users/?columns=username",
-                                "lookupname": "Users",
-                                "ref":"user",
-                                "value": "_id",
-                                "title": "username"
-                            },
-                            {
-                                "url": "/service/cosmos.users/?columns=username",
-                                "lookupname": "Organizations",
-                                "ref":"organization",
-                                "value": "_id",
-                                "title": "username"
-                            }
-                        ]
-                    },
-                    "name": "createdby"
-                },
-                {
-                    "title": "Gender",
-                    "type": "radiogroup",
-                    "options": { "choices": [
-                        {
-                            "value": "male",
-                            "title": "Male"
-                        },
-                        {
-                            "value": "female",
-                            "title": "Female"
-                        }
-                    ]},
-                    "name": "gender"
-                },
-                {"name": "subscribe", "title": "Subscribe to newsletter", "type": "checkbox"},
-                {'name': 'assets', "title": "Assets", 'type': 'array',
-                    'fields': [
-                        {'name': 'type', "title": "Type", 'type': 'text'},
-                        {'name': 'price', "title": "Price", 'type': 'text'},
-                        {'name': 'brand', "title": "Brand", 'type': 'composite',
-                            'fields': [
-                                {'name': 'name', "title": "Name", 'type': 'text'},
-                                {'name': 'locations', "title": "Locations", 'type': 'array',
-                                    'fields': [
-                                        {'name': 'city', "title": "City", 'type': 'text'}
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
+                function (data, status) {
+                    $scope.processError(data, status);
                 }
-            ]
+            );
         };
-    })
+
+        $scope.getData = function(){
+            if($scope.dataId){
+                var url = $scope.form.action + '/'+ $scope.dataId + '/';
+                CosmosService.get(url, function (data) {
+                        $scope.data = data;
+                    },
+                    function (data, status) {
+                        $scope.processError(data, status);
+                    }
+                );
+            }
+        };
+
+        $scope.processResult = function(form, result){
+            if(form && form.onsuccess){
+                if(form.onsuccess.type === "url"){
+                    window.location.href = form.onsuccess.value;
+                }
+                else if(form.onsuccess.type === "message"){
+                    message.push({"message":form.onsuccess.value, "title":"Sucess", "data": result});
+                    $location.path('/message');
+                }
+            }
+        };
+
+        $scope.onSubmit = function () {
+            if($scope.form.action) {
+                if($scope.form.action) {
+                    if(!$scope.dataId) {
+                        CosmosService.post($scope.form.action, $scope.data, function (data) {
+                                $scope.processResult($scope.form, data);
+                            },
+                            function (data, status) {
+                                $scope.processError(data, status);
+                            }
+                        );
+                    }
+                    else{
+                        var url = $scope.form.action + '/'+ $scope.dataId + '/';
+                        CosmosService.put(url, $scope.data, function (data) {
+                                $scope.processResult($scope.form, data);
+                            },
+                            function (data, status) {
+                                $scope.processError(data, status);
+                            }
+                        );
+                    }
+                }
+            }
+        };
+
+        $scope.getConfiguration();
+
+    }])
 ;
