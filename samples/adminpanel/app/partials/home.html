@@ -16,12 +16,12 @@
     </div>
     <div class="form-group">
         <label>Data [* POST|PUT]</label>
-        <textarea class="form-control" id="data" name="data" ng-model="data"></textarea>
+        <div ui-ace="{'mode':'json'}" ng-model="data"></div>
     </div>
 
     <div class="form-group">
         <label>Result</label>
-        <textarea class="form-control" id="result" name="result" ng-model="result"></textarea>
+        <div ui-ace="{'mode':'json'}" ng-model="result"></div>
     </div>
     <div class="form-group">
         <button class="btn btn-primary" ng-click="get()">  GET </button>

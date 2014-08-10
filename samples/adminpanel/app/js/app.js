@@ -7,6 +7,7 @@ var myApp = angular.module('myApp', [
     'ui.bootstrap',
     'gen.genericDirectives',
     'ui.sortable',
+    'ui.ace',
     'myApp.filters',
     'myApp.services',
     'myApp.directives',

@@ -42,3 +42,8 @@
 .editor{
     min-width: 400px;
 }
+
+.ace_editor {
+    min-height: 200px;
+}
+

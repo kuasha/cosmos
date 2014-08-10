@@ -83,7 +83,11 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "textarea":
-                            template = '<span><label>{{item.title}}</label><textarea ng-model="val"/></span>';
+                            template = '<span><label>{{item.title}}</label><textarea ng-model="val" /></span>';
+                            break;
+
+                        case "codeeditor":
+                            template = '<span><label>{{item.title}}</label><div ui-ace ng-model="val"></div></span>';
                             break;
 
                         case "checkbox":
