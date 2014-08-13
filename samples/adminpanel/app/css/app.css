@@ -47,3 +47,7 @@
     min-height: 200px;
 }
 
+.table-hover tbody tr:hover > td {
+    cursor: pointer;
+    cursor: hand;
+}

@@ -8,6 +8,7 @@ var myApp = angular.module('myApp', [
     'gen.genericDirectives',
     'ui.sortable',
     'ui.ace',
+    'yaru22.jsonHuman',
     'myApp.filters',
     'myApp.services',
     'myApp.directives',

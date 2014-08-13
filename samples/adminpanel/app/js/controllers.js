@@ -575,10 +575,31 @@ angular.module('myApp.controllers', [])
                 );
             };
 
+            $scope.showDetails = function (size, data, listConfiguration) {
+                if(listConfiguration.allowDetails) {
+                    var modalInstance = $modal.open({
+                        templateUrl: 'partials/show_json.html',
+                        controller: "ShowJsonDataCtrl",
+                        size: size,
+                        backdrop: 'static',
+                        resolve: {
+                            model: function () {
+                                return data;
+                            }
+                        }
+                    });
+                }
+            };
+
             $scope.getConfiguration();
 
         }])
-
+    .controller('ShowJsonDataCtrl', ['$scope', '$modalInstance', 'model', function ($scope, $modalInstance, model) {
+            $scope.model = model;
+            $scope.cancel = function () {
+                $modalInstance.dismiss('cancel');
+            };
+        }])
     .controller('FileUploadCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
 
         $scope.clearError = function () {
