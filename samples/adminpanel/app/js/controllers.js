@@ -868,10 +868,12 @@ angular.module('myApp.controllers', [])
             $scope.toolsList = [
                 {title: 'Text', type: "text"},
                 {title: 'Text Area', type: "textarea", options:{}},
+                {title: 'Code editor', type: "codeeditor", options:{}},
                 { title: 'Select', type: 'select', options:{choices:[{'value':'option1', 'title':'option1'},{'value':'option2', 'title':'option2'}]}},
                 { title: 'Checkbox', type: 'checkbox', options:{}},
                 { title: 'Options', type: 'radiogroup', options:{ choices:[{'value':'option1', 'title':'option1'},{'value':'option2', 'title':'option2'}]}},
-                {title: 'Group', type: "composite", options:{}, fields: []}
+                {title: 'Group', type: "composite", options:{}, fields: []},
+                {title: 'Array', type: "array", options:{}, fields: []}
             ];
 
             $scope.components = jQuery.extend(true, [], $scope.toolsList);

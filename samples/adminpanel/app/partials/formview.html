@@ -5,8 +5,8 @@
         <h1>{{form.title}}</h1>
     </div>
     <ul>
-        <li ng-repeat="ph in form.fields">
-            <field item="ph" val="data[ph.name]"></field>
+        <li ng-repeat="field in form.fields">
+            <field item="field" val="data[field.name]"></field>
         </li>
     </ul>
     <button class="btn btn-primary" ng-click="onSubmit()">Submit</button>

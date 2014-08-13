@@ -65,6 +65,13 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="codeeditor-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label>{{field.title}}</label>
+        <div ui-ace class="editor" ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled"></div>
+    </div>
+</script>
+
 <script type="text/ng-template" id="checkbox-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <input type="checkbox" ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled">
@@ -112,6 +119,18 @@
         <label class="control-label">{{field.title}}</label>
         <ul ng-if="field.type === 'composite' || field.type === 'form'" class="apps-container" ui-sortable="sortableOptions"
             ng-model="field.fields">
+            <li class="innerCont" ng-repeat="field in field.fields">
+                <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
+                <div ng-include="field.type+'-field.html'"></div>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script type="text/ng-template" id="array-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{field.title}} [ ]</label>
+        <ul class="apps-container" ui-sortable="sortableOptions" ng-model="field.fields">
             <li class="innerCont" ng-repeat="field in field.fields">
                 <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
                 <div ng-include="field.type+'-field.html'"></div>
