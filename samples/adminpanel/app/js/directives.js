@@ -125,7 +125,7 @@ angular.module('myApp.directives', []).
                             if(item.options.saveValueOnly){
                                 template = '' +
                                     '<label class="control-label">{{item.title}}</label>' +
-                                    '<select ng-model="ref" ' +
+                                    '<select ng-if="!item.options.hideRefType" ng-model="ref" ' +
                                     'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"' +
                                     'ng-change="updateOptions(item)">' +
                                     '   <option ng-value="null">---</option>' +
@@ -202,17 +202,23 @@ angular.module('myApp.directives', []).
                         scope.add_item();
                     }
                 }
+
                 if (scope.item.type === "composite" || scope.item.type === "form") {
                     if (!scope.val) {
                         scope.val = {};
                     }
                 }
+
                 if (scope.item.type === "lookup") {
                     scope.item.optionData = {};
                     if (!scope.val && !scope.item.options.saveValueOnly) {
                         scope.val = {"ref": null, "data": null};
                     }
-                    if ((scope.val && scope.val.ref) ||(scope.item.options.saveValueOnly && scope.ref)) {
+                    else if ((scope.val && scope.val.ref) ||(scope.item.options.saveValueOnly && scope.ref)) {
+                        scope.updateOptions(scope.item);
+                    }
+                    else if (scope.item.options.saveValueOnly && scope.item.options.hideRefType){
+                        scope.ref = scope.item.options.lookups[0].ref;
                         scope.updateOptions(scope.item);
                     }
                 }
