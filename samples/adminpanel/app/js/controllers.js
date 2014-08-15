@@ -594,13 +594,13 @@ angular.module('myApp.controllers', [])
             $scope.getConfiguration();
 
         }])
-    .controller('ShowJsonDataCtrl', ['$scope', '$modalInstance', 'model', function ($scope, $modalInstance, model) {
+        .controller('ShowJsonDataCtrl', ['$scope', '$modalInstance', 'model', function ($scope, $modalInstance, model) {
             $scope.model = model;
             $scope.cancel = function () {
                 $modalInstance.dismiss('cancel');
             };
         }])
-    .controller('FileUploadCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
+        .controller('FileUploadCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
 
         $scope.clearError = function () {
             $scope.hasError = false;
@@ -934,6 +934,7 @@ angular.module('myApp.controllers', [])
                                     {
                                         "url": "/service/cosmos.users/?columns=username",
                                         "lookupname": "Users",
+                                        "ref":"users",
                                         "value": "_id",
                                         "title": "username"
                                     }

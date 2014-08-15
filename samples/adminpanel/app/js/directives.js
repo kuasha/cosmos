@@ -58,7 +58,16 @@ angular.module('myApp.directives', []).
                 };
 
                 $scope.updateOptions = function (field) {
-                    var lookup = $scope.getLookup(field, $scope.val.ref);
+                    var lookup;
+                    if($scope.item.options.saveValueOnly){
+                        $scope.val = undefined;
+                        lookup = $scope.getLookup(field, $scope.ref);
+                    }
+                    else {
+                        $scope.val.data = undefined;
+                        lookup = $scope.getLookup(field, $scope.val.ref || $scope.ref);
+                    }
+
                     if (field.optionData[lookup.ref]) {
                         $scope.optionData = field.optionData[lookup.ref];
                     }
@@ -75,7 +84,8 @@ angular.module('myApp.directives', []).
                     }
                 };
 
-                $scope.getTemplate = function (itemType) {
+                $scope.getTemplate = function (item) {
+                    var itemType = item.type;
                     var template;
                     switch (itemType) {
                         case "text":
@@ -112,19 +122,36 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "lookup":
-                            template = '' +
-                                '<label class="control-label">{{item.title}}</label>' +
-                                '<select ng-model="val.ref"' +
-                                'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"' +
-                                'ng-change="updateOptions(item)">' +
-                                '   <option ng-value="null">---</option>' +
-                                '</select>' +
+                            if(item.options.saveValueOnly){
+                                template = '' +
+                                    '<label class="control-label">{{item.title}}</label>' +
+                                    '<select ng-model="ref" ' +
+                                    'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"' +
+                                    'ng-change="updateOptions(item)">' +
+                                    '   <option ng-value="null">---</option>' +
+                                    '</select>' +
 
-                                '<select ng-model="val.data">' +
-                                '    <option ng-value="option[getLookup(item, val.ref).value]"' +
-                                '    ng-selected="option[getLookup(item, val.ref).value] === val.data"' +
-                                '        ng-repeat="option in optionData">{{option[getLookup(item, val.ref).title]}}</option>' +
-                                '</select>';
+                                    '<select ng-model="val">' +
+                                    '    <option ng-value="option[getLookup(item, ref).value]"' +
+                                    '    ng-selected="option[getLookup(item, ref).value] === val"' +
+                                    '        ng-repeat="option in optionData">{{option[getLookup(item, ref).title]}}</option>' +
+                                    '</select>';
+                            }
+                            else {
+                                template = '' +
+                                    '<label class="control-label">{{item.title}}</label>' +
+                                    '<select ng-model="val.ref" ' +
+                                    'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"' +
+                                    'ng-change="updateOptions(item)">' +
+                                    '   <option ng-value="null">---</option>' +
+                                    '</select>' +
+
+                                    '<select ng-model="val.data">' +
+                                    '    <option ng-value="option[getLookup(item, val.ref).value]"' +
+                                    '    ng-selected="option[getLookup(item, val.ref).value] === val.data"' +
+                                    '        ng-repeat="option in optionData">{{option[getLookup(item, val.ref).title]}}</option>' +
+                                    '</select>';
+                            }
                             break;
 
                         case "form":
@@ -164,7 +191,7 @@ angular.module('myApp.directives', []).
             }],
 
             link: function (scope, element, attributes) {
-                var template = scope.getTemplate(scope.item.type);
+                var template = scope.getTemplate(scope.item);
                 if (!template) {
                     return;
                 }
@@ -182,14 +209,13 @@ angular.module('myApp.directives', []).
                 }
                 if (scope.item.type === "lookup") {
                     scope.item.optionData = {};
-                    if (!scope.val) {
+                    if (!scope.val && !scope.item.options.saveValueOnly) {
                         scope.val = {"ref": null, "data": null};
                     }
-                    else if (scope.val.ref) {
+                    if ((scope.val && scope.val.ref) ||(scope.item.options.saveValueOnly && scope.ref)) {
                         scope.updateOptions(scope.item);
                     }
                 }
-
 
                 var newElement = angular.element(template);
                 $compile(newElement)(scope);
