@@ -173,10 +173,14 @@ class RbacServiceTest(LoggedTestCase):
         #Test user gets expanded roles correctly
         user = {"username": "testuser", "roles": [sample_role_group["sid"]] }
         found_user_roles = serv.get_roles(user)
-        assert found_user_roles
         assert len(found_user_roles) == 2
-        assert "43425097-e630-41ea-88eb-17b339339707" in found_user_roles
-        assert "43425097-e630-41ea-88eb-17b339339706" in found_user_roles
+        found_sid_list=[]
+        
+        for role in found_user_roles:
+            found_sid_list.append(role.sid)
+
+        assert "43425097-e630-41ea-88eb-17b339339707" in found_sid_list
+        assert "43425097-e630-41ea-88eb-17b339339706" in found_sid_list
 
 if __name__ == "__main__":
     unittest.main()
