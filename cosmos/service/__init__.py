@@ -38,6 +38,10 @@ class BootLoader():
                                                         cosmos.rbac.object.COSMOS_ROLE_OBJECT_NAME,
                                                         [AccessType.INSERT, AccessType.UPDATE, AccessType.DELETE])
 
+        cosmos.dataservice.objectservice.add_operation_postprocessor(after_role_group_insert_update_delete,
+                                                        cosmos.rbac.object.COSMOS_ROLE_GROUP_OBJECT_NAME,
+                                                        [AccessType.INSERT, AccessType.UPDATE, AccessType.DELETE])
+
         for observer in observers:
             assert isinstance(observer, dict)
             func = observer["function"]
@@ -54,8 +58,12 @@ class BootLoader():
     def clear_non_system_roles(self):
         cosmos.rbac.service.clear_non_system_roles()
 
+    def clear_non_system_role_groups(self):
+        cosmos.rbac.service.clear_non_system_role_groups()
+
     @gen.coroutine
     def load_roles(self, db):
+
         object_service = ObjectService()
         object_name = COSMOS_ROLE_OBJECT_NAME
         columns = []
@@ -68,6 +76,22 @@ class BootLoader():
                 cosmos.rbac.service.update_role_cache(role)
             except ValueError, ve:
                 logging.exception("Role {0} could not be loaded.".format(role.get("name")))
+
+    @gen.coroutine
+    def load_role_groups(self, db):
+        object_service = ObjectService()
+
+        rg_object_name = COSMOS_ROLE_GROUP_OBJECT_NAME
+        columns = []
+
+        rg_cursor = object_service.find(SYSTEM_USER, db, rg_object_name, None, columns)
+
+        while(yield rg_cursor.fetch_next):
+            role_group_def = rg_cursor.next_object()
+            try:
+                cosmos.rbac.service.update_role_group_cache(role_group_def)
+            except ValueError, ve:
+                logging.exception("Role group {0} could not be loaded.".format(role_group_def.get("name")))
 
     def config_mongolog(self, db_uri, db_name, log_col_name, log_level):
         c_sync = pymongo.MongoClient(db_uri, w=0)
@@ -83,3 +107,12 @@ def after_role_insert_update_delete(db, object_name, result, access_type):
     loader = BootLoader()
     loader.clear_non_system_roles()
     loader.load_roles(db)
+
+@gen.coroutine
+def after_role_group_insert_update_delete(db, object_name, result, access_type):
+    assert object_name == COSMOS_ROLE_GROUP_OBJECT_NAME
+    assert access_type == AccessType.INSERT or access_type == AccessType.UPDATE or access_type == AccessType.DELETE
+    logging.info("Role group has changed. Operation = [{}]. Reloading roles.".format(access_type))
+    loader = BootLoader()
+    loader.clear_non_system_role_groups()
+    loader.load_role_groups(db)

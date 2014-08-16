@@ -8,7 +8,7 @@
 import json
 
 COSMOS_ROLE_OBJECT_NAME = "cosmos.rbac.object.role"
-COSMOS_ROLE_GROUP_OBJECT_NAME = "cosmos.rbac.object.rolegroup"
+COSMOS_ROLE_GROUP_OBJECT_NAME = "cosmos.rbac.object.rolegroups"
 COSMOS_USERS_OBJECT_NAME = "cosmos.users"
 COSMOS_USERS_IDENTITY_OBJECT_NAME = "cosmos.users.identity"
 

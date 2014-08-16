@@ -83,7 +83,7 @@ angular.module('myApp.directives', []).
                         );
                     }
                 };
-
+                //TODO: Allow primitive array. Currently we only allow object array. User story: design role group form
                 $scope.getTemplate = function (item) {
                     var itemType = item.type;
                     var template;

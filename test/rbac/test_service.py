@@ -42,7 +42,7 @@ class RbacServiceTest(LoggedTestCase):
 
     def test_has_access(self):
         role_cache = RoleCache()
-        role_cache.get_roles = MagicMock(return_value = WELL_KNOWN_ROLES)
+        role_cache.get_roles = MagicMock(return_value=WELL_KNOWN_ROLES)
 
         admin_role = self._get_admin_role()
         service = RbacService(role_cache=role_cache)
@@ -89,6 +89,94 @@ class RbacServiceTest(LoggedTestCase):
         self.failUnless(not service.has_access(
             admin_role, test_object_name, RbacService.ALLOW_ALL_PROPERTY_NAME, AccessType.DELETE))
 
+    def test_get_role_group_cache_and_expand(self):
+
+        sample_role = {
+            "name": "TestRole",
+            "role_items": [
+                {
+                    "access": [
+                        "INSERT",
+                        "READ",
+                        "WRITE"
+                    ],
+                    "object_name": "testservice",
+                    "property_name": "name",
+                    "type": "object.RoleItem"
+                },
+                {
+                    "access": [
+                        "INSERT",
+                        "READ",
+                        "WRITE"
+                    ],
+                    "object_name": "testservice",
+                    "property_name": "address",
+                    "type": "object.RoleItem"
+                },
+                {
+                    "access": [
+                        "INSERT",
+                        "READ",
+                        "WRITE"
+                    ],
+                    "object_name": "testservice",
+                    "property_name": "*",
+                    "type": "object.RoleItem"
+                },
+                {
+                    "access": [
+                        "DELETE"
+                    ],
+                    "object_name": "testservice",
+                    "property_name": "*",
+                    "type": "object.RoleItem"
+                }
+            ],
+            "type": "object.Role",
+            "sid": "43425097-e630-41ea-88eb-17b339339707"
+        }
+
+        sample_role_group = {
+            "name": 'TestGroup',
+            "sid": '3222c945-48eb-493f-9388-9f06292b27d3',
+            "role_sids": [
+                "43425097-e630-41ea-88eb-17b339339707",
+                "3222c945-48eb-493f-9388-9f06292b27d2" #Administrators group
+            ],
+            "type": "object.RoleGroup"
+        }
+
+        serv = RbacService()
+
+        role= get_role_object(sample_role)
+        role_json =  role.to_JSON()
+
+        assert serv.has_access(role, "testservice", ["name"], AccessType.READ)
+        assert serv.has_access(role, "testservice", ["name"], AccessType.UPDATE)
+        assert serv.has_access(role, "testservice", ["address"], AccessType.READ)
+
+        role_def = json.loads(role_json)
+        role2 = get_role_object(sample_role)
+        #TODO: verify and move to new test case
+
+        update_role_cache(sample_role)
+        update_role_group_cache(sample_role_group)
+        group = serv.get_role_group(sample_role_group["sid"])
+        expand_role_group = []
+        serv.expand_role_group(group, expand_role_group)
+
+        assert len(expand_role_group) == 2
+        assert "43425097-e630-41ea-88eb-17b339339707" in expand_role_group
+        assert "43425097-e630-41ea-88eb-17b339339706" in expand_role_group
+
+        #Test user gets expanded roles correctly
+        user = {"username": "testuser", "roles": [sample_role_group["sid"]] }
+        found_user_roles = serv.get_roles(user)
+        assert found_user_roles
+        assert len(found_user_roles) == 2
+        assert "43425097-e630-41ea-88eb-17b339339707" in found_user_roles
+        assert "43425097-e630-41ea-88eb-17b339339706" in found_user_roles
 
 if __name__ == "__main__":
     unittest.main()
