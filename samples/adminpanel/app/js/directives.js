@@ -31,9 +31,22 @@ angular.module('myApp.directives', []).
                             $scope.prepareObject(value, data[value.name][0]);
                         }
                         else {
-                            data[value.name] = "";
+                            if(value.name) {
+                                data[value.name] = "";
+                            }
+                            else{
+                                //data[value] = "";
+                            }
+
                         }
                     });
+                };
+
+                $scope.add_primitive_item = function (position) {
+                    var newItem = "";
+                    $scope.prepareObject($scope.item, newItem);
+
+                    $scope.val.splice(position + 1, 0, newItem);
                 };
 
                 $scope.add_item = function (position) {
@@ -168,18 +181,34 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "array":
-                            template =
-                                '<div>' +
-                                '   <label>{{item.title}}</label>' +
-                                '   <button ng-click="add_item(-1)">+</button>' +
-                                '</div>' +
-                                '<ul>' +
-                                '   <li ng-repeat="d in val">' +
-                                '       <field val="d[ph.name]" item="ph" ng-repeat="ph in item.fields"></field>' +
-                                '       <button ng-click="removeItem($index)">-</button>' +
-                                '       <button ng-click="add_item($index)">+</button>' +
-                                '   </li>' +
-                                '</ul>';
+                            if(item.options.primitive) {
+                                template =
+                                    '<div>' +
+                                    '   <label>{{item.title}}</label>' +
+                                    '   <button ng-click="add_primitive_item(-1)">+</button>' +
+                                    '</div>' +
+                                    '<ul>' +
+                                    '   <li ng-repeat="v in val track by $index">' +
+                                    '       <field val="val[$index]" item="item.fields[0]"></field>' +
+                                    '       <button ng-click="removeItem($index)">-</button>' +
+                                    '       <button ng-click="add_primitive_item($index)">+</button>' +
+                                    '   </li>' +
+                                    '</ul>';
+                            }
+                            else {
+                                template =
+                                    '<div>' +
+                                    '   <label>{{item.title}}</label>' +
+                                    '   <button ng-click="add_item(-1)">+</button>' +
+                                    '</div>' +
+                                    '<ul>' +
+                                    '   <li ng-repeat="d in val">' +
+                                    '       <field val="d[field.name]" item="field" ng-repeat="field in item.fields"></field>' +
+                                    '       <button ng-click="removeItem($index)">-</button>' +
+                                    '       <button ng-click="add_item($index)">+</button>' +
+                                    '   </li>' +
+                                    '</ul>';
+                            }
                             break;
 
                         default:
@@ -199,7 +228,6 @@ angular.module('myApp.directives', []).
                 if (scope.item.type === "array") {
                     if (!scope.val || scope.val.length < 1) {
                         scope.val = [];
-                        scope.add_item();
                     }
                 }
 
