@@ -888,6 +888,7 @@ angular.module('myApp.controllers', [])
 
             $scope.toolsList = [
                 {title: 'Text', type: "text"},
+                {title: 'Static', type: "static", options:{"value":""}},
                 {title: 'Text Area', type: "textarea", options:{}},
                 {title: 'Code editor', type: "codeeditor", options:{}},
                 { title: 'Select', type: 'select', options:{choices:[{'value':'option1', 'title':'option1'},{'value':'option2', 'title':'option2'}]}},

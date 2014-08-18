@@ -53,6 +53,11 @@ angular.module('myApp.directives', []).
                     var newItem = {};
                     $scope.prepareObject($scope.item, newItem);
 
+                    if(!$scope.val){
+                        //TODO: This condition should be handled from link function
+                        $scope.val = [];
+                    }
+
                     $scope.val.splice(position + 1, 0, newItem);
                 };
 
@@ -103,6 +108,10 @@ angular.module('myApp.directives', []).
                     switch (itemType) {
                         case "text":
                             template = '<span><label>{{item.title}}</label><input type="text" ng-model="val"/></span>';
+                            break;
+
+                        case "static":
+                            template = '<span><label>{{item.title}}</label><input type="text" ng-model="val" readonly="readonly"/></span>';
                             break;
 
                         case "textarea":
@@ -174,14 +183,14 @@ angular.module('myApp.directives', []).
                                 '   <label>{{item.title}}</label>' +
                                 '</div>' +
                                 '<ul>' +
-                                '   <li ng-repeat="ph in item.fields">' +
-                                '       <field item="ph" val="val[ph.name]"></field>' +
+                                '   <li ng-repeat="field in item.fields">' +
+                                '       <field item="field" val="val[field.name]"></field>' +
                                 '   </li>' +
                                 '</ul>';
                             break;
 
                         case "array":
-                            if(item.options.primitive) {
+                            if(item.options && item.options.primitive) {
                                 template =
                                     '<div>' +
                                     '   <label>{{item.title}}</label>' +
@@ -223,6 +232,10 @@ angular.module('myApp.directives', []).
                 var template = scope.getTemplate(scope.item);
                 if (!template) {
                     return;
+                }
+
+                if (scope.item.type === "static") {
+                    scope.val = scope.item.options.value;
                 }
 
                 if (scope.item.type === "array") {

@@ -175,7 +175,7 @@ class RbacServiceTest(LoggedTestCase):
         found_user_roles = serv.get_roles(user)
         assert len(found_user_roles) == 2
         found_sid_list=[]
-        
+
         for role in found_user_roles:
             found_sid_list.append(role.sid)
 

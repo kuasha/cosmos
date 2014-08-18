@@ -63,6 +63,7 @@ class BootLoader():
 
     @gen.coroutine
     def load_roles(self, db):
+        logging.debug("Loading all roles.")
 
         object_service = ObjectService()
         object_name = COSMOS_ROLE_OBJECT_NAME
@@ -79,6 +80,8 @@ class BootLoader():
 
     @gen.coroutine
     def load_role_groups(self, db):
+        logging.debug("Loading all role groups.")
+
         object_service = ObjectService()
 
         rg_object_name = COSMOS_ROLE_GROUP_OBJECT_NAME

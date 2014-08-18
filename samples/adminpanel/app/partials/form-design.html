@@ -58,6 +58,13 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="static-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label>{{field.title}}</label>
+        <input ng-class="field.className" type="text" name="{{field.model}}" ng-model="field.options.value"/>
+    </div>
+</script>
+
 <script type="text/ng-template" id="textarea-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <label>{{field.title}}</label>
