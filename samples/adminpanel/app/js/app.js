@@ -28,6 +28,8 @@ config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/formdesign/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
     $routeProvider.when('/forms/:formId?/:dataId?', {templateUrl: 'partials/formview.html', controller: 'FormViewCtrl'});
 
+    $routeProvider.when('/page/:pageId?', {templateUrl: 'partials/page.html', controller: 'PageViewCtrl'});
+
     $routeProvider.otherwise({redirectTo: '/home'});
 }]);
 

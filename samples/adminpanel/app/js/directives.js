@@ -101,11 +101,79 @@ angular.module('myApp.directives', []).
                         );
                     }
                 };
+                $scope.validateBlockType = function(blockType){
+                    switch (blockType) {
+                        case 'h1':
+                        case 'h2':
+                        case 'h3':
+                        case 'h4':
+                        case 'h5':
+                        case 'p':
+                            break;
+                        default:
+                            throw "HTML block not allowed";
+                            break;
+                    }
+                };
                 //TODO: Allow primitive array. Currently we only allow object array. User story: design role group form
                 $scope.getTemplate = function (item) {
                     var itemType = item.type;
                     var template;
                     switch (itemType) {
+                        //Page fields
+                        case "htmlblock":
+                            $scope.validateBlockType(item.blocktype);
+                            template = '<'+item.blocktype+'>{{item.value}}</'+item.blocktype+'>';
+                            break;
+                        case "image":
+                            template = '<img src="{{item.src}}" />';
+                            break;
+                        case "twocolumn":
+                            template = ''+
+                                '<div class="container-fluid">'+
+                                '   <div class="row">'+
+                                '       <div class="{{item.leftcolumn.cssclass}}">' +
+                                '           <field item="item.leftcolumn"></field>' +
+                                '       </div>'+
+                                '       <div class="{{item.rightcolumn.cssclass}}">' +
+                                '           <field item="item.rightcolumn"></field>' +
+                                '       </div>'+
+                                '   </div>'+
+                                '</div>';
+                            break;
+                        case "menu":
+                            template= ''+
+                            '<div class="container-fluid">'+
+                            '<div class="navbar-header">'+
+                            '    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">'+
+                            '        <span class="sr-only">Toggle navigation</span>'+
+                            '        <span class="icon-bar"></span>'+
+                            '        <span class="icon-bar"></span>'+
+                            '        <span class="icon-bar"></span>'+
+                            '    </button>'+
+                            '   <a class="navbar-brand" href="{{item.brandhref}}">{{item.brandtitle}}</a>'+
+                            ' </div>'+
+                                '<div class="navbar-collapse collapse">'+
+                                    '<ul class="nav navbar-nav">' +
+                                    '   <li ng-repeat="field in item.fields">' +
+                                    '       <field item="field"></field>' +
+                                    '   </li>' +
+                                    '</ul>'+
+                                '</div>'+
+                            '</div>';
+
+                            break;
+                        case "menuitem":
+                            template = '' +
+                                '   <a href="{{item.value.href}}">{{item.value.title}}</a>';
+                            break;
+                        case "compositeblock":
+                            template = '' +
+                                '<div ng-repeat="field in item.fields">' +
+                                '    <field item="field"></field>' +
+                                '</div>';
+                            break;
+                        //Form fields
                         case "text":
                             template = '<span><label>{{item.title}}</label><input type="text" ng-model="val"/></span>';
                             break;

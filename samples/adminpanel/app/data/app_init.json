@@ -1,150 +1,161 @@
 {
-    "name": "bootstrap_objects",
-    "values": [
-        {
-            "object": "userdata.widgets",
-            "data": [
-                {
-                    "name": "widget_product_list.html",
-                    "template": "<div class=\"product\" ng-repeat=\"item in data\" ng-include=\" 'widget_product.html' \" />",
-                    "_id": "53c195cc8c66ab35fab548dc"
-                },
-                {
-                    "name": "widget_product.html",
-                    "template": "<label>Test</label><div ng-repeat=\"column in listConfiguration.columns\">{{item[column.name]}}</div>",
-                    "_id": "53c197018c66ab35fab548dd"
-                },
-                {
-                    "name": "list-detail.html",
-                    "template": "<div><error ng-include=\" 'widget_error_banner.html' \" /></div><h3>{{listConfiguration.title}}</h3><div class=\"left-col\"></div><div class=\"right-col\" ng-include=\" 'widget_product_list.html' \" ></div>",
-                    "_id": "53c1cead8c66ab63025e0c06"
-                },
-                {
-                    "name": "form_list_widget.html",
-                    "template": "<div ng-repeat=\"item in data\"><a href=\"#/forms/{{item['_id']}}\">{{item['title']}}</a> <a class=\"btn btn-xs btn-warning glyphicon glyphicon-edit pull-right\" href=\"#/formdesign/{{item['_id']}}\"></a></div>",
-                    "_id": "53d604aa8c66ab5450411429"
-                },
-                {
-                    "name": "list-config-detail.html",
-                    "template": "<table class=\"table\"><tr><th>Id</th><th>Object</th><th>Title</th><th>Columns</th></tr><tr ng-repeat=\"item in data\"><td>{{item._id}}</td><td>{{item.objectName}}<td>{{item.title}}</td> <td><div ng-repeat=\"column in item.columns\">{{column.title}} ({{column.name}})</div></td></tr></table>",
-                    "_id": "53d854aa8c66ab5450411430"
-                },
-                {
-                    "name": "widget-list.html",
-                    "template": "<table class=\"table\">\n    <tr>\n        <th>Name</th><th>Template</th><th>&nbsp;</th>\n    </tr>\n    <tr ng-repeat=\"item in data\">\n        <td>{{item.name}}</td>\n        <td>{{item.template}}</td>\n        <td><a href=\"/#/forms/53d90f6f8c66ab5450411437/{{item._id}}/\">Edit</a></td>\n    </tr>\n</table>\n\n<a class=\"btn btn-primary\" href=\"/#/forms/53d90f6f8c66ab5450411437\">New widget</a>",
-                    "_id": "53dbaa138c66ab5960c4aaaf"
-                },
-                {
-                    "_id": "53e7d3c78c66ab7db83f6c64",
-                    "name": "listconfig-columns.html",
-                    "template": "<div ng-repeat=\"column in item.columns\">\n    {{column.title}} ({{column.name}})\n</div>"
-                },
-                {
-                    "_id": "53eb533e8c66ab7db83f6c65",
-                    "name": "cosmos-editor-view.html",
-                    "template": "<div ui-ace class=\"editor\" readonly=\"readonly\" ng-model=\"item[column.name]\"></div>"
-                },
-                {
-                    "name": "widget_error_banner.html",
-                    "template": "<div ng-show=\"hasError\" class=\"bg-warning\">\n    <button class=\"btn btn-xs btn-danger glyphicon glyphicon-remove pull-right\" ng-click=\"clearError();\"></button>\n    <div><label>Error code:</label><span ng-bind=\"status\" /></div> \n    <div ng-bind=\"status_data\"></div>\n</div>",
-                    "_id": "53c1c7008c66ab35fad4c7ae"
-                },
-                {
-                    "name": "cosmos.basiclist.html",
-                    "template": "<div>\n<error ng-include=\" 'widget_error_banner.html' \" />\n</div>\n<h3>{{listConfiguration.title}}</h3>\n<div class=\"left-col\">\n</div>\n<table class=\"table table-hover right-col\">\n    <thead>\n        <tr>\n            <th ng-repeat=\"column in listConfiguration.columns\" ng-if=\"column.showInList\">{{column.title}}</th>\n            <th ng-if=\"listConfiguration.editable && listConfiguration.itemeditor_id\">&nbsp;</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr ng-repeat=\"item in data\">\n            <td ng-repeat=\"column in listConfiguration.columns\" ng-click=\"showDetails('lg', item, listConfiguration)\" ng-if=\"column.showInList\">\n                <div ng-if=\"column.widget && column.widget.length>0\" ng-include=\"column.widget\">\n                </div>                \n                \n                <div ng-if=\"!column.widget\">\n                    {{item[column.name]}}\n                </div>\n                \n            </td>\n            <td ng-if=\"listConfiguration.editable &&listConfiguration.itemeditor_id\">\n                <a href=\"#/forms/{{listConfiguration.itemeditor_id}}/{{item._id}}\">Edit</a>\n            </td>\n        </tr>\n    </tbody>\n</table>",
-                    "_id": "53e7a7498c66ab7db83f6c63"
-                },
-                {
-                    "name": "forms-list.html",
-                    "template": " <div>\n <error ng-include=\" 'widget_error_banner.html' \" /></div>\n <h3>{{listConfiguration.title}}</h3> \n <div class=\"left-col\"></div><div class=\"right-col\" ng-include=\" 'form_list_widget.html' \" ></div>\n <a class=\"btn btn-primary\" href=\"#/formdesign/\">New form</a>",
-                    "_id": "53d602e28c66ab5450411428"
-                }
-            ]
-        },
-        {
-            "object": "userdata.listconfigurations",
-            "data": [
-                {
-                    "widgetName": "list-detail.html",
-                    "_id": "53c0f65a8c66ab3df2e721fd",
-                    "objectName": "cosmos.rbac.object.role",
-                    "columns": [
-                        {
-                            "name": "name",
-                            "title": "Name"
-                        },
-                        {
-                            "name": "sid",
-                            "title": "SID"
-                        }
-                    ],
-                    "title": "Roles"
-                },
-                {
-                    "title": "Forms",
-                    "_id": "53d60cce8c66ab545041142a",
-                    "columns": [
-                        {
-                            "name": "_id",
-                            "title": "Id"
-                        },
-                        {
-                            "name": "title",
-                            "title": "Title"
-                        }
-                    ],
-                    "objectName": "cosmos.forms",
-                    "widgetName": "forms-list.html"
-                },
-                {
-                    "widgetName": "cosmos.basiclist.html",
-                    "_id": "53d853ef8c66ab545041142f",
-                    "objectName": "userdata.listconfigurations",
-                    "columns": [
-                        {
-                            "showInList": true,
-                            "name": "title",
-                            "title": "Title"
-                        },
-                        {
-                            "showInList": true,
-                            "name": "objectName",
-                            "title": "Object name"
-                        },
-                        {
-                            "showInList": true,
-                            "name": "widgetName",
-                            "title": "Widget Name"
-                        },
-                        {
-                            "showInList": true,
-                            "widget": "listconfig-columns.html",
-                            "name": "columns",
-                            "title": "Column"
-                        }
-                    ],
-                    "title": "List configurations"
-                },
-                {
-                    "widgetName": "cosmos.basiclist.html",
-                    "_id": "53dba93f8c66ab5960c4aaae",
-                    "objectName": "userdata.widgets",
-                    "columns": [
-                        {
-                            "showInList": true,
-                            "name": "name",
-                            "title": "Name"
-                        },
-                        {
-                            "showInList": true,
-                            "widget": "cosmos-editor-view.html",
-                            "name": "template",
-                            "title": "Template"
-                        }
-                    ],
-                    "title": "Widgets"
-                }
-            ]
-        }
-    ]
+    "id": "2ffd756e73177b96ca77573644bb29bb",
+    "name": "cosmos.application.admin",
+    "title": "Cosmos Admin Application",
+    "author": "Maruf Maniruzzaman",
+    "contact": "marufm@cosmosframework.com",
+    "website": "http://www.cosmosframework.com",
+    "copyright": "(c) 2014, Maruf Maniruzzaman",
+    "license": "MIT",
+    "version": "0.00.001.00",
+    "settings": {
+        "name": "bootstrap_objects",
+        "value": [
+            {
+                "object": "userdata.widgets",
+                "data": [
+                    {
+                        "name": "widget_product_list.html",
+                        "template": "<div class=\"product\" ng-repeat=\"item in data\" ng-include=\" 'widget_product.html' \" />",
+                        "_id": "53c195cc8c66ab35fab548dc"
+                    },
+                    {
+                        "name": "widget_product.html",
+                        "template": "<label>Test</label><div ng-repeat=\"column in listConfiguration.columns\">{{item[column.name]}}</div>",
+                        "_id": "53c197018c66ab35fab548dd"
+                    },
+                    {
+                        "name": "list-detail.html",
+                        "template": "<div><error ng-include=\" 'widget_error_banner.html' \" /></div><h3>{{listConfiguration.title}}</h3><div class=\"left-col\"></div><div class=\"right-col\" ng-include=\" 'widget_product_list.html' \" ></div>",
+                        "_id": "53c1cead8c66ab63025e0c06"
+                    },
+                    {
+                        "name": "form_list_widget.html",
+                        "template": "<div ng-repeat=\"item in data\"><a href=\"#/forms/{{item['_id']}}\">{{item['title']}}</a> <a class=\"btn btn-xs btn-warning glyphicon glyphicon-edit pull-right\" href=\"#/formdesign/{{item['_id']}}\"></a></div>",
+                        "_id": "53d604aa8c66ab5450411429"
+                    },
+                    {
+                        "name": "list-config-detail.html",
+                        "template": "<table class=\"table\"><tr><th>Id</th><th>Object</th><th>Title</th><th>Columns</th></tr><tr ng-repeat=\"item in data\"><td>{{item._id}}</td><td>{{item.objectName}}<td>{{item.title}}</td> <td><div ng-repeat=\"column in item.columns\">{{column.title}} ({{column.name}})</div></td></tr></table>",
+                        "_id": "53d854aa8c66ab5450411430"
+                    },
+                    {
+                        "name": "widget-list.html",
+                        "template": "<table class=\"table\">\n    <tr>\n        <th>Name</th><th>Template</th><th>&nbsp;</th>\n    </tr>\n    <tr ng-repeat=\"item in data\">\n        <td>{{item.name}}</td>\n        <td>{{item.template}}</td>\n        <td><a href=\"/#/forms/53d90f6f8c66ab5450411437/{{item._id}}/\">Edit</a></td>\n    </tr>\n</table>\n\n<a class=\"btn btn-primary\" href=\"/#/forms/53d90f6f8c66ab5450411437\">New widget</a>",
+                        "_id": "53dbaa138c66ab5960c4aaaf"
+                    },
+                    {
+                        "_id": "53e7d3c78c66ab7db83f6c64",
+                        "name": "listconfig-columns.html",
+                        "template": "<div ng-repeat=\"column in item.columns\">\n    {{column.title}} ({{column.name}})\n</div>"
+                    },
+                    {
+                        "_id": "53eb533e8c66ab7db83f6c65",
+                        "name": "cosmos-editor-view.html",
+                        "template": "<div ui-ace class=\"editor\" readonly=\"readonly\" ng-model=\"item[column.name]\"></div>"
+                    },
+                    {
+                        "name": "widget_error_banner.html",
+                        "template": "<div ng-show=\"hasError\" class=\"bg-warning\">\n    <button class=\"btn btn-xs btn-danger glyphicon glyphicon-remove pull-right\" ng-click=\"clearError();\"></button>\n    <div><label>Error code:</label><span ng-bind=\"status\" /></div> \n    <div ng-bind=\"status_data\"></div>\n</div>",
+                        "_id": "53c1c7008c66ab35fad4c7ae"
+                    },
+                    {
+                        "name": "cosmos.basiclist.html",
+                        "template": "<div>\n<error ng-include=\" 'widget_error_banner.html' \" />\n</div>\n<h3>{{listConfiguration.title}}</h3>\n<div class=\"left-col\">\n</div>\n<table class=\"table table-hover right-col\">\n    <thead>\n        <tr>\n            <th ng-repeat=\"column in listConfiguration.columns\" ng-if=\"column.showInList\">{{column.title}}</th>\n            <th ng-if=\"listConfiguration.editable && listConfiguration.itemeditor_id\">&nbsp;</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr ng-repeat=\"item in data\">\n            <td ng-repeat=\"column in listConfiguration.columns\" ng-click=\"showDetails('lg', item, listConfiguration)\" ng-if=\"column.showInList\">\n                <div ng-if=\"column.widget && column.widget.length>0\" ng-include=\"column.widget\">\n                </div>                \n                \n                <div ng-if=\"!column.widget\">\n                    {{item[column.name]}}\n                </div>\n                \n            </td>\n            <td ng-if=\"listConfiguration.editable &&listConfiguration.itemeditor_id\">\n                <a href=\"#/forms/{{listConfiguration.itemeditor_id}}/{{item._id}}\">Edit</a>\n            </td>\n        </tr>\n    </tbody>\n</table>",
+                        "_id": "53e7a7498c66ab7db83f6c63"
+                    },
+                    {
+                        "name": "forms-list.html",
+                        "template": " <div>\n <error ng-include=\" 'widget_error_banner.html' \" /></div>\n <h3>{{listConfiguration.title}}</h3> \n <div class=\"left-col\"></div><div class=\"right-col\" ng-include=\" 'form_list_widget.html' \" ></div>\n <a class=\"btn btn-primary\" href=\"#/formdesign/\">New form</a>",
+                        "_id": "53d602e28c66ab5450411428"
+                    }
+                ]
+            },
+            {
+                "object": "userdata.listconfigurations",
+                "data": [
+                    {
+                        "widgetName": "list-detail.html",
+                        "_id": "53c0f65a8c66ab3df2e721fd",
+                        "objectName": "cosmos.rbac.object.role",
+                        "columns": [
+                            {
+                                "name": "name",
+                                "title": "Name"
+                            },
+                            {
+                                "name": "sid",
+                                "title": "SID"
+                            }
+                        ],
+                        "title": "Roles"
+                    },
+                    {
+                        "title": "Forms",
+                        "_id": "53d60cce8c66ab545041142a",
+                        "columns": [
+                            {
+                                "name": "_id",
+                                "title": "Id"
+                            },
+                            {
+                                "name": "title",
+                                "title": "Title"
+                            }
+                        ],
+                        "objectName": "cosmos.forms",
+                        "widgetName": "forms-list.html"
+                    },
+                    {
+                        "widgetName": "cosmos.basiclist.html",
+                        "_id": "53d853ef8c66ab545041142f",
+                        "objectName": "userdata.listconfigurations",
+                        "columns": [
+                            {
+                                "showInList": true,
+                                "name": "title",
+                                "title": "Title"
+                            },
+                            {
+                                "showInList": true,
+                                "name": "objectName",
+                                "title": "Object name"
+                            },
+                            {
+                                "showInList": true,
+                                "name": "widgetName",
+                                "title": "Widget Name"
+                            },
+                            {
+                                "showInList": true,
+                                "widget": "listconfig-columns.html",
+                                "name": "columns",
+                                "title": "Column"
+                            }
+                        ],
+                        "title": "List configurations"
+                    },
+                    {
+                        "widgetName": "cosmos.basiclist.html",
+                        "_id": "53dba93f8c66ab5960c4aaae",
+                        "objectName": "userdata.widgets",
+                        "columns": [
+                            {
+                                "showInList": true,
+                                "name": "name",
+                                "title": "Name"
+                            },
+                            {
+                                "showInList": true,
+                                "widget": "cosmos-editor-view.html",
+                                "name": "template",
+                                "title": "Template"
+                            }
+                        ],
+                        "title": "Widgets"
+                    }
+                ]
+            }
+        ]
+    }
 }

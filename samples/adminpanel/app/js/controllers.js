@@ -1232,4 +1232,27 @@ angular.module('myApp.controllers', [])
         $scope.getConfiguration();
 
     }])
+    .controller('PageViewCtrl', ['$scope','$routeParams', 'CosmosService', function ($scope, $routeParams, CosmosService) {
+        $scope.pageId = $routeParams.pageId;
+
+        $scope.getPageHost = function(){
+            return "partials/home.html";
+        };
+
+       $scope.getConfiguration = function () {
+            var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+
+            CosmosService.get(url, function (data) {
+                    $scope.page = data;
+                },
+                function (data, status) {
+                    //$scope.processError(data, status);
+                }
+            );
+        };
+
+        $scope.getConfiguration();
+
+    }])
+
 ;
