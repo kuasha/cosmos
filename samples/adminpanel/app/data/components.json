@@ -1,0 +1,18 @@
+/**
+ * Created by maruf maniruzzaman on 8/21/14.
+ */
+[
+{
+    "name":"paypalbutton",
+    "title": "Paypal Button",
+    "settings":[
+        {
+            "email": "text",
+            "itemname":"text",
+            "itemid":"text",
+            "price":"text",
+            "currency":"Currency"
+        }
+    ]
+}
+]

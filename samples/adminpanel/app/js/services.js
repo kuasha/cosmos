@@ -71,4 +71,54 @@ angular.module('myApp.services', [])
             }
         };
     }])
+    .factory('NamedCollection', ['$http', function($http) {
+        var collections = {};
+        return{
+            get_collection: function(name){
+                var objects = collections[name];
+
+                if(!objects){
+                    objects = [];
+                    collections[name] = objects;
+                }
+
+                return objects;
+            },
+
+            append: function(name, object) {
+                if(!name || !object){
+                    return;
+                }
+
+                var objects = get_collection(name);
+
+                objects.push(object);
+            },
+
+            removeById: function(_id){
+                if(!objects){
+                    return;
+                }
+                var foundIndex = -1;
+                angular.forEach(objects, function(value, index){
+                   if(foundIndex < 0 && value["_id"] === _id){
+                       foundIndex = index;
+                   }
+                });
+
+                if(foundIndex >= 0) {
+                    objects.splice(foundIndex, 1);
+                }
+            },
+
+
+
+            length: function(){
+                if(!objects){
+                    return 0;
+                }
+                return objects.length;
+            }
+        };
+    }])
 ;

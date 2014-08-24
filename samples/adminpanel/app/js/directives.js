@@ -101,6 +101,27 @@ angular.module('myApp.directives', []).
                         );
                     }
                 };
+
+                //START List methods
+
+                $scope.getListData = function () {
+                    var columns = "";
+                    angular.forEach($scope.item.value.columns, function (column, index) {
+                        columns += column.name + ",";
+                    });
+                    var url = '/service/' + $scope.item.value.objectName + '/?columns=' + columns;
+
+                    CosmosService.get(url, function (data) {
+                            $scope.data = data;
+                        },
+                        function (data, status) {
+                            //$scope.processError(data, status);
+                        }
+                    );
+                };
+
+                //END List methods
+
                 $scope.validateBlockType = function(blockType){
                     switch (blockType) {
                         case 'h1':
@@ -125,9 +146,15 @@ angular.module('myApp.directives', []).
                             $scope.validateBlockType(item.blocktype);
                             template = '<'+item.blocktype+'>{{item.value}}</'+item.blocktype+'>';
                             break;
+
                         case "image":
                             template = '<img src="{{item.src}}" />';
                             break;
+
+                        case "list":
+                            template = '<div ng-include="\''+item.value.widgetName+'\'" /></div>';
+                            break;
+
                         case "twocolumn":
                             template = ''+
                                 '<div class="container-fluid">'+
@@ -141,38 +168,68 @@ angular.module('myApp.directives', []).
                                 '   </div>'+
                                 '</div>';
                             break;
+
+                        case "threecolumn":
+                            template = ''+
+                                '<div class="container-fluid">'+
+                                '   <div class="row">'+
+                                '       <div class="{{item.leftcolumn.cssclass}}">' +
+                                '           <field item="item.leftcolumn"></field>' +
+                                '       </div>'+
+                                '       <div class="{{item.middlecolumn.cssclass}}">' +
+                                '           <field item="item.middlecolumn"></field>' +
+                                '       </div>'+
+                                '       <div class="{{item.rightcolumn.cssclass}}">' +
+                                '           <field item="item.rightcolumn"></field>' +
+                                '       </div>'+
+                                '   </div>'+
+                                '</div>';
+                            break;
+
                         case "menu":
-                            template= ''+
-                            '<div class="container-fluid">'+
-                            '<div class="navbar-header">'+
-                            '    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">'+
-                            '        <span class="sr-only">Toggle navigation</span>'+
-                            '        <span class="icon-bar"></span>'+
-                            '        <span class="icon-bar"></span>'+
-                            '        <span class="icon-bar"></span>'+
-                            '    </button>'+
-                            '   <a class="navbar-brand" href="{{item.brandhref}}">{{item.brandtitle}}</a>'+
-                            ' </div>'+
-                                '<div class="navbar-collapse collapse">'+
+                            if(item.navtype === "sidebar"){
+                                template = '' +
+                                    '<ul class="well nav nav-pills nav-stacked">' +
+                                    '   <li ng-repeat="field in item.fields">' +
+                                    '       <field item="field"></field>' +
+                                    '   </li>' +
+                                    '</ul>';
+                            }
+                            else {
+                                template = '' +
+                                    '<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">' +
+                                    '<div class="container">' +
+                                    '<div class="navbar-header">' +
+                                    '   <a class="navbar-brand" href="{{item.brandhref}}">{{item.brandtitle}}</a>' +
+                                    '</div>' +
+                                    '<div class="navbar-collapse collapse">' +
                                     '<ul class="nav navbar-nav">' +
                                     '   <li ng-repeat="field in item.fields">' +
                                     '       <field item="field"></field>' +
                                     '   </li>' +
-                                    '</ul>'+
-                                '</div>'+
-                            '</div>';
-
+                                    '</ul>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</div>';
+                            }
                             break;
+
                         case "menuitem":
                             template = '' +
                                 '   <a href="{{item.value.href}}">{{item.value.title}}</a>';
                             break;
+
                         case "compositeblock":
                             template = '' +
                                 '<div ng-repeat="field in item.fields">' +
                                 '    <field item="field"></field>' +
                                 '</div>';
                             break;
+
+                        case "widgethost":
+                            template = '<div ng-include="\''+item.value+'\'"></div>'
+                            break;
+
                         //Form fields
                         case "text":
                             template = '<span><label>{{item.title}}</label><input type="text" ng-model="val"/></span>';
@@ -330,6 +387,10 @@ angular.module('myApp.directives', []).
                         scope.ref = scope.item.options.lookups[0].ref;
                         scope.updateOptions(scope.item);
                     }
+                }
+
+                if(scope.item.type === "list"){
+                    scope.getListData();
                 }
 
                 var newElement = angular.element(template);

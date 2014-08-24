@@ -1235,10 +1235,6 @@ angular.module('myApp.controllers', [])
     .controller('PageViewCtrl', ['$scope','$routeParams', 'CosmosService', function ($scope, $routeParams, CosmosService) {
         $scope.pageId = $routeParams.pageId;
 
-        $scope.getPageHost = function(){
-            return "partials/home.html";
-        };
-
        $scope.getConfiguration = function () {
             var url = '/service/cosmos.pages/' + $scope.pageId + '/';
 
