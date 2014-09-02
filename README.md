@@ -100,3 +100,9 @@ Features
 9. Design object list
 10. Test coverage
 
+
+Supporters
+----------
+
+JetBrains has generously provided us with unlimited license of the PyCharm IDE for this project.
+http://www.jetbrains.com/pycharm/

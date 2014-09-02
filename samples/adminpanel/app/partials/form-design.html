@@ -111,12 +111,9 @@
 <script type="text/ng-template" id="lookup-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <label class="control-label">{{field.title}}</label>
-        <select ng-class="field.className" ng-model="fieldOptions['lookup.'+field.model]"
-                ng-options="lookup.lookupname for lookup in field.options.lookups"
-                ng-change="updateOptions(field, lookup)" readonly="readonly" disabled="disabled">
+        <select readonly="readonly" disabled="disabled">
         </select>
-        <select ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled">
-            <option ng-value="option['_id']" ng-repeat="option in field.optionData">{{option["username"]}}</option>
+        <select ng-hide="field.options.saveValueOnly" readonly="readonly" disabled="disabled">
         </select>
     </div>
 </script>
@@ -204,34 +201,13 @@
                 <div>
                     <div ng-if="selectedItem">
                         <div>
-                            <label>Title</label>
-                            <input type="text" ng-model="selectedItem.title" />
+                            <label>{{optionsform.title}}</label>
                         </div>
-                        <div>
-                            <label>Name</label>
-                            <input type="text" ng-model="selectedItem.name" />
-                        </div>
-                        <div ng-if="selectedItem.type === 'form'" ng-include="'form-options.html'">
-                        </div>
-                        <div ng-if="selectedItem.type === 'select' || selectedItem.type === 'radiogroup'">
-                            <label>Options</label>
-                            <table class="table">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Value</th>
-                                    <th>Display</th>
-                                </tr>
-                                <tr ng-repeat="option in selectedItem.options.choices">
-                                    <td>{{$index}}</td>
-                                    <td><input type="text" ng-model="selectedItem.options.choices[$index].value" /></td>
-                                    <td><input type="text" ng-model="selectedItem.options.choices[$index].title" /></td>
-                                    <td>
-                                        <button class="btn btn-xs btn-success glyphicon glyphicon-plus" ng-click="insertItem(selectedItem.options.choices, $index+1, {'value':'', 'title':''});"></button>
-                                        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove" ng-click="removeItem(selectedItem.options.choices, $index);"></button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                        <ul>
+                            <li ng-repeat="field in optionsform.fields">
+                                <field item="field" val="selectedItem[field.name]"></field>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </tab>

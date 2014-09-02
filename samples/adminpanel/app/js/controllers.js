@@ -877,6 +877,13 @@ angular.module('myApp.controllers', [])
             $scope.selectItem = function (item) {
                 $scope.selectedItem = item;
                 $scope.activeTab = "settings";
+                var optionForm = $scope.optionFormByType[item.type];
+                if(optionForm){
+                    $scope.optionsform = optionForm;
+                }
+                else{
+                    $scope.optionsform = $scope.optionFormByType["default"];
+                }
             };
 
             $scope.toolsActive = function(){
@@ -884,6 +891,104 @@ angular.module('myApp.controllers', [])
             };
             $scope.settingsActive = function(){
                 return $scope.activeTab === "settings";
+            };
+
+            $scope.optionsform = {
+            };
+
+            $scope.optionFormByType = {
+                "text": {
+                    "fields": [
+                        {"type": "text", "title": "Title", "name": "title"},
+                        {"type": "text", "title": "Name", "name": "name"}
+                    ]
+                },
+                "form": {
+                    "fields": [
+                        {"type": "text", "title": "Title", "name": "title"},
+                        {"type": "text", "title": "Name", "name": "name"},
+                        {"type": "text", "title": "Action", "name": "action"},
+                        {
+                            "type": "composite", "title": "On success", "name": "onsuccess",
+                            "fields": [
+                                {
+                                    "title": "Type",
+                                    "type": "select",
+                                    "options": {
+                                        "choices": [
+                                            {
+                                                "value": "message",
+                                                "title": "Message"
+                                            },
+                                            {
+                                                "value": "url",
+                                                "title": "Redirect"
+                                            }
+                                        ]
+                                    },
+                                    "name": "type",
+                                    "nullable": false
+                                },
+                                {"type": "text", "title": "Value", "name": "value"}
+                            ]
+                        }
+                    ]
+                },
+                "select": {"title": "Select Options", "type": "composite", "fields": [
+                    {"type": "text", "title": "Title", "name": "title"},
+                    {"type": "text", "title": "Name", "name": "name"},
+                    {"title": "Options", "type": "composite", "options": {}, "fields": [
+                        {"title": "Choices", "type": "array", "options": {}, "fields": [
+                            {"title": "Title", "type": "text", "name": "title"},
+                            {"title": "Value", "type": "text", "name": "value"}
+                        ], "name": "choices"}
+                    ], "name": "options"}
+                ]
+                },
+                "array": {"title": "Select Options", "type": "composite", "fields": [
+                    {"type": "text", "title": "Title", "name": "title"},
+                    {"type": "text", "title": "Name", "name": "name"},
+                    {"title": "Options", "type": "composite", "options": {}, "fields": [
+                        {"title": "Value only", "type": "checkbox", "name": "primitive"}
+                    ], "name": "options"}
+                ]
+                },
+
+                "lookup": {"title": "Select Options", "type": "composite", "fields": [
+                    {"type": "text", "title": "Title", "name": "title"},
+                    {"type": "text", "title": "Name", "name": "name"},
+                    {"title": "Options", "type": "composite", "options": {}, "fields": [
+                        {"title": "Value only", "type": "checkbox", "name": "saveValueOnly"},
+
+                        {"title":"References", "type":"array", "name":"lookups", "fields": [
+                            {"title":"Data endpoint", "type":"text", "name":"url"},
+                            {"title":"Reference title", "type":"text", "name":"lookupname"},
+                            {"title":"Reference name", "type":"text", "name":"ref"},
+                            {"title":"Value field", "type":"text", "name":"value"},
+                            {"title":"Title field", "type":"text", "name":"title"}
+                            ]
+                        }
+
+                    ], "name": "options"}
+                ]
+                },
+                "radiogroup": {"title": "Select Options", "type": "form", "fields": [
+                    {"type": "text", "title": "Title", "name": "title"},
+                    {"type": "text", "title": "Name", "name": "name"},
+                    {"title": "Options", "type": "composite", "options": {}, "fields": [
+                        {"title": "Choices", "type": "array", "options": {}, "fields": [
+                            {"title": "Title", "type": "text", "name": "title"},
+                            {"title": "Value", "type": "text", "name": "value"}
+                        ], "name": "choices"}
+                    ], "name": "options"}
+                ]
+                },
+                "default": {
+                    "fields": [
+                        {"type": "text", "title": "Title", "name": "title"},
+                        {"type": "text", "title": "Name", "name": "name"}
+                    ]
+                }
             };
 
             $scope.toolsList = [
@@ -895,7 +1000,8 @@ angular.module('myApp.controllers', [])
                 { title: 'Checkbox', type: 'checkbox', options:{}},
                 { title: 'Options', type: 'radiogroup', options:{ choices:[{'value':'option1', 'title':'option1'},{'value':'option2', 'title':'option2'}]}},
                 {title: 'Group', type: "composite", options:{}, fields: []},
-                {title: 'Array', type: "array", options:{}, fields: []}
+                {title: 'Array', type: "array", options:{}, fields: []},
+                {title: 'Lookup', type: "lookup", options:{}, fields: []}
             ];
 
             $scope.components = jQuery.extend(true, [], $scope.toolsList);
