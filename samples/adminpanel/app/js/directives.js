@@ -17,7 +17,7 @@ angular.module('myApp.directives', []).
                 val: '='
             },
 
-            controller: ['$scope', 'CosmosService', function ($scope, CosmosService) {
+            controller: ['$scope', '$location', 'message', 'CosmosService', function ($scope, $location, message, CosmosService) {
 
                 $scope.prepareObject = function (item, data) {
                     angular.forEach(item.fields, function (value, index) {
@@ -115,12 +115,68 @@ angular.module('myApp.directives', []).
                             $scope.data = data;
                         },
                         function (data, status) {
-                            //$scope.processError(data, status);
+                            //TODO: $scope.processError(data, status);
                         }
                     );
                 };
 
                 //END List methods
+
+                // START FormRef methods
+                $scope.getFormConfiguration = function () {
+                    var url = '/service/cosmos.forms/' + $scope.item.value.formId + '/';
+                    CosmosService.get(url, function (data) {
+                            $scope.data = {};
+                            $scope.form = data;
+                            //$scope.getData();
+                        },
+                        function (data, status) {
+                            //TODO: $scope.processError(data, status);
+                        }
+                    );
+                };
+
+                $scope.processFormResult = function(form, result){
+                    if(form && form.onsuccess){
+                        if(form.onsuccess.type === "url"){
+                            window.location.href = form.onsuccess.value;
+                        }
+                        else if(form.onsuccess.type === "message"){
+                            message.push({"message":form.onsuccess.value, "title":"Sucess", "data": result});
+                            $location.path('/message');
+                        }
+                        else if(form.onsuccess.type === "inlinemessage"){
+                            $scope.submitDone = true;
+                        }
+                    }
+                };
+
+                $scope.onFormSubmit = function () {
+                    if($scope.form.action) {
+                        if($scope.form.action) {
+                            if(!$scope.item.dataId) {
+                                CosmosService.post($scope.form.action, $scope.data, function (data) {
+                                        $scope.processFormResult($scope.form, data);
+                                    },
+                                    function (data, status) {
+                                        //TODO: $scope.processError(data, status);
+                                    }
+                                );
+                            }
+                            else{
+                                var url = $scope.form.action + '/'+ $scope.item.dataId + '/';
+                                CosmosService.put(url, $scope.data, function (data) {
+                                        $scope.processFormResult($scope.form, data);
+                                    },
+                                    function (data, status) {
+                                        //TODO: $scope.processError(data, status);
+                                    }
+                                );
+                            }
+                        }
+                    }
+                };
+                // END FormRef methods
 
                 $scope.validateBlockType = function(blockType){
                     switch (blockType) {
@@ -136,6 +192,7 @@ angular.module('myApp.directives', []).
                             break;
                     }
                 };
+
                 $scope.getTemplate = function (item) {
                     var itemType = item.type;
                     var template;
@@ -300,6 +357,22 @@ angular.module('myApp.directives', []).
                             }
                             break;
 
+                        case "formref":
+                            template = '' +
+                                '<div ng-show="submitDone">{{form.onsuccess.value}}</div>' +
+                                '<form ng-hide="submitDone">' +
+                                '    <div>' +
+                                '        <h1>{{form.title}}</h1>' +
+                                '    </div>' +
+                                '    <ul>' +
+                                '        <li ng-repeat="field in form.fields">' +
+                                '            <field item="field" val="data[field.name]"></field>' +
+                                '        </li>' +
+                                '    </ul>' +
+                                '    <button class="btn btn-primary" ng-click="onFormSubmit()">Submit</button>' +
+                                '</form>';
+                            break;
+
                         case "form":
                         case "composite":
                             template = '' +
@@ -390,6 +463,10 @@ angular.module('myApp.directives', []).
 
                 if(scope.item.type === "list"){
                     scope.getListData();
+                }
+
+                if(scope.item.type === "formref") {
+                    scope.getFormConfiguration();
                 }
 
                 var newElement = angular.element(template);

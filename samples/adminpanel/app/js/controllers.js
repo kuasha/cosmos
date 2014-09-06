@@ -497,38 +497,6 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('FormListCtrl', ['$scope', '$routeParams', '$modal', 'CosmosService', function ($scope, $routeParams, $modal, CosmosService) {
-
-        $scope.serviceName = "forms";
-        $scope.links = [{"href":"#/formdesign/", "title":"Create new form" }];
-
-        $scope.clearError = function () {
-            $scope.hasError = false;
-            $scope.status = "";
-            $scope.status_data = "";
-        };
-
-        $scope.processError = function (data, status) {
-            $scope.hasError = true;
-            $scope.status = status;
-            $scope.status_data = JSON.stringify(data);
-        };
-
-        $scope.getData = function () {
-            var url = '/service/cosmos.forms/?columns=title'
-
-            CosmosService.get(url, function (data) {
-                    $scope.lists = data;
-                },
-                function (data, status) {
-                    $scope.processError(data, status);
-                }
-            );
-        };
-
-        $scope.getData();
-
-    }])
     .controller('ListDetailCtrl', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
         function ($scope, $routeParams, $templateCache, $modal, CosmosService) {
 
@@ -594,6 +562,7 @@ angular.module('myApp.controllers', [])
             $scope.getConfiguration();
 
         }])
+
         .controller('ShowJsonDataCtrl', ['$scope', '$modalInstance', 'model', function ($scope, $modalInstance, model) {
             $scope.model = model;
             $scope.cancel = function () {
@@ -682,191 +651,6 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('FormViewController', ['$scope', '$routeParams', '$templateCache', '$modal','$location', 'CosmosService', 'message',
-        function ($scope, $routeParams, $templateCache, $modal, $location, CosmosService, message) {
-
-        $scope.form = {};
-
-        $scope.dataId = $routeParams.dataId;
-        $scope.formId = $routeParams.formId;
-
-        $scope.currentData = {};
-
-        $scope.initData = function(rawData, parent){
-            for(var prop in rawData){
-                if (rawData.hasOwnProperty(prop)) {
-                    var curKey = parent + '.' + prop;
-                    if ((typeof rawData[prop]) === "object") {
-                        if(rawData[prop] instanceof Array) {
-                            //Add for editors without array support
-                            $scope.currentData[curKey] = JSON.stringify(rawData[prop], undefined, 4);
-                        }
-                        else {
-                            $scope.initData(rawData[prop], curKey);
-                        }
-                    }
-                    else {
-                        $scope.currentData[curKey] = rawData[prop];
-                    }
-                }
-            }
-        };
-
-        $scope.clearError = function () {
-            $scope.hasError = false;
-            $scope.status = "";
-            $scope.status_data = "";
-        };
-
-        $scope.processError = function (data, status) {
-            $scope.hasError = true;
-            $scope.status = status;
-            $scope.status_data = JSON.stringify(data);
-        };
-
-        $scope.getData = function(){
-            if($scope.dataId){
-                var url = $scope.form.action + '/'+ $scope.dataId + '/';
-                CosmosService.get(url, function (data) {
-                        $scope.rawData = data;
-                        $scope.initData($scope.rawData, 'data');
-                    },
-                    function (data, status) {
-                        $scope.processError(data, status);
-                    }
-                );
-            }
-        };
-
-        $scope.getConfiguration = function () {
-            var url = '/service/cosmos.forms/' + $scope.formId + '/';
-
-            CosmosService.get(url, function (data) {
-                    $scope.form = data;
-                    $scope.prepareFormMetadata($scope.form.fields, 'data');
-                    $scope.getData();
-                },
-                function (data, status) {
-                    $scope.processError(data, status);
-                }
-            );
-        };
-
-        $scope.data = {};
-        $scope.formElementNames = [];
-        $scope.fieldOptions = {};
-
-        $scope.prepareFormMetadata = function (fields, parentModel) {
-            angular.forEach(fields, function (field, index) {
-                if (field.type == "composite") {
-                    $scope.prepareFormMetadata(field.fields, parentModel + '.' + field.name);
-                }
-                else {
-                    var elName = parentModel + '.' + field.name;
-                    field.model = elName;
-                    $scope.formElementNames.push(elName);
-                }
-            });
-        };
-
-        $scope.populateData = function (fields, data, parentModel, flat_data) {
-            angular.forEach(fields, function (field, index) {
-                if (field.type == "composite") {
-                    data[field.name] = {};
-                    $scope.populateData(field.fields, data[field.name], parentModel + '.' + field.name, flat_data);
-                }
-                else {
-                    var elName = parentModel + '.' + field.name;
-                    data[field.name] = flat_data[elName];
-                }
-            });
-        };
-
-        $scope.updateOptions = function (field) {
-            var lookup = $scope.fieldOptions['lookup.' + field.model];
-            var url = lookup.url;
-
-            CosmosService.get(url, function (data) {
-                    field.optionData = data;
-                },
-                function (data, status) {
-                    $scope.processError(data, status);
-                }
-            );
-        };
-
-        $scope.collectValues = function (form_id) {
-            var form = document.getElementById(form_id);
-
-            var flat_data = {};
-
-            angular.forEach($scope.formElementNames, function (elName, index) {
-                var el = form.elements[elName];
-                var value;
-                if (el.type === "checkbox") {
-                    value = el.checked;
-                }
-                else {
-                    value = el.value;
-                }
-
-                console.log(elName + "=" + value);
-                flat_data[elName] = value;
-            });
-
-            return flat_data;
-        };
-
-        $scope.processResult = function(form, result){
-            if(form && form.onsuccess){
-                if(form.onsuccess.type === "url"){
-                    window.location.href = form.onsuccess.value;
-                }
-                else if(form.onsuccess.type === "message"){
-                    message.push({"message":form.onsuccess.value, "title":"Sucess", "data": result});
-                    $location.path('/message');
-                }
-            }
-        };
-
-        $scope.onSubmit = function () {
-            $scope.result = null;
-            var form_id = $scope.form._id;
-
-            var flat_data = $scope.collectValues(form_id);
-
-            $scope.populateData($scope.form.fields, $scope.data, 'data', flat_data);
-            var data = $scope.data;
-
-            if($scope.form.action) {
-                if($scope.form.action) {
-                    if(!$scope.dataId) {
-                        CosmosService.post($scope.form.action, data, function (data) {
-                                $scope.processResult($scope.form, data);
-                            },
-                            function (data, status) {
-                                $scope.processError(data, status);
-                            }
-                        );
-                    }
-                    else{
-                        var url = $scope.form.action + '/'+ $scope.dataId + '/';
-                        CosmosService.put(url, data, function (data) {
-                                $scope.processResult($scope.form, data);
-                            },
-                            function (data, status) {
-                                $scope.processError(data, status);
-                            }
-                        );
-                    }
-                }
-            }
-        };
-
-        $scope.getConfiguration();
-
-    }])
-
     .controller('FormDesignController', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
         function ($scope, $routeParams, $templateCache, $modal, CosmosService) {
 
@@ -919,6 +703,10 @@ angular.module('myApp.controllers', [])
                                             {
                                                 "value": "message",
                                                 "title": "Message"
+                                            },
+                                            {
+                                                "value": "inlinemessage",
+                                                "title": "Embeded message"
                                             },
                                             {
                                                 "value": "url",
@@ -1338,6 +1126,7 @@ angular.module('myApp.controllers', [])
         $scope.getConfiguration();
 
     }])
+
     .controller('PageViewCtrl', ['$scope','$routeParams', 'CosmosService', function ($scope, $routeParams, CosmosService) {
         $scope.pageId = $routeParams.pageId;
 
