@@ -6,6 +6,85 @@ angular.module('myApp.controllers', [])
         $scope.userName = getUserName("No Name");
         $scope.loggedIn = loggedIn;
     }])
+
+    .controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'message',
+        function ($scope, $routeParams, $location, CosmosService, message) {
+
+            $scope.pageRefs = [];
+
+            $scope.appPath = $routeParams.appPath;
+
+            $scope.getConfiguration = function () {
+                if($scope.appPath && $scope.appPath.length > 0){
+                    $scope.getAppConfiguration();
+                }
+                else{
+                    var url = '/service/cosmos.globalsettings/';
+
+                    CosmosService.get(url, function (returnedData) {
+                            if (!returnedData || returnedData.length != 1) {
+                                var msg = "Exactly one global settings is expected for path = "
+                                    + $scope.appPath + ". Found = " + ((!returnedData) ? 0 : returnedData.length);
+
+                                message.push({"message": msg, "title": "Invalid configuration", "data": ""});
+                                $location.path('/message');
+                                return;
+                            }
+
+                            var globalSettings = returnedData[0];
+                            $scope.appId = globalSettings.defaultappid;
+                            $scope.getAppConfiguration();
+                        },
+                        function (data, status) {
+                            $scope.processError(data, status);
+                        }
+                    );
+                }
+            };
+
+            $scope.getAppConfiguration = function () {
+                var url;
+                if($scope.appId) {
+                    url = '/service/cosmos.applications/?filter={"id":"' + $scope.appId + '"}';
+                }
+                else if($scope.appPath)
+                {
+                    url = '/service/cosmos.applications/?filter={"path":"' + $scope.appPath + '"}';
+                }
+                else{
+                    var msg = "Default application not found.";
+                    message.push({"message": msg, "title": "Invalid configuration", "data": ""});
+                    $location.path('/message');
+                    return;
+                }
+
+                CosmosService.get(url, function (returnedData) {
+                        if (!returnedData || returnedData.length != 1) {
+                            var msg = "Exactly one application is expected for path = "
+                                + $scope.appPath + ". Found = " + ((!returnedData) ? 0 : returnedData.length);
+                            message.push({"message": msg, "title": "Invalid application name", "data": ""});
+                            $location.path('/message');
+                            return;
+                        }
+
+                        $scope.appSettings = returnedData[0];
+                        $scope.applySettings($scope.appSettings.settings);
+                    },
+                    function (data, status) {
+                        $scope.processError(data, status);
+                    }
+                );
+            };
+
+            $scope.applySettings = function (settings) {
+                $scope.pageRefs = [
+                    {"type": "pageref", "name": "Index", "pageId": settings.indexPageId}
+                ];
+            };
+
+            $scope.getConfiguration();
+        }])
+
     .controller('HomeCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
         $scope.service = "/service/";
         $scope.columns = "";
@@ -100,9 +179,11 @@ angular.module('myApp.controllers', [])
             );
         };
     }])
-    .controller('MessageViewCtrl', ['$scope','CosmosService', 'message', function ($scope, CosmosService, message) {
+
+    .controller('MessageViewCtrl', ['$scope', 'CosmosService', 'message', function ($scope, CosmosService, message) {
         $scope.message = message.pop();
     }])
+
     .controller('UsersCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
 
         $scope.clearError = function () {
@@ -183,7 +264,6 @@ angular.module('myApp.controllers', [])
                     }
                 );
             }
-
         };
 
         $scope.getRoles = function () {
@@ -209,6 +289,7 @@ angular.module('myApp.controllers', [])
 
         $scope.getUsers();
     }])
+
     .controller('RolesCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
 
         $scope.clearError = function () {
@@ -295,6 +376,7 @@ angular.module('myApp.controllers', [])
 
         $scope.getRoles();
     }])
+
     .controller('UserModalInstanceCtrl', ['$scope', '$modalInstance', 'roles', 'user', function ($scope, $modalInstance, roles, user) {
         $scope.user = user || {"username": null, "password": null, "password_re": null, "email": null, "roles": []};
         $scope.user.password = null;
@@ -350,6 +432,7 @@ angular.module('myApp.controllers', [])
             $modalInstance.dismiss('cancel');
         };
     }])
+
     .controller('RoleModalInstanceCtrl', ['$scope', '$modalInstance', 'role', function ($scope, $modalInstance, role) {
         $scope.role = {"name": null, "role_items": []};
 
@@ -465,6 +548,7 @@ angular.module('myApp.controllers', [])
 
         $scope.populate(role);
     }])
+
     .controller('ListCtrl', ['$scope', '$routeParams', '$modal', 'CosmosService', function ($scope, $routeParams, $modal, CosmosService) {
 
         $scope.serviceName = "lists";
@@ -482,7 +566,7 @@ angular.module('myApp.controllers', [])
         };
 
         $scope.getData = function () {
-            var url = '/service/userdata.listconfigurations/'
+            var url = '/service/cosmos.listconfigurations/'
 
             CosmosService.get(url, function (data) {
                     $scope.lists = data;
@@ -494,7 +578,6 @@ angular.module('myApp.controllers', [])
         };
 
         $scope.getData();
-
     }])
 
     .controller('ListDetailCtrl', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
@@ -515,7 +598,7 @@ angular.module('myApp.controllers', [])
             };
 
             $scope.getConfiguration = function () {
-                var url = '/service/userdata.listconfigurations/' + $scope.listId + '/';
+                var url = '/service/cosmos.listconfigurations/' + $scope.listId + '/';
 
                 CosmosService.get(url, function (data) {
                         $scope.listConfiguration = data;
@@ -544,7 +627,7 @@ angular.module('myApp.controllers', [])
             };
 
             $scope.showDetails = function (size, data, listConfiguration) {
-                if(listConfiguration.allowDetails) {
+                if (listConfiguration.allowDetails) {
                     var modalInstance = $modal.open({
                         templateUrl: 'partials/show_json.html',
                         controller: "ShowJsonDataCtrl",
@@ -560,16 +643,16 @@ angular.module('myApp.controllers', [])
             };
 
             $scope.getConfiguration();
-
         }])
 
-        .controller('ShowJsonDataCtrl', ['$scope', '$modalInstance', 'model', function ($scope, $modalInstance, model) {
-            $scope.model = model;
-            $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
-            };
-        }])
-        .controller('FileUploadCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
+    .controller('ShowJsonDataCtrl', ['$scope', '$modalInstance', 'model', function ($scope, $modalInstance, model) {
+        $scope.model = model;
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }])
+
+    .controller('FileUploadCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
 
         $scope.clearError = function () {
             $scope.hasError = false;
@@ -656,24 +739,27 @@ angular.module('myApp.controllers', [])
 
             $scope.designMode = true;
             $scope.activeTab = "tools";
-            $scope.onsuccess_types = [{'name':'message', 'title':'Message'},{'name':'url', 'title':'Redirect'}];
+            $scope.onsuccess_types = [
+                {'name': 'message', 'title': 'Message'},
+                {'name': 'url', 'title': 'Redirect'}
+            ];
 
             $scope.selectItem = function (item) {
                 $scope.selectedItem = item;
                 $scope.activeTab = "settings";
                 var optionForm = $scope.optionFormByType[item.type];
-                if(optionForm){
+                if (optionForm) {
                     $scope.optionsform = optionForm;
                 }
-                else{
+                else {
                     $scope.optionsform = $scope.optionFormByType["default"];
                 }
             };
 
-            $scope.toolsActive = function(){
+            $scope.toolsActive = function () {
                 return $scope.activeTab === "tools";
             };
-            $scope.settingsActive = function(){
+            $scope.settingsActive = function () {
                 return $scope.activeTab === "settings";
             };
 
@@ -748,13 +834,13 @@ angular.module('myApp.controllers', [])
                     {"title": "Options", "type": "composite", "options": {}, "fields": [
                         {"title": "Value only", "type": "checkbox", "name": "saveValueOnly"},
 
-                        {"title":"References", "type":"array", "name":"lookups", "fields": [
-                            {"title":"Data endpoint", "type":"text", "name":"url"},
-                            {"title":"Reference title", "type":"text", "name":"lookupname"},
-                            {"title":"Reference name", "type":"text", "name":"ref"},
-                            {"title":"Value field", "type":"text", "name":"value"},
-                            {"title":"Title field", "type":"text", "name":"title"}
-                            ]
+                        {"title": "References", "type": "array", "name": "lookups", "fields": [
+                            {"title": "Data endpoint", "type": "text", "name": "url"},
+                            {"title": "Reference title", "type": "text", "name": "lookupname"},
+                            {"title": "Reference name", "type": "text", "name": "ref"},
+                            {"title": "Value field", "type": "text", "name": "value"},
+                            {"title": "Title field", "type": "text", "name": "title"}
+                        ]
                         }
 
                     ], "name": "options"}
@@ -781,144 +867,29 @@ angular.module('myApp.controllers', [])
 
             $scope.toolsList = [
                 {title: 'Text', type: "text"},
-                {title: 'Static', type: "static", options:{"value":""}},
-                {title: 'Text Area', type: "textarea", options:{}},
-                {title: 'Code editor', type: "codeeditor", options:{}},
-                { title: 'Select', type: 'select', options:{choices:[{'value':'option1', 'title':'option1'},{'value':'option2', 'title':'option2'}]}},
-                { title: 'Checkbox', type: 'checkbox', options:{}},
-                { title: 'Options', type: 'radiogroup', options:{ choices:[{'value':'option1', 'title':'option1'},{'value':'option2', 'title':'option2'}]}},
-                {title: 'Group', type: "composite", options:{}, fields: []},
-                {title: 'Array', type: "array", options:{}, fields: []},
-                {title: 'Lookup', type: "lookup", options:{}, fields: []}
+                {title: 'Static', type: "static", options: {"value": ""}},
+                {title: 'Text Area', type: "textarea", options: {}},
+                {title: 'Code editor', type: "codeeditor", options: {}},
+                { title: 'Select', type: 'select', options: {choices: [
+                    {'value': 'option1', 'title': 'option1'},
+                    {'value': 'option2', 'title': 'option2'}
+                ]}},
+                { title: 'Checkbox', type: 'checkbox', options: {}},
+                { title: 'Options', type: 'radiogroup', options: { choices: [
+                    {'value': 'option1', 'title': 'option1'},
+                    {'value': 'option2', 'title': 'option2'}
+                ]}},
+                {title: 'Group', type: "composite", options: {}, fields: []},
+                {title: 'Array', type: "array", options: {}, fields: []},
+                {title: 'Lookup', type: "lookup", options: {}, fields: []}
             ];
 
             $scope.components = jQuery.extend(true, [], $scope.toolsList);
 
-            /*
-            $scope.form = {
-                    "title": "Test form",
-                    type: "form",
-                    "fields": [
-                        {
-                            "fields": [
-                                {
-                                    "type": "text",
-                                    "name": "fname",
-                                    "title": "First name"
-                                },
-                                {
-                                    "type": "text",
-                                    "name": "lname",
-                                    "title": "Last name"
-                                }
-                            ],
-                            "type": "composite",
-                            "name": "name",
-                            "title": "Name"
-                        },
-                        {
-                            "type": "text",
-                            "name": "email",
-                            "title": "Email"
-                        },
-                        {
-                            "title": "Created by",
-                            "type": "lookup",
-                            "options": {
-                                "lookups": [
-                                    {
-                                        "url": "/service/cosmos.users/?columns=username",
-                                        "lookupname": "Users",
-                                        "ref":"users",
-                                        "value": "_id",
-                                        "title": "username"
-                                    }
-                                ]
-                            },
-                            "name": "createdby"
-                        },
-                        {
-                            "title": "Gender",
-                            "type": "radiogroup",
-                            "options": {
-                                "choices": [
-                                    {
-                                        "value": "male",
-                                        "title": "Male"
-                                    },
-                                    {
-                                        "value": "female",
-                                        "title": "Female"
-                                    }
-                                ]
-                            },
-                            "name": "gender"
-                        },
-                        {
-                            "title": "Nationality",
-                            "type": "select",
-                            "options": {
-                                "choices": [
-                                    {
-                                        "value": "BD",
-                                        "title": "Bangladesh"
-                                    },
-                                    {
-                                        "value": "US",
-                                        "title": "United States"
-                                    }
-                                ]
-                            },
-                            "name": "nationality",
-                            "nullable": true
-                        },
-                        {
-                            "type": "checkbox",
-                            "name": "subscribe",
-                            "title": "Subscribe to newsletter"
-                        },
-                        {
-                            "fields": [
-                                {
-                                    "type": "text",
-                                    "name": "street",
-                                    "title": "Street"
-                                },
-                                {
-                                    "type": "text",
-                                    "name": "city",
-                                    "title": "City"
-                                },
-                                {
-                                    "type": "text",
-                                    "name": "zip",
-                                    "title": "Zip/Postal Code"
-                                }
-                            ],
-                            "type": "composite",
-                            "name": "address",
-                            "title": "Address"
-                        },
-                        {
-                            "type": "textarea",
-                            "name": "notes",
-                            "title": "Notes"
-                        }
-                    ],
-                    "id": "myform",
-                    "createtime": "2014-07-19 13:21:06.842626",
-                    "owner": "53b8d4408c66ab04ba0aef98",
-                    "modifytime": "2014-07-25 06:20:55.419572",
-                    "action": "/service/userdata.person/",
-                    "_id": "53cad3328c66ab6922b9c47f",
-                    "method": "POST"
-                };
-            */
-
             $scope.form = {
                 "title": "Untitled form",
                 "type": "form",
-                "onsuccess":{"type":"message", "value":"Thank you"},
+                "onsuccess": {"type": "message", "value": "Thank you"},
                 "fields": []
             };
 
@@ -937,15 +908,15 @@ angular.module('myApp.controllers', [])
                 $scope.status_data = JSON.stringify(data);
             };
 
-            $scope.processForm = function(form){
-                if(!form.onsuccess){
-                    form.onsuccess={};
+            $scope.processForm = function (form) {
+                if (!form.onsuccess) {
+                    form.onsuccess = {};
                 }
                 $scope.form = form;
             };
 
             $scope.getConfiguration = function () {
-                if($scope.formId) {
+                if ($scope.formId) {
                     var url = '/service/cosmos.forms/' + $scope.formId + '/';
 
                     CosmosService.get(url, function (data) {
@@ -987,34 +958,34 @@ angular.module('myApp.controllers', [])
 
             $scope.getView = function (item) {
                 if (item) {
-                    if(item.type == "form"){
+                    if (item.type == "form") {
                         return "composite-field.html";
                     }
 
-                    return item.type+"-field.html";
+                    return item.type + "-field.html";
                 }
                 return null;
             };
 
-            $scope.removeItem = function(fields, index){
+            $scope.removeItem = function (fields, index) {
                 fields.splice(index, 1);
             };
 
-            $scope.insertItem = function(fields, index, data){
+            $scope.insertItem = function (fields, index, data) {
                 fields.splice(index, 0, data);
             };
 
-            $scope.selectTab = function(tab){
+            $scope.selectTab = function (tab) {
                 $scope.activeTab = tab;
             };
 
-            $scope.saveForm = function(){
+            $scope.saveForm = function () {
                 $scope.clearError();
                 $scope.result = null;
                 var form_id = $scope.form._id;
                 var url = '/service/cosmos.forms/';
 
-                if(form_id) {
+                if (form_id) {
                     url = url + form_id;
                     CosmosService.put(url, $scope.form, function (data) {
                             $scope.result = data;
@@ -1024,7 +995,7 @@ angular.module('myApp.controllers', [])
                         }
                     );
                 }
-                else{
+                else {
                     CosmosService.post(url, $scope.form, function (data) {
                             $scope.result = data;
                         },
@@ -1039,98 +1010,98 @@ angular.module('myApp.controllers', [])
 
         }])
 
-    .controller('FormViewCtrl',['$scope', '$routeParams', '$location', 'CosmosService','message',
-        function ($scope, $routeParams, $location, CosmosService,message) {
-        $scope.form = {};
-        $scope.data = {};
-        $scope.formId = $routeParams.formId;
-        $scope.dataId = $routeParams.dataId;
+    .controller('FormViewCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'message',
+        function ($scope, $routeParams, $location, CosmosService, message) {
+            $scope.form = {};
+            $scope.data = {};
+            $scope.formId = $routeParams.formId;
+            $scope.dataId = $routeParams.dataId;
 
-        $scope.clearError = function () {
-            $scope.hasError = false;
-            $scope.status = "";
-            $scope.status_data = "";
-        };
+            $scope.clearError = function () {
+                $scope.hasError = false;
+                $scope.status = "";
+                $scope.status_data = "";
+            };
 
-        $scope.processError = function (data, status) {
-            $scope.hasError = true;
-            $scope.status = status;
-            $scope.status_data = JSON.stringify(data);
-        };
+            $scope.processError = function (data, status) {
+                $scope.hasError = true;
+                $scope.status = status;
+                $scope.status_data = JSON.stringify(data);
+            };
 
-        $scope.getConfiguration = function () {
-            var url = '/service/cosmos.forms/' + $scope.formId + '/';
+            $scope.getConfiguration = function () {
+                var url = '/service/cosmos.forms/' + $scope.formId + '/';
 
-            CosmosService.get(url, function (data) {
-                    $scope.data = {};
-                    $scope.form = data;
-                    $scope.getData();
-                },
-                function (data, status) {
-                    $scope.processError(data, status);
-                }
-            );
-        };
-
-        $scope.getData = function(){
-            if($scope.dataId){
-                var url = $scope.form.action + '/'+ $scope.dataId + '/';
                 CosmosService.get(url, function (data) {
-                        $scope.data = data;
+                        $scope.data = {};
+                        $scope.form = data;
+                        $scope.getData();
                     },
                     function (data, status) {
                         $scope.processError(data, status);
                     }
                 );
-            }
-        };
+            };
 
-        $scope.processResult = function(form, result){
-            if(form && form.onsuccess){
-                if(form.onsuccess.type === "url"){
-                    window.location.href = form.onsuccess.value;
+            $scope.getData = function () {
+                if ($scope.dataId) {
+                    var url = $scope.form.action + '/' + $scope.dataId + '/';
+                    CosmosService.get(url, function (data) {
+                            $scope.data = data;
+                        },
+                        function (data, status) {
+                            $scope.processError(data, status);
+                        }
+                    );
                 }
-                else if(form.onsuccess.type === "message"){
-                    message.push({"message":form.onsuccess.value, "title":"Sucess", "data": result});
-                    $location.path('/message');
-                }
-            }
-        };
+            };
 
-        $scope.onSubmit = function () {
-            if($scope.form.action) {
-                if($scope.form.action) {
-                    if(!$scope.dataId) {
-                        CosmosService.post($scope.form.action, $scope.data, function (data) {
-                                $scope.processResult($scope.form, data);
-                            },
-                            function (data, status) {
-                                $scope.processError(data, status);
-                            }
-                        );
+            $scope.processResult = function (form, result) {
+                if (form && form.onsuccess) {
+                    if (form.onsuccess.type === "url") {
+                        window.location.href = form.onsuccess.value;
                     }
-                    else{
-                        var url = $scope.form.action + '/'+ $scope.dataId + '/';
-                        CosmosService.put(url, $scope.data, function (data) {
-                                $scope.processResult($scope.form, data);
-                            },
-                            function (data, status) {
-                                $scope.processError(data, status);
-                            }
-                        );
+                    else if (form.onsuccess.type === "message") {
+                        message.push({"message": form.onsuccess.value, "title": "Sucess", "data": result});
+                        $location.path('/message');
                     }
                 }
-            }
-        };
+            };
 
-        $scope.getConfiguration();
+            $scope.onSubmit = function () {
+                if ($scope.form.action) {
+                    if ($scope.form.action) {
+                        if (!$scope.dataId) {
+                            CosmosService.post($scope.form.action, $scope.data, function (data) {
+                                    $scope.processResult($scope.form, data);
+                                },
+                                function (data, status) {
+                                    $scope.processError(data, status);
+                                }
+                            );
+                        }
+                        else {
+                            var url = $scope.form.action + '/' + $scope.dataId + '/';
+                            CosmosService.put(url, $scope.data, function (data) {
+                                    $scope.processResult($scope.form, data);
+                                },
+                                function (data, status) {
+                                    $scope.processError(data, status);
+                                }
+                            );
+                        }
+                    }
+                }
+            };
 
-    }])
+            $scope.getConfiguration();
 
-    .controller('PageViewCtrl', ['$scope','$routeParams', 'CosmosService', function ($scope, $routeParams, CosmosService) {
+        }])
+
+    .controller('PageViewCtrl', ['$scope', '$routeParams', 'CosmosService', function ($scope, $routeParams, CosmosService) {
         $scope.pageId = $routeParams.pageId;
 
-       $scope.getConfiguration = function () {
+        $scope.getConfiguration = function () {
             var url = '/service/cosmos.pages/' + $scope.pageId + '/';
 
             CosmosService.get(url, function (data) {

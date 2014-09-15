@@ -9,6 +9,7 @@ angular.module('myApp.directives', []).
             elm.text(version);
         };
     }])
+
     .directive('field', function ($compile) {
         return {
             restrict: 'E',
@@ -204,7 +205,7 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "image":
-                            template = '<img src="{{item.src}}" />';
+                            template = '<img ng-src="{{item.src}}" />';
                             break;
 
                         case "list":
@@ -357,6 +358,11 @@ angular.module('myApp.directives', []).
                             }
                             break;
 
+                        case "pageref":
+                            template = '' +
+                                '<page pageid="item.pageId"></page>';
+                            break;
+
                         case "formref":
                             template = '' +
                                 '<div ng-show="submitDone">{{form.onsuccess.value}}</div>' +
@@ -426,6 +432,7 @@ angular.module('myApp.directives', []).
             }],
 
             link: function (scope, element, attributes) {
+                console.log("Creating field " + scope.item.type);
                 var template = scope.getTemplate(scope.item);
                 if (!template) {
                     return;
@@ -469,12 +476,15 @@ angular.module('myApp.directives', []).
                     scope.getFormConfiguration();
                 }
 
+                console.log("Field template" + template);
+
                 var newElement = angular.element(template);
                 $compile(newElement)(scope);
                 element.replaceWith(newElement);
             }
         };
     })
+
     .directive('errorBanner', function ($compile) {
         //TODO: create sub-scope with its own data attribute and clearError() method
             return {
@@ -489,46 +499,57 @@ angular.module('myApp.directives', []).
                     '</div>'
             }
     })
-;
 
-//Following directive is copied from:  https://gist.github.com/thgreasi/7152499c0e91973c4820
-angular.module('gen.genericDirectives', [])
-    .directive('genDynamicDirective', ['$compile',
-        function ($compile) {
-            return {
-                restrict: "E",
-                require: '^ngModel',
-                scope: true,
-                link: function (scope, element, attrs, ngModel) {
-                    var ngModelItem = scope.$eval(attrs.ngModel);
-                    scope.ngModelItem = ngModelItem;
+    .directive('page', function ($compile) {
+        return {
+            restrict: 'E',
+            scope: {
+                pageId: '=pageid'  // because pageId will translate to page-id
+            },
 
-                    var getView = scope.$eval(attrs.genGetDynamicView);
-                    if (getView && typeof getView === 'function') {
-                        var templateUrl = getView(ngModelItem);
-                        if (templateUrl) {
-                            element.html('<div ng-include src="\'' + templateUrl + '\'"></div>');
-                        }
-
-                        $compile(element.contents())(scope);
+            controller: ['$scope', '$location', 'message', 'CosmosService', function ($scope, $location, message, CosmosService) {
+                $scope.getConfiguration = function () {
+                    if(! $scope.pageId){
+                        return;
                     }
+
+                    var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+
+                    CosmosService.get(url, function (data) {
+                            $scope.pagedef = data;
+                        },
+                        function (data, status) {
+                            //TODO: $scope.processError(data, status);
+                        }
+                    );
+                };
+
+                $scope.getTemplate = function(){
+                    var template = ''+
+                                    '    <div ng-repeat="field in pagedef.fields">\n' +
+                                    '        <field item="field"></field>\n' +
+                                    '    </div>\n'+
+                                    '{{page}}'+
+                                    '';
+                    return template;
                 }
-            };
+            }],
+
+            link: function (scope, element, attributes) {
+                console.log("Creating page");
+                scope.pagedef = [];
+                var template = scope.getTemplate();
+                if (!template) {
+                    return;
+                }
+
+                scope.getConfiguration();
+
+                var newElement = angular.element(template);
+                $compile(newElement)(scope);
+                element.replaceWith(newElement);
+            }
         }
-    ]);
+    })
 
-
-// function getView (ngModelItem) {
-//     var template = '';
-
-//     switch (ngModelItem.Type) {
-//         case 'Type1':
-//             template = 'Type1.html';
-//             break;
-//         case 'Type2':
-//             template = 'Type2.html';
-//             break;
-//     }
-
-//     return template;
-// }
+;
