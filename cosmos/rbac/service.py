@@ -12,10 +12,11 @@ import uuid
 import logging
 from cosmos.rbac.object import *
 
-#TODO: Remove global usage
+# TODO: Remove global usage
 
 _active_roles = None
 _active_role_groups = None
+
 
 class RoleCache():
     def __init__(self, *args, **kwargs):
@@ -41,6 +42,7 @@ class RoleCache():
         global _active_role_groups
         return _active_role_groups
 
+
 class RbacService():
     ALLOW_ALL_PROPERTY_NAME = "*"
     ALLOW_ALL_OBJECT_NAME = "*"
@@ -56,10 +58,11 @@ class RbacService():
         role_groups = self.role_cache.get_role_groups()
 
         for group in role_groups:
-            if sid==group.sid:
+            if sid == group.sid:
                 return group
 
         return None
+
     #TODO: Return expanded role groups instead of taking out parameter
     def expand_role_group(self, role_group, expanded_roles):
         """
@@ -71,7 +74,6 @@ class RbacService():
 
         assert isinstance(role_group, RoleGroup)
         assert isinstance(expanded_roles, collections.Iterable)
-
 
         for role_sid in role_group.role_sids:
             role = self.role_cache.get_role(role_sid)
@@ -159,6 +161,7 @@ class RbacService():
 
         return len(properties) > 0 and len(required_properties) == 0
 
+
 def init_roles():
     global _active_roles
     if not _active_roles:
@@ -166,12 +169,14 @@ def init_roles():
         for role in WELL_KNOWN_ROLES:
             _active_roles.append(role)
 
+
 def init_role_groups():
     global _active_role_groups
     if not _active_role_groups:
         _active_role_groups = []
         for role_group in WELL_KNOWN_ROLE_GROUPS:
             _active_role_groups.append(role_group)
+
 
 def check_role_item(role_item_defn):
     assert isinstance(role_item_defn, dict)
@@ -185,11 +190,14 @@ def check_role_item(role_item_defn):
 
     for access in access_list:
         if access == AccessType.DELETE and property_name != RbacService.ALLOW_ALL_PROPERTY_NAME:
-            raise ValueError("When access type is DELETE property_name must be {0}".format(RbacService.ALLOW_ALL_PROPERTY_NAME))
+            raise ValueError(
+                "When access type is DELETE property_name must be {0}".format(RbacService.ALLOW_ALL_PROPERTY_NAME))
 
     for access in owner_access_list:
         if access == AccessType.DELETE and property_name != RbacService.ALLOW_ALL_PROPERTY_NAME:
-            raise ValueError("When owner_access type is DELETE property_name must be {0}".format(RbacService.ALLOW_ALL_PROPERTY_NAME))
+            raise ValueError("When owner_access type is DELETE property_name must be {0}".format(
+                RbacService.ALLOW_ALL_PROPERTY_NAME))
+
 
 def get_role_object(role_defn):
     assert isinstance(role_defn, dict)
@@ -217,27 +225,39 @@ def get_role_object(role_defn):
 
     return role
 
+
 def get_role_group_object(role_group_def):
     assert isinstance(role_group_def, dict)
     assert role_group_def.get("type") == "object.RoleGroup"
     role_group = RoleGroup(**role_group_def)
     return role_group
 
+
 def replace_role(new_role):
-    [new_role if existing_role.sid==new_role.sid else existing_role for existing_role in _active_roles]
+    global _active_roles
+    new_active_roles = [new_role if existing_role.sid == new_role.sid else existing_role for existing_role in
+                        _active_roles]
+    _active_roles = new_active_roles
+
 
 def replace_role_group(role_group):
-    [role_group if existing_group.sid==role_group.sid else existing_group for existing_group in _active_role_groups]
+    global _active_role_groups
+    new_active_role_groups = [role_group if existing_group.sid == role_group.sid else existing_group for existing_group
+                              in _active_role_groups]
+    _active_role_groups = new_active_role_groups
+
 
 def clear_non_system_roles():
     global _active_roles
     _active_roles = None
     init_roles()
 
+
 def clear_non_system_role_groups():
     global _active_role_groups
     _active_role_groups = None
     init_role_groups()
+
 
 def update_role_cache(role_defn):
     global _active_roles
@@ -251,11 +271,12 @@ def update_role_cache(role_defn):
         return
 
     for existing_role in _active_roles:
-        if existing_role.sid==new_role.sid:
+        if existing_role.sid == new_role.sid:
             replace_role(new_role)
             return
 
     _active_roles.append(new_role)
+
 
 def update_role_group_cache(role_group_defn):
     global _active_role_groups
@@ -269,7 +290,7 @@ def update_role_group_cache(role_group_defn):
         return
 
     for existing_role_group in _active_role_groups:
-        if existing_role_group.sid==new_role_group.sid:
+        if existing_role_group.sid == new_role_group.sid:
             replace_role_group(new_role_group)
             return
 
@@ -338,8 +359,8 @@ if __name__ == "__main__":
     for role in _active_roles:
         print role.to_JSON()
 
-    role= get_role_object(sample_role)
-    role_json =  role.to_JSON()
+    role = get_role_object(sample_role)
+    role_json = role.to_JSON()
     role_def = json.loads(role_json)
     role2 = get_role_object(sample_role)
     print role2.to_JSON()
