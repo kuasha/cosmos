@@ -31,7 +31,7 @@ setup(
 
     entry_points = {
         'console_scripts': [
-            'cosmosadmin = cosmos.admin.commands:admin_main'
+            'cosmos = cosmos.admin.commands:admin_main'
         ]
     },
 

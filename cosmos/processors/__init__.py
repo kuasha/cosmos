@@ -9,7 +9,8 @@ import tornado
 import uuid
 from tornado import gen
 from cosmos.dataservice.objectservice import ObjectService
-from cosmos.rbac.object import COSMOS_ROLE_OBJECT_NAME, WELL_KNOWN_ROLES, SYSTEM_USER, AccessType
+from cosmos.rbac.object import COSMOS_ROLE_OBJECT_NAME, WELL_KNOWN_ROLES, SYSTEM_USER, AccessType, \
+    ANONYMOUS_USER_ROLE_SID
 from cosmos.rbac.service import check_role_item
 
 
@@ -27,9 +28,10 @@ def before_role_insert(db, object_name, data, access_type):
         sid = sid.strip()
         data["sid"] = sid
 
-        for role in WELL_KNOWN_ROLES:
-            if role.sid == sid:
-                raise tornado.web.HTTPError(409, "Conflict: Duplicate role sid")
+        if sid != ANONYMOUS_USER_ROLE_SID:
+            for role in WELL_KNOWN_ROLES:
+                if role.sid == sid:
+                    raise tornado.web.HTTPError(409, "Conflict: Duplicate role sid")
 
         object_service = ObjectService()
         query = {"sid": sid}

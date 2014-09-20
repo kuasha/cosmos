@@ -62,7 +62,7 @@ class CommandHandler():
             sys.exit(1)
 
         email = self.get_input('Enter admin email: ')
-        self.method_name(username, password, email, [ADMIN_USER_ROLE_SID])
+        self.create_user(username, password, email, [ADMIN_USER_ROLE_SID])
         sys.exit(0)
 
 def print_usage():
