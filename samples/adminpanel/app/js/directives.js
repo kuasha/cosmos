@@ -201,7 +201,7 @@ angular.module('myApp.directives', []).
                         //Page fields
                         case "htmlblock":
                             $scope.validateBlockType(item.blocktype);
-                            template = '<'+item.blocktype+'>{{item.value}}</'+item.blocktype+'>';
+                            template = '<'+item.blocktype+' ng-class="item.cssclass">{{item.value}}</'+item.blocktype+'>';
                             break;
 
                         case "image":
@@ -379,6 +379,10 @@ angular.module('myApp.directives', []).
                                 '</form>';
                             break;
 
+                        case "cssref":
+                            template='<link data-ng-href="{{item.href}}" rel="stylesheet" />';
+                            break;
+
                         case "form":
                         case "composite":
                             template = '' +
@@ -474,6 +478,15 @@ angular.module('myApp.directives', []).
 
                 if(scope.item.type === "formref") {
                     scope.getFormConfiguration();
+                }
+
+                if(scope.item.type === "cssref") {
+                    var headElement = angular.element(document.getElementsByTagName('head')[0]);
+
+                    var newElement = angular.element(template);
+                    $compile(newElement)(scope);
+                    headElement.append(newElement);
+                    return;
                 }
 
                 console.log("Field template" + template);
