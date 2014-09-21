@@ -105,15 +105,37 @@ angular.module('myApp.directives', []).
 
                 //START List methods
 
-                $scope.getListData = function () {
-                    var columns = "";
-                    angular.forEach($scope.item.value.columns, function (column, index) {
-                        columns += column.name + ",";
+                //List ref
+
+                $scope.getListDataBy = function(columns, objectName){
+                    var columnsCsv = '';
+                    angular.forEach(columns, function (column, index) {
+                        columnsCsv += column.name + ",";
                     });
-                    var url = '/service/' + $scope.item.value.objectName + '/?columns=' + columns;
+                    var url = '/service/' + objectName + '/?columns=' + columnsCsv;
 
                     CosmosService.get(url, function (data) {
                             $scope.data = data;
+                        },
+                        function (data, status) {
+                            //TODO: $scope.processError(data, status);
+                        }
+                    );
+                };
+
+                $scope.getListDataFromConfig = function(listConfiguration){
+                    var columns = listConfiguration.columns;
+                    var objectName = listConfiguration.objectName;
+
+                    $scope.getListDataBy(columns, objectName);
+                };
+
+                $scope.getListConfiguration = function () {
+                    var url = '/service/cosmos.listconfigurations/' + $scope.item.value.listId + '/';
+                    CosmosService.get(url, function (data) {
+                            $scope.data = {};
+                            $scope.listConfiguration = data;
+                            $scope.getListDataFromConfig($scope.listConfiguration);
                         },
                         function (data, status) {
                             //TODO: $scope.processError(data, status);
@@ -206,10 +228,6 @@ angular.module('myApp.directives', []).
 
                         case "image":
                             template = '<img ng-src="{{item.src}}" />';
-                            break;
-
-                        case "list":
-                            template = '<div ng-include="\''+item.value.widgetName+'\'" /></div>';
                             break;
 
                         case "twocolumn":
@@ -383,6 +401,10 @@ angular.module('myApp.directives', []).
                             template='<link data-ng-href="{{item.href}}" rel="stylesheet" />';
                             break;
 
+                        case "listref":
+                            template = '<div ng-if="listConfiguration !== undefined"><div ng-include="listConfiguration.widgetName" /></div></div>';
+                            break;
+
                         case "form":
                         case "composite":
                             template = '' +
@@ -472,8 +494,8 @@ angular.module('myApp.directives', []).
                     }
                 }
 
-                if(scope.item.type === "list"){
-                    scope.getListData();
+                if(scope.item.type === "listref"){
+                    scope.getListConfiguration();
                 }
 
                 if(scope.item.type === "formref") {
