@@ -1,7 +1,7 @@
 .product {
     width: 100%;
-    max-width: 200px;
-    height: 250px;
+    max-width: 320px;
+    min-height: 250px;
     display: inline-block;
     border: 1px solid #EFEFEF;
     margin: 7px;
