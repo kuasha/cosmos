@@ -71,18 +71,25 @@ angular.module('myApp.services', [])
             }
         };
     }])
-    .factory('NamedCollection', ['$http', function($http) {
-        var collections = {};
+    .factory('namedcolection', ['$http', function($http) {
         return{
-            get_collection: function(name){
-                var objects = collections[name];
+            collections : {},
+            getCollection: function(name){
+                var objects = this.collections[name];
 
                 if(!objects){
                     objects = [];
-                    collections[name] = objects;
+                    this.collections[name] = objects;
                 }
 
                 return objects;
+            },
+
+            dummy:[1,2,3,4],
+
+            getCollectionDummy: function(name){
+                return this.dummy;
+
             },
 
             append: function(name, object) {
@@ -90,16 +97,17 @@ angular.module('myApp.services', [])
                     return;
                 }
 
-                var objects = get_collection(name);
+                var objects = this.getCollection(name);
 
                 objects.push(object);
             },
 
-            removeById: function(_id){
-                if(!objects){
-                    return;
-                }
+            removeById: function(name, _id){
                 var foundIndex = -1;
+                var objects = this.getCollection(name);
+                if(!objects){
+                    return foundIndex;
+                }
                 angular.forEach(objects, function(value, index){
                    if(foundIndex < 0 && value["_id"] === _id){
                        foundIndex = index;
@@ -109,16 +117,41 @@ angular.module('myApp.services', [])
                 if(foundIndex >= 0) {
                     objects.splice(foundIndex, 1);
                 }
+                return foundIndex;
             },
 
-
-
-            length: function(){
+            length: function(name){
+                var objects = this.getCollection(name);
                 if(!objects){
                     return 0;
                 }
                 return objects.length;
             }
         };
+    }])
+    .factory('calculator', ['$http', function($http) {
+        return{
+
+            sumColumnValues: function (list, columnName) {
+                var total = 0;
+                angular.forEach(list, function(value, index){
+                    var cur =  Number(value[columnName]);
+                    if(cur) {
+                        total += cur;
+                    }
+                });
+                return total;
+            },
+
+            averageColumnValues: function (list, columnName) {
+                if(list.length<1){
+                    return 0;
+                }
+
+                var sum = sumColumnValues(list, columnName);
+                var average = sum / list.length;
+            }
+
+        }
     }])
 ;

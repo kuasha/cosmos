@@ -18,7 +18,10 @@ angular.module('myApp.directives', []).
                 val: '='
             },
 
-            controller: ['$scope', '$location', 'message', 'CosmosService', function ($scope, $location, message, CosmosService) {
+            controller: ['$scope', '$location', 'message', 'CosmosService', 'namedcolection', 'calculator',
+                function ($scope, $location, message, CosmosService, namedcolection, calculator) {
+                $scope.namedcolection = namedcolection;
+                $scope.calculator = calculator;
 
                 $scope.prepareObject = function (item, data) {
                     angular.forEach(item.fields, function (value, index) {
@@ -38,7 +41,6 @@ angular.module('myApp.directives', []).
                             else{
                                 //data[value] = "";
                             }
-
                         }
                     });
                 };
@@ -302,7 +304,7 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "widgethost":
-                            template = '<div ng-include="\''+item.value+'\'"></div>'
+                            template = '<div ng-include="\''+item.value+'\'" class="'+item.cssclass+'"></div>';
                             break;
 
                         //Form fields
@@ -508,6 +510,7 @@ angular.module('myApp.directives', []).
                     var newElement = angular.element(template);
                     $compile(newElement)(scope);
                     headElement.append(newElement);
+                    //TODO: maybe remove the "element"
                     return;
                 }
 

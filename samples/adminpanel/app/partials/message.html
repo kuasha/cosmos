@@ -1,3 +1,6 @@
 <h1>{{message.title}}</h1>
 <div>{{message.message}}</div>
 <div>{{message.data}}</div>
+
+<button ng-click="appendtonc('test',{'_id':'100'})">Add</button>
+<div ng-repeat="value in get_nc_collection('test')">{{$index}}:{{value}}</div>
