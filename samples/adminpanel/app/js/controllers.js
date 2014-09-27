@@ -1016,7 +1016,6 @@ angular.module('myApp.controllers', [])
             };
 
             $scope.getConfiguration();
-
         }])
 
     .controller('FormViewCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'message',
@@ -1105,7 +1104,7 @@ angular.module('myApp.controllers', [])
 
             $scope.getConfiguration();
 
-        }])
+    }])
 
     .controller('PageViewCtrl', ['$scope', '$routeParams', 'CosmosService', function ($scope, $routeParams, CosmosService) {
         $scope.pageId = $routeParams.pageId;
@@ -1123,7 +1122,11 @@ angular.module('myApp.controllers', [])
         };
 
         $scope.getConfiguration();
+    }])
 
+    .controller('SingleItemViewCtrl', ['$scope', '$routeParams', function ($scope, $routeParams) {
+        $scope.configId = $routeParams.configId;
+        $scope.itemId = $routeParams.itemId;
     }])
 
 ;

@@ -151,7 +151,18 @@ angular.module('myApp.services', [])
                 var sum = sumColumnValues(list, columnName);
                 var average = sum / list.length;
             }
+        }
+    }])
 
+    .factory('cosmos.cache', ['$http', function($http) {
+        return{
+            store : {},
+            set: function (id, value) {
+                this.stire[id] = value;
+            },
+            get : function(id){
+                return this.store[id];
+            }
         }
     }])
 ;
