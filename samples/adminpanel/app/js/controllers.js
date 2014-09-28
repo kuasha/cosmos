@@ -180,17 +180,8 @@ angular.module('myApp.controllers', [])
         };
     }])
 
-    .controller('MessageViewCtrl', ['$scope', 'CosmosService', 'message', 'namedcolection', function ($scope, CosmosService, message, namedcolection) {
+    .controller('MessageViewCtrl', ['$scope', 'CosmosService', 'message', function ($scope, CosmosService, message) {
         $scope.message = message.pop();
-        $scope.namedcolection = namedcolection;
-
-        $scope.appendtonc = function (name, value){
-            $scope.namedcolection.append(name, value);
-        };
-
-        $scope.get_nc_collection = function(name){
-            return $scope.namedcolection.getCollection(name);
-        };
     }])
 
     .controller('UsersCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
@@ -1007,6 +998,7 @@ angular.module('myApp.controllers', [])
                 else {
                     CosmosService.post(url, $scope.form, function (data) {
                             $scope.result = data;
+                            $scope.form._id = JSON.parse(data);
                         },
                         function (data, status) {
                             $scope.processError(data, status);

@@ -22,6 +22,26 @@ angular.module('myApp.directives', []).
                 function ($scope, $location, message, CosmosService, namedcolection, calculator) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
+                $scope.CosmosService = CosmosService;
+
+                $scope.receiveServiceDataAs =  function(data, args) {
+                    if(!args) {
+                        return;
+                    }
+
+                    var name = args['name'];
+                    var parse = args['parse'];
+
+                    if(name) {
+                        if(parse) {
+                            $scope[name] = JSON.parse(data);
+                        }
+                        else{
+                            $scope[name] = data;
+                        }
+                    }
+                };
+
 
                 $scope.prepareObject = function (item, data) {
                     angular.forEach(item.fields, function (value, index) {
