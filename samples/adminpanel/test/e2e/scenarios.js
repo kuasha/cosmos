@@ -2,41 +2,78 @@
 
 /* https://github.com/angular/protractor/blob/master/docs/getting-started.md */
 
-describe('my app', function() {
+describe('Admin app', function() {
 
-  browser.get('index.html');
+    function login(ptor){
+        browser.get('/login.html');
+        var username = ptor.findElement(protractor.By.id('username'));
+        var password = ptor.findElement(protractor.By.id('password'));
+        var submit = ptor.findElement(protractor.By.id('unpwdlogin'));
 
-  it('should automatically redirect to /view1 when location hash/fragment is empty', function() {
-    expect(browser.getLocationAbsUrl()).toMatch("/view1");
-  });
+        username.sendKeys('admin');
+        password.sendKeys('admin');
+        submit.click();
+    }
 
+    function logout(ptor){
+        var logout = ptor.findElement(protractor.By.linkText('Logout [admin]'));
+        logout.click();
+    }
 
-  describe('view1', function() {
+    browser.get('index.html');
 
-    beforeEach(function() {
-      browser.get('index.html#/view1');
+    it('should automatically redirect to /home when location hash/fragment is empty', function() {
+        expect(browser.getLocationAbsUrl()).toMatch("/home");
     });
 
 
-    it('should render view1 when user navigates to /view1', function() {
-      expect(element.all(by.css('[ng-view] p')).first().getText()).
-        toMatch(/partial for view 1/);
+    describe('home', function() {
+        var ptor = protractor.getInstance();
+
+        beforeEach(function() {
+            browser.get('#/home');
+        });
+
+        it('should render form in #/home page', function() {
+            expect(element.all(by.css('form')).count()).toEqual(1);
+        });
+
     });
 
-  });
+    describe('login', function() {
+        var ptor = protractor.getInstance();
 
+        beforeEach(function() {
+        });
 
-  describe('view2', function() {
+        it('should be able to login and logout', function() {
+            login(ptor);
 
-    beforeEach(function() {
-      browser.get('index.html#/view2');
+            var logout = ptor.findElement(protractor.By.linkText('Logout [admin]'));
+            expect(logout.getText()).toEqual('Logout [admin]');
+
+            logout.click();
+
+            var login_link = ptor.findElement(protractor.By.linkText('Login'));
+            expect(login_link.getText()).toEqual('Login');
+        });
+    });
+
+    describe('userservice', function() {
+        var ptor = protractor.getInstance();
+
+        beforeEach(function () {
+            login(ptor);
+        });
+
+        afterEach(function() {
+            logout(ptor);
+        });
+
+        it('should be able to create new user', function () {
+
+        });
     });
 
 
-    it('should render view2 when user navigates to /view2', function() {
-      expect(element.all(by.css('[ng-view] p')).first().getText()).
-        toMatch(/partial for view 2/);
-    });
-
-  });
 });

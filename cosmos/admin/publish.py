@@ -95,4 +95,4 @@ if __name__ == "__main__":
     path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../samples/adminpanel"))
     sample_def_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "samples/adminpaneldef.py")
 
-    package_sample(path, sample_def_path, ["bower_components", "local_settings.py"])
+    package_sample(path, sample_def_path, ["bower_components", "test", "local_settings.py"])

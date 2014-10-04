@@ -62,11 +62,11 @@ class CommandHandler():
             sys.exit(1)
 
         email = self.get_input('Enter admin email: ')
-        self.method_name(username, password, email, [ADMIN_USER_ROLE_SID])
+        self.create_user(username, password, email, [ADMIN_USER_ROLE_SID])
         sys.exit(0)
 
 def print_usage():
-    print "Unknown command.\ncosmosadmin new-admin\ncosmosadmin new-project [angular]\ncosmosadmin add-heroku-settings\n"
+    print "Unknown command.\ncosmos new-admin\ncosmos new-project [angular]\ncosmos add-herokusettings\n"
 
 def add_heroku_settings(current_directory):
     proc_file_path = os.path.join(current_directory, "Procfile")
@@ -80,7 +80,7 @@ def add_heroku_settings(current_directory):
 
 def admin_main():
     current_directory = os.getcwd()
-    if len(sys.argv) < 1:
+    if len(sys.argv) < 2:
         print_usage()
         return
     else:

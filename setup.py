@@ -5,7 +5,7 @@ except ImportError:
 
 setup(
     name='cosmos',
-    version='0.01.015.00',
+    version='0.01.022.00',
     packages=['cosmos', 'cosmos.admin', 'cosmos.admin.samples', 'cosmos.datamonitor', 'cosmos.dataservice', 'cosmos.rbac', 'cosmos.schema',
               'cosmos.service', 'cosmos.processors', 'test'],
     url='http://cosmosframework.com',
@@ -31,7 +31,7 @@ setup(
 
     entry_points = {
         'console_scripts': [
-            'cosmosadmin = cosmos.admin.commands:admin_main'
+            'cosmos = cosmos.admin.commands:admin_main'
         ]
     },
 

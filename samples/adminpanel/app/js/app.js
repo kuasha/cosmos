@@ -5,8 +5,9 @@
 var myApp = angular.module('myApp', [
     'ngRoute',
     'ui.bootstrap',
-    'gen.genericDirectives',
     'ui.sortable',
+    'ui.ace',
+    'yaru22.jsonHuman',
     'myApp.filters',
     'myApp.services',
     'myApp.directives',
@@ -15,19 +16,23 @@ var myApp = angular.module('myApp', [
 config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/home', {templateUrl: 'partials/home.html', controller: 'HomeCtrl'});
 
+    $routeProvider.when('/a/:appPath?/', {templateUrl: 'partials/pageholder.html', controller: 'IndexCtrl'});
+
     $routeProvider.when('/message', {templateUrl: 'partials/message.html', controller: 'MessageViewCtrl'});
 
-    $routeProvider.when('/users', {templateUrl: 'partials/users.html', controller: 'UsersCtrl'});
+    $routeProvider.when('/a/:appPath/users', {templateUrl: 'partials/users.html', controller: 'UsersCtrl'});
     $routeProvider.when('/roles', {templateUrl: 'partials/roles.html', controller: 'RolesCtrl'});
-    $routeProvider.when('/lists/:listId/', {templateUrl: 'partials/widget-host.html', controller: 'ListDetailCtrl'});
-    $routeProvider.when('/lists/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
-    $routeProvider.when('/content/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
-    $routeProvider.when('/forms/:formId/:dataId?', {templateUrl: 'partials/form-widget.html', controller: 'FormViewController'});
-    $routeProvider.when('/forms/', {templateUrl: 'partials/list.html', controller: 'FormListCtrl'});
-    $routeProvider.when('/formdesign/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
+    $routeProvider.when('/a/:appPath/lists/:listId/', {templateUrl: 'partials/widget-host.html', controller: 'ListDetailCtrl'});
+    $routeProvider.when('/a/:appPath/lists/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
+    $routeProvider.when('/a/:appPath/content/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
+    $routeProvider.when('/a/:appPath/formdesign/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
+    $routeProvider.when('/a/:appPath/forms/:formId?/:dataId?', {templateUrl: 'partials/formview.html', controller: 'FormViewCtrl'});
 
+    $routeProvider.when('/a/:appPath/page/:pageId?', {templateUrl: 'partials/page.html', controller: 'PageViewCtrl'});
 
-    $routeProvider.otherwise({redirectTo: '/home'});
+    $routeProvider.when('/a/:appPath/view/:configId/:itemId/', {templateUrl: 'partials/singleitemview.html', controller: 'SingleItemViewCtrl'});
+
+    $routeProvider.otherwise({redirectTo: '/a/'});
 }]);
 
 myApp.factory('$templateCache', function($cacheFactory, $http, $injector) {
@@ -43,7 +48,7 @@ myApp.factory('$templateCache', function($cacheFactory, $http, $injector) {
             }
 
             if (!widgetPromise) {
-                var uri='/service/userdata.widgets/';
+                var uri='/service/cosmos.widgets/';
 
                 widgetPromise = $http.get(uri).then(function(response) {
                     var template_data = JSON.parse(response.data._d);

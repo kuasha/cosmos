@@ -4,18 +4,13 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
+from argparse import ArgumentError
 import hashlib
 
-import inspect
 import datetime
-import logging
 import gridfs
 import motor
-import tornado.ioloop
 import tornado.web
-import tornado.options
-import tornado.template
-import tornado.websocket
 from bson import ObjectId
 from cosmos.rbac.service import *
 
@@ -27,8 +22,15 @@ ACCESS_TYPE_OWNER_ONLY = 2
 class ObjectService():
     def __init__(self, *args, **kwargs):
         self.rbac_service = kwargs.get("rbac_service", RbacService())
+        self.db = kwargs.get("db", None)
 
-    def check_access(self, db, user, object_name, properties, access, check_owner=False):
+        if not self.db:
+            raise ArgumentError("db", "Database object must be set while creating ObjectService.")
+
+        self._preprocessors = {}
+        self._postprocessors = {}
+
+    def check_access(self, user, object_name, properties, access, check_owner=False):
         roles = self.rbac_service.get_roles(user)
         for role in roles:
             has_access = self.rbac_service.has_access(role, object_name, properties, access)
@@ -42,27 +44,27 @@ class ObjectService():
 
         raise tornado.web.HTTPError(401, "Unauthorized")
 
-    def save(self, user, db, object_name, data):
+    def save(self, user, object_name, data):
         logging.debug("ObjectService::save::{0}".format(object_name))
         assert isinstance(data, dict)
 
         properties = self.get_properties(data)
-        self.check_access(db, user, object_name, properties, AccessType.INSERT, True)
+        self.check_access(user, object_name, properties, AccessType.INSERT, True)
 
-        self.create_access_log(db, user, object_name, AccessType.INSERT)
+        self.create_access_log( user, object_name, AccessType.INSERT)
 
         data['createtime'] = str(datetime.datetime.now())
         data['owner'] = str(user.get("_id"))
 
-        result = db[object_name].insert(data)
+        result = self.db[object_name].insert(data)
 
         return result
 
-    def find(self, user, db, object_name, query, columns, limit=5000):
+    def find(self, user, object_name, query, columns, limit=5000):
         logging.debug("ObjectService::find::{0}".format(object_name))
         #assert inspect.ismethod(callback)
 
-        allowed_access_type = self.check_access(db, user, object_name, columns, AccessType.READ, True)
+        allowed_access_type = self.check_access(user, object_name, columns, AccessType.READ, True)
 
         if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
             if query:
@@ -71,21 +73,21 @@ class ObjectService():
             else:
                 query = {"owner": str(user.get("_id"))}
 
-        self.create_access_log(db, user, object_name, AccessType.READ)
+        self.create_access_log(user, object_name, AccessType.READ)
 
         if len(columns) > 0:
             columns_dict = {column:1 for column in columns}
         else:
             columns_dict = None
 
-        result = db[object_name].find(query, columns_dict).limit(limit)
+        result = self.db[object_name].find(query, columns_dict).limit(limit)
 
         return result
 
-    def load(self, user, db, object_name, id, columns):
+    def load(self, user, object_name, id, columns):
         logging.debug("ObjectService::load::{0}".format(object_name))
 
-        allowed_access_type = self.check_access(db, user, object_name, columns, AccessType.READ, True)
+        allowed_access_type = self.check_access(user, object_name, columns, AccessType.READ, True)
 
         if len(columns) > 0:
             columns_dict = {column:1 for column in columns}
@@ -97,79 +99,78 @@ class ObjectService():
         if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
             query["owner"] = str(user.get("_id"))
 
-        self.create_access_log(db, user, object_name, AccessType.READ)
+        self.create_access_log(user, object_name, AccessType.READ)
 
-        result = db[object_name].find_one(query, columns_dict)
+        result = self.db[object_name].find_one(query, columns_dict)
         return result
 
     # TODO: SECURITY_ISSUE: escape $ sign in values
     # http://docs.mongodb.org/manual/faq/developers/#dollar-sign-operator-escaping
-    def update(self, user, db, object_name, id, data):
+    def update(self, user, object_name, id, data):
         logging.debug("ObjectService::update::{0}".format(object_name))
         assert len(id) > 0
         assert isinstance(data, dict)
 
         properties = self.get_properties(data)
 
-        allowed_access_type = self.check_access(db, user, object_name, properties, AccessType.UPDATE, True)
+        allowed_access_type = self.check_access(user, object_name, properties, AccessType.UPDATE, True)
 
         query = {'_id': ObjectId(id)}
         if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
             query["owner"] = str(user.get("_id"))
 
-        self.create_access_log(db, user, object_name, AccessType.UPDATE)
+        self.create_access_log(user, object_name, AccessType.UPDATE)
 
-        result = db[object_name].update(query, {'$set': data})
+        result = self.db[object_name].update(query, {'$set': data})
         return result
 
-    def delete(self, user, db, object_name, id):
+    def delete(self, user, object_name, id):
         logging.debug("ObjectService::delete::{0}".format(object_name))
         assert len(id) > 0
 
-        allowed_access_type = self.check_access(db, user, object_name, [], AccessType.DELETE, True)
+        allowed_access_type = self.check_access(user, object_name, [], AccessType.DELETE, True)
 
         query = {'_id': ObjectId(id)}
         if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
             query["owner"] = str(user.get("_id"))
 
-        self.create_access_log(db, user, object_name, AccessType.DELETE)
+        self.create_access_log(user, object_name, AccessType.DELETE)
 
-        result = db[object_name].remove(query)
+        result = self.db[object_name].remove(query)
 
         return result
 
-    def save_file(self, user, db, collection_name, file):
+    def save_file(self, user, collection_name, file):
         logging.debug("ObjectService::save_file::{0}".format(collection_name))
 
         properties = ['body', 'content_type', 'filename', 'collection_name', 'createtime', 'owner']
 
-        self.check_access(db, user, collection_name, properties, AccessType.INSERT, True)
+        self.check_access(user, collection_name, properties, AccessType.INSERT, True)
 
-        self.create_access_log(db, user, collection_name, AccessType.INSERT)
+        self.create_access_log(user, collection_name, AccessType.INSERT)
 
-        return save_file_in_gridfs(db, user, collection_name, file, properties)
+        return save_file_in_gridfs(self.db, user, collection_name, file, properties)
 
-    def load_file(self, user, db, collection_name, file_id):
+    def load_file(self, user, collection_name, file_id):
         logging.debug("ObjectService::load_file::{0}".format(collection_name))
 
         properties = ['body', 'content_type']
 
-        allowed_access_type = self.check_access(db, user, collection_name, properties, AccessType.READ, True)
+        allowed_access_type = self.check_access(user, collection_name, properties, AccessType.READ, True)
 
         if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
-            return read_gridfs_owned_file(user, db, collection_name, file_id, properties)
+            return read_gridfs_owned_file(user, self.db, collection_name, file_id, properties)
 
-        self.create_access_log(db, user, collection_name, AccessType.READ)
+        self.create_access_log(user, collection_name, AccessType.READ)
 
-        return read_gridfs_file(db, collection_name, file_id, properties)
+        return read_gridfs_file(self.db, collection_name, file_id, properties)
 
     @gen.coroutine
-    def list_file(self, user, db, collection_name):
+    def list_file(self, user, collection_name):
         logging.debug("ObjectService::save_file::{0}".format(collection_name))
         properties = ['body', 'content_type', 'filename', 'collection_name', 'createtime', 'owner', 'md5', 'length']
-        self.check_access(db, user, collection_name, properties, AccessType.INSERT, True)
 
-        allowed_access_type = self.check_access(db, user, collection_name, [], AccessType.DELETE, True)
+        allowed_access_type = self.check_access(user, collection_name, properties, AccessType.INSERT, True)
 
         query = {'collection_name': collection_name}
         if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
@@ -177,7 +178,7 @@ class ObjectService():
 
         file_list = []
 
-        fs = motor.MotorGridFS(db)
+        fs = motor.MotorGridFS(self.db)
         cursor = fs.find(query, timeout=False)
         while (yield cursor.fetch_next):
             grid_out = cursor.next_object()
@@ -189,18 +190,18 @@ class ObjectService():
 
         raise gen.Return(file_list)
 
-    def delete_file(self, user, db, collection_name, file_id):
+    def delete_file(self, user, collection_name, file_id):
         logging.debug("ObjectService::delete_file::{0}".format(collection_name))
         assert len(file_id) > 0
 
-        allowed_access_type = self.check_access(db, user, collection_name, [], AccessType.DELETE, True)
+        allowed_access_type = self.check_access(user, collection_name, [], AccessType.DELETE, True)
 
-        self.create_access_log(db, user, collection_name, AccessType.DELETE)
+        self.create_access_log(user, collection_name, AccessType.DELETE)
 
         if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
-            return delete_gridfs_owned_file(user, db, file_id)
+            return delete_gridfs_owned_file(user, self.db, file_id)
 
-        return delete_gridfs_file(db, file_id)
+        return delete_gridfs_file(self.db, file_id)
 
     def get_properties(self, data, namespace=None):
         properties = data.keys()
@@ -220,11 +221,76 @@ class ObjectService():
 
         return properties
 
-    def create_access_log(self, db, user, module, function):
+    def create_access_log(self, user, module, function):
         username = None
         access_log = {"username":username, 'module': module, 'function': function}
         access_log['createtime'] = str(datetime.datetime.now())
         #db.audit.access_log.insert(access_log, callback=None)
+
+    def add_operation_preprocessor(self, preprocessor, object_name, access_types):
+        assert isinstance(access_types, collections.Iterable)
+
+        assert len(object_name) > 0
+
+        object_preprocessor =self._preprocessors.get(object_name)
+        if not object_preprocessor:
+            object_preprocessor = {}
+            self._preprocessors[object_name] = object_preprocessor
+
+        for access_type in access_types:
+            object_acctyp_preprocessor = object_preprocessor.get(access_type)
+            if not object_acctyp_preprocessor:
+                object_acctyp_preprocessor = []
+                object_preprocessor[access_type] = object_acctyp_preprocessor
+
+            if not preprocessor in object_acctyp_preprocessor:
+                object_acctyp_preprocessor.append(preprocessor)
+
+    def add_operation_postprocessor(self, postprocessor, object_name, access_types):
+        #assert inspect.ismethod(preprocessor)
+        assert isinstance(access_types, collections.Iterable)
+
+        assert len(object_name) > 0
+
+        object_postprocessor =self._postprocessors.get(object_name)
+        if not object_postprocessor:
+            object_postprocessor = {}
+            self._postprocessors[object_name] = object_postprocessor
+
+        for access_type in access_types:
+            object_acctype_postprocessor = object_postprocessor.get(access_type)
+            if not object_acctype_postprocessor:
+                object_acctype_postprocessor = []
+                object_postprocessor[access_type] = object_acctype_postprocessor
+
+            if not postprocessor in object_acctype_postprocessor:
+                object_acctype_postprocessor.append(postprocessor)
+
+    def get_operation_preprocessor(self, object_name, access_type):
+        assert len(object_name) > 0
+        object_preprocessor = self._preprocessors.get(object_name)
+
+        if not object_preprocessor:
+            return []
+
+        preprocessor_list = object_preprocessor.get(access_type)
+        if not preprocessor_list:
+            return []
+
+        return preprocessor_list
+
+    def get_operation_postprocessor(self, object_name, access_type):
+        assert len(object_name) > 0
+        object_postprocessor = self._postprocessors.get(object_name)
+
+        if not object_postprocessor:
+            return []
+
+        post_processor_list = object_postprocessor.get(access_type)
+        if not post_processor_list:
+            return []
+
+        return post_processor_list
 
 @gen.coroutine
 def save_file_in_gridfs(db, user, collection_name, file, properties):
@@ -354,74 +420,5 @@ def delete_gridfs_owned_file(user, db, file_id):
         raise tornado.web.HTTPError(401, "Unauthorized")
 
 
-_preprocessors = {
-}
-_postprocessors = {
-}
-
-def add_operation_preprocessor(preprocessor, object_name, access_types):
-    assert isinstance(access_types, collections.Iterable)
-
-    assert len(object_name) > 0
-
-    object_preprocessor =_preprocessors.get(object_name)
-    if not object_preprocessor:
-        object_preprocessor = {}
-        _preprocessors[object_name] = object_preprocessor
-
-    for access_type in access_types:
-        object_acctyp_preprocessor = object_preprocessor.get(access_type)
-        if not object_acctyp_preprocessor:
-            object_acctyp_preprocessor = []
-            object_preprocessor[access_type] = object_acctyp_preprocessor
-
-        if not preprocessor in object_acctyp_preprocessor:
-            object_acctyp_preprocessor.append(preprocessor)
-
-def add_operation_postprocessor(postprocessor, object_name, access_types):
-    #assert inspect.ismethod(preprocessor)
-    assert isinstance(access_types, collections.Iterable)
-
-    assert len(object_name) > 0
-
-    object_postprocessor =_postprocessors.get(object_name)
-    if not object_postprocessor:
-        object_postprocessor = {}
-        _postprocessors[object_name] = object_postprocessor
-
-    for access_type in access_types:
-        object_acctype_postprocessor = object_postprocessor.get(access_type)
-        if not object_acctype_postprocessor:
-            object_acctype_postprocessor = []
-            object_postprocessor[access_type] = object_acctype_postprocessor
-
-        if not postprocessor in object_acctype_postprocessor:
-            object_acctype_postprocessor.append(postprocessor)
-
-def get_operation_preprocessor(object_name, access_type):
-    assert len(object_name) > 0
-    object_preprocessor =_preprocessors.get(object_name)
-
-    if not object_preprocessor:
-        return []
-
-    preprocessor_list = object_preprocessor.get(access_type)
-    if not preprocessor_list:
-        return []
-
-    return preprocessor_list
-
-def get_operation_postprocessor(object_name, access_type):
-    assert len(object_name) > 0
-    object_postprocessor =_postprocessors.get(object_name)
-
-    if not object_postprocessor:
-        return []
-
-    post_processor_list = object_postprocessor.get(access_type)
-    if not post_processor_list:
-        return []
-
-    return post_processor_list
 
 

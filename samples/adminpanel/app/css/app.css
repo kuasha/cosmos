@@ -29,12 +29,15 @@
   padding: 0;
 }
 
-.product {
-    width: 100%;
-    max-width: 200px;
-    height: 250px;
-    display: inline-block;
-    border: 1px solid #EFEFEF;
-    margin: 7px;
-    padding: 7px;
+.editor{
+    min-width: 400px;
+}
+
+.ace_editor {
+    min-height: 200px;
+}
+
+.table-hover tbody tr:hover > td {
+    cursor: pointer;
+    cursor: hand;
 }

@@ -59,6 +59,7 @@ Now do er.config() to see the status
 subscribers = []
 continue_monitor = False
 
+
 class ChangeRequestHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):

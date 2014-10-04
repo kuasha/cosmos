@@ -8,9 +8,13 @@
 import json
 
 COSMOS_ROLE_OBJECT_NAME = "cosmos.rbac.object.role"
-COSMOS_ROLE_GROUP_OBJECT_NAME = "cosmos.rbac.object.rolegroup"
+COSMOS_ROLE_GROUP_OBJECT_NAME = "cosmos.rbac.object.rolegroups"
 COSMOS_USERS_OBJECT_NAME = "cosmos.users"
 COSMOS_USERS_IDENTITY_OBJECT_NAME = "cosmos.users.identity"
+
+
+ALLOW_ALL_PROPERTY_NAME = "*"
+ALLOW_ALL_OBJECT_NAME = "*"
 
 
 class AccessType:
@@ -150,7 +154,16 @@ WELL_KNOWN_ROLES = [
     Role(
             name='Anonymous',
             sid=ANONYMOUS_USER_ROLE_SID,
-            role_items = [],
+            role_items = [
+                RoleItem(**{
+                    "access": [
+                        "READ"
+                    ],
+                    "object_name": "userdata.widgets",
+                    "property_name": "*",
+                    "type": "object.RoleItem"
+                })
+            ],
             type="object.Role"
     )
 ]
@@ -161,4 +174,25 @@ WELL_KNOWN_ROLE_GROUPS = [
 ]
 
 SYSTEM_USER = {"name":"system", "roles":[SYSTEM_USER_ROLE_SID]}
+
+def check_role_item(role_item_defn):
+    assert isinstance(role_item_defn, dict)
+    property_name = role_item_defn.get("property_name")
+
+    access_list = role_item_defn.get("access", [])
+    owner_access_list = role_item_defn.get("owner_access", [])
+
+    if len(access_list) < 1 and len(owner_access_list) < 1:
+        raise ValueError("Either access or owner_access items are required")
+
+    for access in access_list:
+        if access == AccessType.DELETE and property_name != ALLOW_ALL_PROPERTY_NAME:
+            raise ValueError(
+                "When access type is DELETE property_name must be {0}".format(ALLOW_ALL_PROPERTY_NAME))
+
+    for access in owner_access_list:
+        if access == AccessType.DELETE and property_name != ALLOW_ALL_PROPERTY_NAME:
+            raise ValueError("When owner_access type is DELETE property_name must be {0}".format(
+                ALLOW_ALL_PROPERTY_NAME))
+
 

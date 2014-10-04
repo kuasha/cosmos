@@ -15,16 +15,18 @@ from cosmos.datamonitor.monitor import *
 from cosmos.service import BootLoader
 import cosmos.service.auth
 
-def init_observers(db, observers):
+def init_observers(db, object_service, observers):
     loader = BootLoader()
-    loader.init_observers(observers)
+    loader.init_observers(object_service, observers)
     loader.load_roles(db)
-
+    loader.load_role_groups(db)
 
 def start_web_service(options):
-    init_observers(options.db, options.observers)
 
     cosmos.service.auth.hmac_key = options.hmac_key
+    object_service = ObjectService(rbac_service = RbacService(), db=options.db)
+
+    init_observers(options.db, object_service, options.observers)
 
     app_settings = dict(
                 db=options.db,
@@ -39,7 +41,8 @@ def start_web_service(options):
                 facebook_scope=options.facebook_scope,
                 google_oauth=options.google_oauth,
                 github_oauth=options.github_oauth,
-                directory_listing_allowed=options.directory_listing_allowed
+                directory_listing_allowed=options.directory_listing_allowed,
+                object_service = object_service
             )
 
     application = tornado.web.Application(

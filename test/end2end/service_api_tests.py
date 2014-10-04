@@ -14,13 +14,17 @@ from unittest import skip
 import tornado
 import requests
 import cosmos.datamonitor.monitor as monitor
+from cosmos.dataservice.objectservice import ObjectService
+from cosmos.rbac.service import RbacService
 import samples.barebone.cosmosmain as cosmosmain
 from test import *
-from cosmos.rbac.object import ADMIN_USER_ROLE_SID
+from cosmos.rbac.object import ADMIN_USER_ROLE_SID, COSMOS_ROLE_OBJECT_NAME, COSMOS_ROLE_GROUP_OBJECT_NAME
 
 class ServiceAPITests(LoggedTestCase):
     @classmethod
     def service_thread(cls, options):
+#        object_service = ObjectService(rbac_service = RbacService(), db=options.db)
+
         if options.start_web_service:
             cosmosmain.start_service(options)
 
@@ -145,10 +149,21 @@ class ServiceAPITests(LoggedTestCase):
             }
         ]}
 
+    def _get_test_role_group(self):
+        return {
+            "name": 'TestGroup',
+            "sid": '3222c945-48eb-493f-9388-9f06292b27d3',
+            "role_sids": [
+                "43425097-e630-41ea-88eb-17b339339707",
+                "3222c945-48eb-493f-9388-9f06292b27d2" #Administrators group
+            ],
+            "type": "object.RoleGroup"
+        }
+
     def _create_new_given_role(self, cookies, role):
         sample_role = role
         params = json.dumps(sample_role)
-        url = self.service_url+"cosmos.rbac.object.role/"
+        url = self.service_url+ COSMOS_ROLE_OBJECT_NAME+"/"
         response = requests.post(url, data=params, cookies=cookies)
         self.failUnless(response.status_code == 200)
 
@@ -161,6 +176,20 @@ class ServiceAPITests(LoggedTestCase):
         role_json = json.loads(response.text)
         return role_json
 
+    def _create_new_given_role_group(self, cookies, role_group):
+        params = json.dumps(role_group)
+        url = self.service_url+ COSMOS_ROLE_GROUP_OBJECT_NAME+"/"
+        response = requests.post(url, data=params, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+
+        role_group_url = url+response.text.strip('"')+'/'
+        self.log_request_url(role_group_url)
+        response = requests.get(role_group_url, cookies = cookies)
+        self.log_status_code(response.status_code)
+        self.failUnless(response.status_code == 200)
+
+        role_group_json = json.loads(response.text)
+        return role_group_json
 
     def _create_new_role(self, cookies):
         sample_role = self.get_test_role()
@@ -219,25 +248,26 @@ class ServiceAPITests(LoggedTestCase):
 
         return user_json
 
-    def _delete_user(self, cookies, user_json):
-        _id =user_json["_id"]
-        url = self.service_url+"cosmos.users/" + _id + "/"
+    def _delete_object(self, cookies, object_name, _id):
+        url = self.service_url+object_name+"/"+_id + "/"
         self.log_request_url(url)
         response = requests.delete(url, cookies=cookies)
         self.failUnless(response.status_code == 200)
 
         response = requests.get(url,cookies=cookies)
         self.failUnless(response.status_code == 404)
+
+    def _delete_user(self, cookies, user_json):
+        _id =user_json["_id"]
+        self._delete_object(cookies,"cosmos.users", _id)
 
     def _delete_role(self, cookies, role_json):
         _id =role_json["_id"]
-        url = self.service_url+"cosmos.rbac.object.role/" + _id + "/"
-        self.log_request_url(url)
-        response = requests.delete(url, cookies=cookies)
-        self.failUnless(response.status_code == 200)
+        self._delete_object(cookies,COSMOS_ROLE_OBJECT_NAME, _id)
 
-        response = requests.get(url,cookies=cookies)
-        self.failUnless(response.status_code == 404)
+    def _delete_role_group(self, cookies, role_group_json):
+        _id =role_group_json["_id"]
+        self._delete_object(cookies,COSMOS_ROLE_GROUP_OBJECT_NAME, _id)
 
     def test_can_create_new_user(self):
         cookies = self.admin_login()
@@ -512,6 +542,35 @@ class ServiceAPITests(LoggedTestCase):
 
         self._delete_user(cookies, user_json)
 
+    def test_role_group_creation(self):
+        cookies = self.admin_login()
+        role_group_def = self._get_test_role_group()
+        role_group_json = self._create_new_given_role_group(cookies, role_group_def)
+        self._delete_role_group(cookies, role_group_json)
+
+    def test_user_get_access_through_role_group(self):
+        cookies = self.admin_login()
+        role_group_def = self._get_test_role_group()
+        role_group_json = self._create_new_given_role_group(cookies, role_group_def)
+
+        role = role_group_json.get("sid")
+        user_json = self._create_user_with_given_roles(cookies, [role])
+
+        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
+
+        url = self.service_url +"cosmos.users/"
+        response = requests.get(url, cookies=user_cookies)
+        self.failUnless(response.status_code == 200)
+
+        result = response.json()
+        users = json.loads(result.get("_d"))
+
+        users = response.json()
+        self.failUnless(len(users)>0)
+
+        self._delete_user(cookies, user_json)
+        self._delete_role_group(cookies, role_group_json)
+
     def _get_file_access_role(self):
         return {'name': "tesdeletetrole", "type": "object.Role", "role_items": [
             {
@@ -538,7 +597,7 @@ class ServiceAPITests(LoggedTestCase):
     def test_gridfs_upload_download_delete(self):
         cookies = self.admin_login()
 
-        role_del = self._get_file_access_role();
+        role_del = self._get_file_access_role()
         role_json = self._create_new_given_role(cookies, role_del)
         role = role_json.get("sid")
         user_json = self._create_user_with_given_roles(cookies, [role])
@@ -754,6 +813,7 @@ class ServiceAPITests(LoggedTestCase):
 
     @skip("Test not implemented")
     def test_operation_fails_if_data_contains_reserved_keys(self):
+        #Test fails for data with reserved mongodb keys like $set
         pass
 
 if __name__ == "__main__":
