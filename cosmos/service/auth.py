@@ -321,14 +321,13 @@ class LoginHandler(RequestHandler):
             username = data.get("username")
             password = data.get("password")
 
-        db = self.settings['db']
         object_name = COSMOS_USERS_OBJECT_NAME
-        obj_serv = ObjectService()
+        obj_serv = self.settings['object_service']
 
         columns = ["username", "password", "roles"]
         query = {"username": username}
 
-        cursor = obj_serv.find(SYSTEM_USER, db, object_name, query, columns)
+        cursor = obj_serv.find(SYSTEM_USER, object_name, query, columns)
 
         found = yield cursor.fetch_next
         if not found:
@@ -358,7 +357,7 @@ def get_hmac_password(password, hmac_key):
     return hmac_password
 
 @gen.coroutine
-def before_user_insert(db, object_name, data, access_type):
+def before_user_insert(object_service, object_name, data, access_type):
     assert isinstance(hmac_key, object)
     assert object_name == COSMOS_USERS_OBJECT_NAME
     assert isinstance(data, dict)
@@ -370,10 +369,9 @@ def before_user_insert(db, object_name, data, access_type):
         username = username.lower()
 
         data["username"] = username
-        object_service = ObjectService()
         query = {"username": username}
         columns=["username"]
-        cursor = object_service.find(SYSTEM_USER, db, COSMOS_USERS_OBJECT_NAME, query, columns)
+        cursor = object_service.find(SYSTEM_USER, COSMOS_USERS_OBJECT_NAME, query, columns)
 
         if(yield cursor.fetch_next):
             user = cursor.next_object()

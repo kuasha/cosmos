@@ -10,12 +10,11 @@ import uuid
 from tornado import gen
 from cosmos.dataservice.objectservice import ObjectService
 from cosmos.rbac.object import COSMOS_ROLE_OBJECT_NAME, WELL_KNOWN_ROLES, SYSTEM_USER, AccessType, \
-    ANONYMOUS_USER_ROLE_SID
-from cosmos.rbac.service import check_role_item
+    ANONYMOUS_USER_ROLE_SID, check_role_item
 
 
 @gen.coroutine
-def before_role_insert(db, object_name, data, access_type):
+def before_role_insert(object_service, object_name, data, access_type):
     assert object_name == COSMOS_ROLE_OBJECT_NAME
     assert isinstance(data, dict)
     assert access_type == AccessType.INSERT
@@ -36,7 +35,7 @@ def before_role_insert(db, object_name, data, access_type):
         object_service = ObjectService()
         query = {"sid": sid}
         columns=["sid"]
-        cursor = object_service.find(SYSTEM_USER, db, COSMOS_ROLE_OBJECT_NAME, query, columns)
+        cursor = object_service.find(SYSTEM_USER, COSMOS_ROLE_OBJECT_NAME, query, columns)
 
         if(yield cursor.fetch_next):
             user = cursor.next_object()

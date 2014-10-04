@@ -14,6 +14,8 @@ from unittest import skip
 import tornado
 import requests
 import cosmos.datamonitor.monitor as monitor
+from cosmos.dataservice.objectservice import ObjectService
+from cosmos.rbac.service import RbacService
 import samples.barebone.cosmosmain as cosmosmain
 from test import *
 from cosmos.rbac.object import ADMIN_USER_ROLE_SID, COSMOS_ROLE_OBJECT_NAME, COSMOS_ROLE_GROUP_OBJECT_NAME
@@ -21,6 +23,8 @@ from cosmos.rbac.object import ADMIN_USER_ROLE_SID, COSMOS_ROLE_OBJECT_NAME, COS
 class ServiceAPITests(LoggedTestCase):
     @classmethod
     def service_thread(cls, options):
+#        object_service = ObjectService(rbac_service = RbacService(), db=options.db)
+
         if options.start_web_service:
             cosmosmain.start_service(options)
 
@@ -594,7 +598,7 @@ class ServiceAPITests(LoggedTestCase):
     def test_gridfs_upload_download_delete(self):
         cookies = self.admin_login()
 
-        role_del = self._get_file_access_role();
+        role_del = self._get_file_access_role()
         role_json = self._create_new_given_role(cookies, role_del)
         role = role_json.get("sid")
         user_json = self._create_user_with_given_roles(cookies, [role])
