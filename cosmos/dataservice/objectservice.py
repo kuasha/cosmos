@@ -7,16 +7,10 @@
 from argparse import ArgumentError
 import hashlib
 
-import inspect
 import datetime
-import logging
 import gridfs
 import motor
-import tornado.ioloop
 import tornado.web
-import tornado.options
-import tornado.template
-import tornado.websocket
 from bson import ObjectId
 from cosmos.rbac.service import *
 

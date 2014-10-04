@@ -92,62 +92,6 @@ class RbacServiceTest(LoggedTestCase):
     def test_get_role_group_cache_and_expand(self):
         self.logger.info("Running test_get_role_group_cache_and_expand")
 
-        sample_role = {
-            "name": "TestRole",
-            "role_items": [
-                {
-                    "access": [
-                        "INSERT",
-                        "READ",
-                        "WRITE"
-                    ],
-                    "object_name": "testservice",
-                    "property_name": "name",
-                    "type": "object.RoleItem"
-                },
-                {
-                    "access": [
-                        "INSERT",
-                        "READ",
-                        "WRITE"
-                    ],
-                    "object_name": "testservice",
-                    "property_name": "address",
-                    "type": "object.RoleItem"
-                },
-                {
-                    "access": [
-                        "INSERT",
-                        "READ",
-                        "WRITE"
-                    ],
-                    "object_name": "testservice",
-                    "property_name": "*",
-                    "type": "object.RoleItem"
-                },
-                {
-                    "access": [
-                        "DELETE"
-                    ],
-                    "object_name": "testservice",
-                    "property_name": "*",
-                    "type": "object.RoleItem"
-                }
-            ],
-            "type": "object.Role",
-            "sid": "43425097-e630-41ea-88eb-17b339339707"
-        }
-
-        sample_role_group = {
-            "name": 'TestGroup',
-            "sid": '3222c945-48eb-493f-9388-9f06292b27d3',
-            "role_sids": [
-                "43425097-e630-41ea-88eb-17b339339707",
-                "3222c945-48eb-493f-9388-9f06292b27d2" #Administrators group
-            ],
-            "type": "object.RoleGroup"
-        }
-
         serv = RbacService()
 
         role= serv.get_role_object(sample_role)

@@ -65,7 +65,6 @@ class RoleCache():
 
         return role
 
-
     def get_role_group_object(self, role_group_def):
         assert isinstance(role_group_def, dict)
         assert role_group_def.get("type") == "object.RoleGroup"
@@ -74,16 +73,14 @@ class RoleCache():
 
 
     def replace_role(self, new_role):
-        global _active_roles
         new_active_roles = [new_role if existing_role.sid == new_role.sid else existing_role for existing_role in
-                            _active_roles]
-        _active_roles = new_active_roles
+                            self.active_roles]
+        self.active_roles = new_active_roles
 
     def replace_role_group(self, role_group):
-        global _active_role_groups
         new_active_role_groups = [role_group if existing_group.sid == role_group.sid else existing_group for existing_group
-                                  in _active_role_groups]
-        _active_role_groups = new_active_role_groups
+                                  in self.active_role_groups]
+        self.active_role_groups = new_active_role_groups
 
     def clear_non_system_roles(self):
         self.active_roles = None

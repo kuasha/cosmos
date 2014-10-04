@@ -6,7 +6,7 @@
 """
 from unittest import skip
 
-from mock import MagicMock
+from mock import MagicMock, Mock
 
 from test import *
 from cosmos.rbac.service import *
@@ -22,15 +22,40 @@ class ObjectServiceTest(LoggedTestCase):
 
         raise ValueError("Administrator role not found in WELL_KNOWN_ROLES")
 
-    @skip("Incomplete")
-    def test_check_access(self):
-        rback_service = RbacService()
-        rback_service.get_roles = MagicMock(return_value = self._get_admin_role())
-        rback_service.has_access = MagicMock(return_value = False)
-        rback_service.has_owner_access = MagicMock(return_value = False)
+    def test_check_access_role(self):
+        rbac_service = RbacService()
+        rbac_service.get_roles = MagicMock(return_value=[self._get_admin_role()])
+        rbac_service.has_access = MagicMock(return_value=True)
+        rbac_service.has_owner_access = MagicMock(return_value=True)
 
-        object_service = ObjectService(rback_service=rback_service)
-        self.assertRaises(tornado.web.HTTPError, object_service.check_access, None, None, None, None, None)
+        object_service = ObjectService(rbac_service=rbac_service, db=Mock())
+
+        access_type = object_service.check_access(None, None, [], AccessType.READ, True)
+        self.failUnlessEqual(access_type, ACCESS_TYPE_ROLE)
+
+    def test_check_access_owner(self):
+        rbac_service = RbacService()
+        rbac_service.get_roles = MagicMock(return_value=[self._get_admin_role()])
+        rbac_service.has_access = MagicMock(return_value=False)
+        rbac_service.has_owner_access = MagicMock(return_value=True)
+
+        object_service = ObjectService(rbac_service=rbac_service, db=Mock())
+
+        access_type = object_service.check_access(None, None, [], AccessType.READ, True)
+        self.failUnlessEqual(access_type, ACCESS_TYPE_OWNER_ONLY)
+
+    def test_check_access_negative(self):
+        rbac_service = RbacService()
+        rbac_service.get_roles = MagicMock(return_value=[self._get_admin_role()])
+        rbac_service.has_access = MagicMock(return_value=False)
+        rbac_service.has_owner_access = MagicMock(return_value=False)
+
+        object_service = ObjectService(rbac_service=rbac_service, db=Mock())
+        try:
+            object_service.check_access(None, None, [], AccessType.READ, True)
+            self.fail("Should throw tornado.web.HTTPError")
+        except tornado.web.HTTPError:
+            pass
 
 
 

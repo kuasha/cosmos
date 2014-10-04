@@ -571,7 +571,6 @@ class ServiceAPITests(LoggedTestCase):
         self._delete_user(cookies, user_json)
         self._delete_role_group(cookies, role_group_json)
 
-
     def _get_file_access_role(self):
         return {'name': "tesdeletetrole", "type": "object.Role", "role_items": [
             {
