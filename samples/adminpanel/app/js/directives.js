@@ -18,7 +18,30 @@ angular.module('myApp.directives', []).
                 val: '='
             },
 
-            controller: ['$scope', '$location', 'message', 'CosmosService', function ($scope, $location, message, CosmosService) {
+            controller: ['$scope', '$location', 'message', 'CosmosService', 'namedcolection', 'calculator',
+                function ($scope, $location, message, CosmosService, namedcolection, calculator) {
+                $scope.namedcolection = namedcolection;
+                $scope.calculator = calculator;
+                $scope.CosmosService = CosmosService;
+
+                $scope.receiveServiceDataAs =  function(data, args) {
+                    if(!args) {
+                        return;
+                    }
+
+                    var name = args['name'];
+                    var parse = args['parse'];
+
+                    if(name) {
+                        if(parse) {
+                            $scope[name] = JSON.parse(data);
+                        }
+                        else{
+                            $scope[name] = data;
+                        }
+                    }
+                };
+
 
                 $scope.prepareObject = function (item, data) {
                     angular.forEach(item.fields, function (value, index) {
@@ -38,7 +61,6 @@ angular.module('myApp.directives', []).
                             else{
                                 //data[value] = "";
                             }
-
                         }
                     });
                 };
@@ -302,7 +324,7 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "widgethost":
-                            template = '<div ng-include="\''+item.value+'\'"></div>'
+                            template = '<div ng-include="\''+item.value+'\'" class="'+item.cssclass+'"></div>';
                             break;
 
                         //Form fields
@@ -449,6 +471,11 @@ angular.module('myApp.directives', []).
                             }
                             break;
 
+                        case "itemview":
+                            template = '<div ng-include="\''+item.value.widget+'\'" class="'+item.cssclass+'"></div>';
+                            break;
+
+
                         default:
                             template = null; //'<span><label>{{item.title}}</label>{{val}}</span>';
                             break;
@@ -508,6 +535,7 @@ angular.module('myApp.directives', []).
                     var newElement = angular.element(template);
                     $compile(newElement)(scope);
                     headElement.append(newElement);
+                    //TODO: maybe remove the "element"
                     return;
                 }
 
@@ -542,7 +570,8 @@ angular.module('myApp.directives', []).
                 pageId: '=pageid'  // because pageId will translate to page-id
             },
 
-            controller: ['$scope', '$location', 'message', 'CosmosService', function ($scope, $location, message, CosmosService) {
+            controller: ['$scope', '$location', 'message', 'CosmosService',
+                    function ($scope, $location, message, CosmosService) {
                 $scope.getConfiguration = function () {
                     if(! $scope.pageId){
                         return;
@@ -569,6 +598,77 @@ angular.module('myApp.directives', []).
                     return template;
                 }
             }],
+
+            link: function (scope, element, attributes) {
+                console.log("Creating page");
+                scope.pagedef = [];
+                var template = scope.getTemplate();
+                if (!template) {
+                    return;
+                }
+
+                scope.getConfiguration();
+
+                var newElement = angular.element(template);
+                $compile(newElement)(scope);
+                element.replaceWith(newElement);
+            }
+        }
+    })
+
+    .directive('objectview', function ($compile) {
+        return {
+            restrict: 'E',
+            scope: {
+                itemId: '=',
+                configId: '='
+            },
+
+            controller: ['$scope', '$location', 'message', 'CosmosService',
+                function ($scope, $location, message, CosmosService) {
+                    $scope.getConfiguration = function () {
+                        var url = '/service/cosmos.singleitemconfig/' + $scope.configId + '/';
+
+                        CosmosService.get(url, function (data) {
+                                $scope.config = data;
+                                $scope.loadSingleItem();
+                            },
+                            function (data, status) {
+                                //$scope.processError(data, status);
+                            }
+                        );
+                    };
+
+                    $scope.loadSingleItem = function () {
+
+                        var objectName = $scope.config.objectName;
+                        var columns = $scope.config.columns;
+
+                        var columnsCsv = '';
+                        angular.forEach(columns, function (column, index) {
+                            columnsCsv += column.name + ",";
+                        });
+
+                        var url = '/service/' + objectName + '/' + $scope.itemId + '/?columns=' + columnsCsv;
+
+                        CosmosService.get(url, function (data) {
+                                $scope.data = data;
+                            },
+                            function (data, status) {
+                                //TODO: $scope.processError(data, status);
+                            }
+                        );
+                    };
+
+                    $scope.getTemplate = function () {
+                        var template = '' +
+                            '    <div ng-repeat="field in config.fields">\n' +
+                            '        <field item="field" val="$parent.data"></field>\n' +
+                            '    </div>\n' +
+                            '';
+                        return template;
+                    };
+                }],
 
             link: function (scope, element, attributes) {
                 console.log("Creating page");

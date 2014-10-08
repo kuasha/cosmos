@@ -13,6 +13,7 @@ import motor
 
 from cosmos.admin.commands import CommandHandler
 import cosmos.datamonitor.monitor
+from cosmos.rbac.service import RbacService
 import settings
 import cosmos.service.servicemain
 import endpoints
@@ -83,7 +84,7 @@ def get_options(port):
         github_oauth=settings.GITHUB_OAUTH_SETTINGS,
         start_db_monitor=settings.START_OBJECT_CHANGE_MONITOR,
         start_web_service=settings.START_WEB_SERVER,
-        directory_listing_allowed=settings.directory_listing_allowed,
+        directory_listing_allowed=settings.directory_listing_allowed
     ))
 
     options.db = init_database(options)

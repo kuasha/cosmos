@@ -41,16 +41,15 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
         if len(params)==2:
             id = params[1]
 
-        db = self.settings['db']
+        obj_serv = self.settings['object_service']
 
-        preprocessor_list = get_operation_preprocessor(object_full_name, AccessType.READ)
+        preprocessor_list = obj_serv.get_operation_preprocessor(object_full_name, AccessType.READ)
         for preprocessor in preprocessor_list:
-            yield  preprocessor(db, object_full_name, id, AccessType.READ)
+            yield  preprocessor(obj_serv, object_full_name, id, AccessType.READ)
 
         result = None
         if id and len(id)>0:
-            obj_serv = ObjectService()
-            promise = obj_serv.load_file(self.current_user, db, object_full_name, id)
+            promise = obj_serv.load_file(self.current_user, object_full_name, id)
             result = yield promise
 
             self.write(result.get("body"))
@@ -60,8 +59,7 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
         else:
             list_allowed = self.settings.get("directory_listing_allowed")
             if list_allowed:
-                obj_serv = ObjectService()
-                promise = obj_serv.list_file(self.current_user, db, object_full_name)
+                promise = obj_serv.list_file(self.current_user, object_full_name)
                 result = yield promise
                 data = {"_d": MongoObjectJSONEncoder().encode(result), "_cosmos_service_array_result_": True};
 
@@ -76,9 +74,9 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
                 </form>''')
                 """
 
-        post_processor_list = get_operation_postprocessor(object_full_name, AccessType.READ)
+        post_processor_list = obj_serv.get_operation_postprocessor(object_full_name, AccessType.READ)
         for post_processor in post_processor_list:
-            yield post_processor(db, object_full_name, result, AccessType.READ)
+            yield post_processor(obj_serv, object_full_name, result, AccessType.READ)
 
         self.finish()
 
@@ -92,22 +90,22 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
         object_full_name = object_name
         files = self.request.files["uploadedfile"]
 
-        db = self.settings['db']
-        obj_serv = ObjectService()
+        obj_serv = self.settings['object_service']
+
         result_list = []
         for file in files:
-            preprocessor_list = get_operation_preprocessor(object_full_name, AccessType.INSERT)
+            preprocessor_list = obj_serv.get_operation_preprocessor(object_full_name, AccessType.INSERT)
             for preprocessor in preprocessor_list:
-                yield preprocessor(db, object_full_name, file, AccessType.INSERT)
+                yield preprocessor(obj_serv, object_full_name, file, AccessType.INSERT)
 
-            promise = obj_serv.save_file(self.current_user, db, object_full_name, file)
+            promise = obj_serv.save_file(self.current_user, object_full_name, file)
             result = yield promise
 
             result_list.append(result)
 
-            post_processor_list = get_operation_postprocessor(object_full_name, AccessType.INSERT)
+            post_processor_list = obj_serv.get_operation_postprocessor(object_full_name, AccessType.INSERT)
             for post_processor in post_processor_list:
-                yield  post_processor(db, object_full_name, result, AccessType.INSERT)
+                yield  post_processor(obj_serv, object_full_name, result, AccessType.INSERT)
 
         data = {"_d": MongoObjectJSONEncoder().encode(result_list), "_cosmos_service_array_result_": True};
 
@@ -136,19 +134,18 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
         if not file_id or len(file_id)<1:
             raise tornado.web.HTTPError(400, "File id required")
 
-        db = self.settings['db']
+        obj_serv = self.settings['object_service']
 
-        preprocessor_list = get_operation_preprocessor(object_full_name, AccessType.DELETE)
+        preprocessor_list = obj_serv.get_operation_preprocessor(object_full_name, AccessType.DELETE)
         for preprocessor in preprocessor_list:
             yield preprocessor(object_full_name, None, AccessType.DELETE)
 
-        obj_serv = ObjectService()
-        yield obj_serv.delete_file(self.current_user, db, object_full_name, file_id)
+        yield obj_serv.delete_file(self.current_user, object_full_name, file_id)
 
 
-        post_processor_list = get_operation_postprocessor(object_full_name, AccessType.DELETE)
+        post_processor_list = obj_serv.get_operation_postprocessor(object_full_name, AccessType.DELETE)
         for post_processor in post_processor_list:
-            yield  post_processor(db, object_full_name, None, AccessType.DELETE)
+            yield  post_processor(obj_serv, object_full_name, None, AccessType.DELETE)
 
         self.write('{"result":"OK"}')
         self.finish()

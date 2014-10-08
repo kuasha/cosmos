@@ -28,7 +28,9 @@ config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/a/:appPath/formdesign/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
     $routeProvider.when('/a/:appPath/forms/:formId?/:dataId?', {templateUrl: 'partials/formview.html', controller: 'FormViewCtrl'});
 
-    $routeProvider.when('/page/:pageId?', {templateUrl: 'partials/page.html', controller: 'PageViewCtrl'});
+    $routeProvider.when('/a/:appPath/page/:pageId?', {templateUrl: 'partials/page.html', controller: 'PageViewCtrl'});
+
+    $routeProvider.when('/a/:appPath/view/:configId/:itemId/', {templateUrl: 'partials/singleitemview.html', controller: 'SingleItemViewCtrl'});
 
     $routeProvider.otherwise({redirectTo: '/a/'});
 }]);
