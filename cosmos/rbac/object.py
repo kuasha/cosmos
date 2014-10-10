@@ -159,7 +159,7 @@ WELL_KNOWN_ROLES = [
                     "access": [
                         "READ"
                     ],
-                    "object_name": "userdata.widgets",
+                    "object_name": "cosmos.widgets",
                     "property_name": "*",
                     "type": "object.RoleItem"
                 })

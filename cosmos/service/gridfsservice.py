@@ -12,9 +12,6 @@ import tornado.web
 import tornado.options
 import tornado.template
 import tornado.websocket
-from tornado import gen
-import motor
-import hashlib
 
 from cosmos.service.utils import MongoObjectJSONEncoder
 from cosmos.dataservice.objectservice import *

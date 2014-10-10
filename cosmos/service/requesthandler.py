@@ -14,7 +14,8 @@ from cosmos.service.utils import MongoObjectJSONEncoder
 class RequestHandler(tornado.web.RequestHandler):
     def __init__(self, *args, **kwargs):
         tornado.web.RequestHandler.__init__(self, *args, **kwargs)
-        self.rbac_service = RbacService()
+        #self.rbac_service = RbacService()
+        self.object_service = self.settings["object_service"]
 
     def check_access(self, user, object_name, properties, access):
         if user:
@@ -23,7 +24,7 @@ class RequestHandler(tornado.web.RequestHandler):
             username = None
 
         role = self.rbac_service.get_roles(username)
-        has_access = self.rbac_service.has_access(role, object_name, properties, access)
+        has_access = self.object_service.has_access(role, object_name, properties, access)
 
         if not has_access:
             raise tornado.web.HTTPError(401, "Unauthorized")

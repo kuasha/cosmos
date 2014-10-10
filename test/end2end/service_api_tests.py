@@ -87,8 +87,12 @@ class ServiceAPITests(LoggedTestCase):
         cookies = self.admin_login()
         params = json.dumps({'username': self.admin_username, "password": self.admin_password, "roles":[]})
         url = self.service_url+"cosmos.users/"
-        response = requests.post(url, data=params, cookies = cookies)
+        response = requests.post(url, data=params, cookies=cookies)
         self.failUnless(response.status_code == 409)
+
+    def get_sample_user(self):
+        return {"username": "testuser"+str(int(random.random()*100000)), "password": self.standard_user_password, "roles":[]}
+
 
     def get_test_role(self):
         return {'name': "testrole", "type": "object.Role", "role_items": [
@@ -169,7 +173,7 @@ class ServiceAPITests(LoggedTestCase):
 
         role_url = url+response.text.strip('"')+'/'
         self.log_request_url(role_url)
-        response = requests.get(role_url, cookies = cookies)
+        response = requests.get(role_url, cookies=cookies)
         self.log_status_code(response.status_code)
         self.failUnless(response.status_code == 200)
 
@@ -199,7 +203,6 @@ class ServiceAPITests(LoggedTestCase):
         sample_role = self.get_test_role2()
         return self._create_new_given_role(cookies, sample_role)
 
-
     def failUnlessEquals(self, value1, value2, msg=None):
         self.logger.info("{}. Comparing {} and {}".format(msg, value1, value2))
         self.failUnless(value1 == value2)
@@ -218,9 +221,6 @@ class ServiceAPITests(LoggedTestCase):
         response = requests.post(url, data=params, cookies = cookies)
         self.failUnless(response.status_code == 409)
 
-    def get_sample_user(self):
-        return {"username": "testuser"+str(int(random.random()*100000)), "password": self.standard_user_password, "roles":[]}
-
     def log_request_url(self, user_url):
         self.logger.info(user_url)
 
@@ -235,7 +235,7 @@ class ServiceAPITests(LoggedTestCase):
         self.failUnless(response.status_code == 200)
         user_url = url+response.text.strip('"')+'/'
         self.log_request_url(user_url)
-        response = requests.get(user_url, cookies = cookies)
+        response = requests.get(user_url, cookies=cookies)
         self.log_status_code(response.status_code)
         self.failUnless(response.status_code == 200)
 
@@ -815,6 +815,8 @@ class ServiceAPITests(LoggedTestCase):
     def test_operation_fails_if_data_contains_reserved_keys(self):
         #Test fails for data with reserved mongodb keys like $set
         pass
+
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,8 +5,6 @@
  License :: OSI Approved :: MIT License
 """
 
-from bson import ObjectId
-from cosmos.dataservice.objectservice import ObjectService
 from cosmos.rbac.object import AccessType, COSMOS_USERS_OBJECT_NAME, SYSTEM_USER, COSMOS_USERS_IDENTITY_OBJECT_NAME
 import urllib
 
@@ -16,10 +14,9 @@ import tornado.web
 from tornado import gen
 from cosmos.service.requesthandler import *
 import json
-from cosmos.service.utils import MongoObjectJSONEncoder
 from constants import *
 import tornado.auth
-from tornado.concurrent import TracebackFuture, chain_future, return_future
+from tornado.concurrent import return_future
 
 try:
     import urlparse  # py2
@@ -77,14 +74,13 @@ class CosmosAuthHandler(RequestHandler):
             query = {"claimed_id":claimed_id}
             columns = ["identity_type", "claimed_id", "user_id"]
 
-        db = self.settings['db']
-        object_service = ObjectService()
+        object_service = self.settings['object_service']
 
-        cursor = object_service.find(SYSTEM_USER, db, COSMOS_USERS_IDENTITY_OBJECT_NAME, query, columns)
+        cursor = object_service.find(SYSTEM_USER, COSMOS_USERS_IDENTITY_OBJECT_NAME, query, columns)
 
         if (yield cursor.fetch_next):
             stored_user_id = cursor.next_object()
-            user = yield object_service.load(SYSTEM_USER, db, COSMOS_USERS_OBJECT_NAME, str(stored_user_id["user_id"]), [])
+            user = yield object_service.load(SYSTEM_USER, COSMOS_USERS_OBJECT_NAME, str(stored_user_id["user_id"]), [])
 
             if not user:
                 raise tornado.web.HTTPError(500, "User not found for previously stored identity of this user")
@@ -93,7 +89,7 @@ class CosmosAuthHandler(RequestHandler):
         else:
             create_result = yield self._create_user(user_identity)
 
-            cursor = object_service.find(SYSTEM_USER, db, COSMOS_USERS_OBJECT_NAME, {"_id": create_result}, [])
+            cursor = object_service.find(SYSTEM_USER, COSMOS_USERS_OBJECT_NAME, {"_id": create_result}, [])
             if (yield cursor.fetch_next):
                 user = cursor.next_object()
             else:
@@ -103,9 +99,7 @@ class CosmosAuthHandler(RequestHandler):
 
             self.set_current_user(user)
 
-
     def _create_user(self, user_identity):
-        db = self.settings['db']
         identity_type = user_identity.get("identity_type", None)
 
         if identity_type == IDENTITY_TYPE_FB_GRAPH:
@@ -120,12 +114,10 @@ class CosmosAuthHandler(RequestHandler):
             email = user_identity.get("email")
             data = {"email": email, "roles": []}
 
-        object_service = ObjectService()
-        return object_service.save(SYSTEM_USER, db, COSMOS_USERS_OBJECT_NAME, data)
-
+        object_service = self.settings['object_service']
+        return object_service.save(SYSTEM_USER, COSMOS_USERS_OBJECT_NAME, data)
 
     def _create_user_identity(self, user_id, identity):
-        db = self.settings['db']
         data = identity
         data["user_id"] = user_id
 
@@ -136,8 +128,9 @@ class CosmosAuthHandler(RequestHandler):
             id_values = get_jwt_payload_json(id_token)
             data.update(id_values)
 
-        object_service = ObjectService()
-        return object_service.save(SYSTEM_USER, db, COSMOS_USERS_IDENTITY_OBJECT_NAME, data)
+        object_service = self.settings['object_service']
+        return object_service.save(SYSTEM_USER, COSMOS_USERS_IDENTITY_OBJECT_NAME, data)
+
 
 class OpenidLoginHandler(CosmosAuthHandler, tornado.auth.OpenIdMixin):
     @return_future
@@ -307,6 +300,7 @@ class FacebookGraphLoginHandler(CosmosAuthHandler, tornado.auth.FacebookGraphMix
             yield self.authorize_redirect(redirect_uri=redirect_uri,
                               client_id= self.settings["facebook_api_key"],
                               extra_params={"scope": self.settings["facebook_scope"]})
+
 
 class LoginHandler(RequestHandler):
     @tornado.web.asynchronous

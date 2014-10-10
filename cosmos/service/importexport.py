@@ -33,21 +33,21 @@ class ImportHandler(requesthandler.RequestHandler):
         except ValueError, ve:
             raise tornado.web.HTTPError(400, ve.message)
 
-        db = self.settings['db']
+        object_service = self.settings['object_service']
         object_name = APPLICATION_OBJECT_NAME
 
-        preprocessor_list = get_operation_preprocessor(object_name, AccessType.INSERT)
+        preprocessor_list = object_service.get_operation_preprocessor(object_name, AccessType.INSERT)
         for preprocessor in preprocessor_list:
-            yield preprocessor(db, object_name, data, AccessType.INSERT)
+            yield preprocessor(object_service, object_name, data, AccessType.INSERT)
 
         obj_serv = ObjectService()
-        promise = obj_serv.save(self.current_user, db, object_name, data)
+        promise = obj_serv.save(self.current_user, object_name, data)
         result = yield promise
         data = MongoObjectJSONEncoder().encode(result)
 
-        post_processor_list = get_operation_postprocessor(object_name, AccessType.INSERT)
+        post_processor_list = object_service.get_operation_postprocessor(object_name, AccessType.INSERT)
         for post_processor in post_processor_list:
-            yield  post_processor(db, object_name, result, AccessType.INSERT)
+            yield post_processor(object_service, object_name, result, AccessType.INSERT)
 
         self.write(data)
         self.finish()

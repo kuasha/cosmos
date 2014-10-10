@@ -1,11 +1,15 @@
+"""
+ Copyright (C) 2014 Maruf Maniruzzaman
+ Website: http://cosmosframework.com
+ Author: Maruf Maniruzzaman
+ License :: OSI Approved :: MIT License
+"""
+
 import unittest
 from cosmos.rbac.cache import RoleCache
 from cosmos.rbac.object import WELL_KNOWN_ROLES, WELL_KNOWN_ROLE_GROUPS
 from cosmos.rbac.service import sample_role, sample_role_group
 from test import LoggedTestCase
-
-__author__ = 'maruf'
-
 
 class RoleItemTest(LoggedTestCase):
 

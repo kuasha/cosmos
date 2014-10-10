@@ -32,7 +32,6 @@ def before_role_insert(object_service, object_name, data, access_type):
                 if role.sid == sid:
                     raise tornado.web.HTTPError(409, "Conflict: Duplicate role sid")
 
-        object_service = ObjectService()
         query = {"sid": sid}
         columns=["sid"]
         cursor = object_service.find(SYSTEM_USER, COSMOS_ROLE_OBJECT_NAME, query, columns)
