@@ -18,11 +18,12 @@ angular.module('myApp.directives', []).
                 val: '='
             },
 
-            controller: ['$scope', '$location', 'message', 'CosmosService', 'namedcolection', 'calculator',
-                function ($scope, $location, message, CosmosService, namedcolection, calculator) {
+            controller: ['$scope', '$location', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable',
+                function ($scope, $location, message, CosmosService, namedcolection, calculator, hashtable) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
+                $scope.hashtable = hashtable;
 
                 $scope.receiveServiceDataAs =  function(data, args) {
                     if(!args) {

@@ -97,6 +97,22 @@ angular.module('myApp.services', [])
             }
         };
     }])
+    .factory('globalhashtable', ['$http', function($http) {
+        return{
+            collections: {},
+            getAll: function () {
+                return this.collections;
+            },
+            set: function(name, object){
+                this.collections[name] = object;
+            },
+
+            get: function(name){
+                return this.collections[name];
+            }
+        }
+    }])
+
     .factory('namedcolection', ['$http', function($http) {
         return{
             collections : {},
@@ -109,13 +125,6 @@ angular.module('myApp.services', [])
                 }
 
                 return objects;
-            },
-
-            dummy:[1,2,3,4],
-
-            getCollectionDummy: function(name){
-                return this.dummy;
-
             },
 
             append: function(name, object) {
