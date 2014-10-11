@@ -193,7 +193,7 @@ angular.module('myApp.services', [])
         return{
             store : {},
             set: function (id, value) {
-                this.stire[id] = value;
+                this.store[id] = value;
             },
             get : function(id){
                 return this.store[id];

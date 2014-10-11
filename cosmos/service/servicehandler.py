@@ -55,7 +55,7 @@ class ServiceHandler(requesthandler.RequestHandler):
 
         preprocessor_list = obj_serv.get_operation_preprocessor(object_name, AccessType.READ)
         for preprocessor in preprocessor_list:
-            yield  preprocessor(obj_serv, object_name, query, AccessType.READ)
+            yield preprocessor(obj_serv, object_name, query, AccessType.READ)
 
         result = None
         if id and len(id)>0:

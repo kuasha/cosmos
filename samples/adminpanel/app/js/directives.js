@@ -19,7 +19,7 @@ angular.module('myApp.directives', []).
             },
 
             controller: ['$scope', '$location', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable',
-                function ($scope, $location, message, CosmosService, namedcolection, calculator, hashtable) {
+                function ($scope, $location, $cookies, message, CosmosService, namedcolection, calculator, hashtable) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
@@ -174,7 +174,9 @@ angular.module('myApp.directives', []).
                     CosmosService.get(url, function (data) {
                             $scope.data = {};
                             $scope.form = data;
-                            //$scope.getData();
+                            if($scope.val) {
+                                $scope.getFormData($scope.form, $scope.val);
+                            }
                         },
                         function (data, status) {
                             //TODO: $scope.processError(data, status);
@@ -182,10 +184,23 @@ angular.module('myApp.directives', []).
                     );
                 };
 
+                $scope.getFormData = function (form, dataId) {
+                    if (dataId) {
+                        var url = form.action + '/' + dataId + '/';
+                        CosmosService.get(url, function (data) {
+                                $scope.data = data;
+                            },
+                            function (data, status) {
+                                $scope.processError(data, status);
+                            }
+                        );
+                    }
+                };
+
                 $scope.processFormResult = function(form, result){
                     if(form && form.onsuccess){
                         if(form.onsuccess.type === "url"){
-                            window.location.href = form.onsuccess.value;
+                            window.location.href = form.onsuccess.value + "?_id="+ ($scope.item.dataId || result);
                         }
                         else if(form.onsuccess.type === "message"){
                             message.push({"message":form.onsuccess.value, "title":"Sucess", "data": result});

@@ -1073,6 +1073,7 @@ angular.module('myApp.controllers', [])
                     if ($scope.form.action) {
                         if (!$scope.dataId) {
                             CosmosService.post($scope.form.action, $scope.data, function (data) {
+                                    $scope.dataId = JSON.parse(data);
                                     $scope.processResult($scope.form, data);
                                 },
                                 function (data, status) {
