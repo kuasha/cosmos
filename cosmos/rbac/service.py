@@ -67,7 +67,12 @@ class RbacService():
         if not user:
             user_role_sids = [ANONYMOUS_USER_ROLE_SID]
         else:
-            user_role_sids = user.get("roles", [ANONYMOUS_USER_ROLE_SID])
+            user_role_sids = user.get("roles", [ANONYMOUS_USER_ROLE_SID, LOGGED_IN_USER_ROLE_SID])
+            if LOGGED_IN_USER_ROLE_SID not in user_role_sids:
+                user_role_sids.append(LOGGED_IN_USER_ROLE_SID)
+
+        if ANONYMOUS_USER_ROLE_SID not in user_role_sids:
+            user_role_sids.append(ANONYMOUS_USER_ROLE_SID)
 
         for role in active_roles:
             if role.sid in user_role_sids:

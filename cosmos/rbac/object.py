@@ -62,11 +62,13 @@ class RoleGroup(RBACObject):
 ADMIN_USER_ROLE_SID = '43425097-e630-41ea-88eb-17b339339706'
 SYSTEM_USER_ROLE_SID = '703bb528-8713-4e5d-9f93-a493f7474ed9'
 ANONYMOUS_USER_ROLE_SID = 'a86976fe-e20c-4c30-ac27-0c9b2691bb8a'
+LOGGED_IN_USER_ROLE_SID = '08c6393a-72d8-4b0e-a6f4-8af45ccdd4b1'
 
 WELL_KNOWN_SIDS =[
     ADMIN_USER_ROLE_SID,
     SYSTEM_USER_ROLE_SID,
-    ANONYMOUS_USER_ROLE_SID
+    ANONYMOUS_USER_ROLE_SID,
+    LOGGED_IN_USER_ROLE_SID
 ]
 
 WELL_KNOWN_ROLES = [
@@ -154,6 +156,21 @@ WELL_KNOWN_ROLES = [
     Role(
             name='Anonymous',
             sid=ANONYMOUS_USER_ROLE_SID,
+            role_items = [
+                RoleItem(**{
+                    "access": [
+                        "READ"
+                    ],
+                    "object_name": "cosmos.widgets",
+                    "property_name": "*",
+                    "type": "object.RoleItem"
+                })
+            ],
+            type="object.Role"
+    ),
+    Role(
+            name='Logged in users',
+            sid=LOGGED_IN_USER_ROLE_SID,
             role_items = [
                 RoleItem(**{
                     "access": [
