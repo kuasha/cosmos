@@ -97,14 +97,15 @@ angular.module('myApp.services', [])
             }
         };
     }])
-    .factory('globalhashtable', ['$http', function($http) {
+    .factory('globalhashtable', ['$http', 'localStorageService', function($http, localStorageService) {
         return{
-            collections: {},
+            collections: localStorageService.get('globalhashtable'),
             getAll: function () {
                 return this.collections;
             },
             set: function(name, object){
                 this.collections[name] = object;
+                localStorageService.set('globalhashtable', this.collections)
             },
 
             get: function(name){
@@ -113,15 +114,22 @@ angular.module('myApp.services', [])
         }
     }])
 
-    .factory('namedcolection', ['$http', function($http) {
+    .factory('namedcolection', ['$http', 'localStorageService', function($http, localStorageService) {
         return{
             collections : {},
+            // TODO: maybe put all named collection in the local storage at once- now we are saving individual
+            // we should be careful about this since data size may increase a lot for large applications
+
             getCollection: function(name){
                 var objects = this.collections[name];
 
                 if(!objects){
-                    objects = [];
+                    objects = localStorageService.get(name);
+                    if(!objects) {
+                        objects = [];
+                    }
                     this.collections[name] = objects;
+                    localStorageService.set(name, objects);
                 }
 
                 return objects;
@@ -135,6 +143,8 @@ angular.module('myApp.services', [])
                 var objects = this.getCollection(name);
 
                 objects.push(object);
+
+                localStorageService.set(name, objects);
             },
 
             removeById: function(name, _id){
@@ -152,6 +162,7 @@ angular.module('myApp.services', [])
                 if(foundIndex >= 0) {
                     objects.splice(foundIndex, 1);
                 }
+                localStorageService.set(name, objects);
                 return foundIndex;
             },
 

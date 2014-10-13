@@ -8,6 +8,7 @@ var myApp = angular.module('myApp', [
     'ui.sortable',
     'ui.ace',
     'yaru22.jsonHuman',
+    'LocalStorageModule',
     'myApp.filters',
     'myApp.services',
     'myApp.directives',
@@ -35,6 +36,10 @@ config(['$routeProvider', function($routeProvider) {
 
     $routeProvider.otherwise({redirectTo: '/a/'});
 }]);
+
+myApp.config(function (localStorageServiceProvider) {
+  localStorageServiceProvider.setPrefix('myApp');
+});
 
 myApp.factory('$templateCache', function($cacheFactory, $http, $injector) {
     var cache = $cacheFactory('templates');
