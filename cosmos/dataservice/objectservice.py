@@ -54,7 +54,11 @@ class ObjectService():
         self.create_access_log( user, object_name, AccessType.INSERT)
 
         data['createtime'] = str(datetime.datetime.now())
-        data['owner'] = str(user.get("_id"))
+
+        if user:
+            data['owner'] = str(user.get("_id"))
+        else:
+            data['owner'] = SYSTEM_USER
 
         result = self.db[object_name].insert(data)
 

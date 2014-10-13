@@ -7,6 +7,58 @@ angular.module('myApp.controllers', [])
         $scope.loggedIn = loggedIn;
     }])
 
+    .controller('LoginCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', '$http',
+        function ($scope, $routeParams, $location, CosmosService, $http) {
+            $scope.redirectUrl = $routeParams.redirect;
+            $scope.haveAccount = true;
+
+            $scope.login = function(){
+                $http.post('/login/', {"username":$scope.username, "password":$scope.password }).
+                  success(function(data, status, headers, config) {
+                    $location.url($scope.redirectUrl || '/');
+                  }).
+                  error(function(data, status, headers, config) {
+                    $scope.error = data;
+
+                  });
+            };
+
+            $scope.signup = function () {
+                //TODO:create a service for global settings
+                if (!$scope.username || $scope.username.length < 2) {
+                    $scope.error = "Username is required.";
+                    return;
+                }
+
+                if (!$scope.password || $scope.password.length < 6) {
+                    $scope.error = "Password is required and must be at least 6 character long.";
+                    return;
+                }
+
+                if ($scope.password !== $scope.password_re) {
+                    $scope.error = "Password does not match.";
+                    return;
+                }
+
+                var url = '/service/cosmos.users/';
+                var data = { "username": $scope.username, "password": $scope.password };
+
+                CosmosService.post(url, data,
+                    function (returnedData) {
+                        $scope.login();
+                    },
+                    function (data, status) {
+                        if(status === 409){
+                            $scope.error = "Username already taken. Please use another username or login using your password."
+                        }
+                        else {
+                            $scope.error = "Could not create user. Error code: "+ status + " Error: " + data;
+                        }
+                    }
+                );
+            };
+    }])
+
     .controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'message',
         function ($scope, $routeParams, $location, CosmosService, message) {
 
@@ -1099,14 +1151,21 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('PageViewCtrl', ['$scope', '$routeParams', 'CosmosService', function ($scope, $routeParams, CosmosService) {
+    .controller('PageViewCtrl', ['$scope', '$routeParams', '$location', 'CosmosService',
+    function ($scope, $routeParams, $location, CosmosService) {
         $scope.pageId = $routeParams.pageId;
 
         $scope.getConfiguration = function () {
             var url = '/service/cosmos.pages/' + $scope.pageId + '/';
 
             CosmosService.get(url, function (data) {
-                    $scope.page = data;
+                    if(data.loginRequired && !loggedIn()){
+                        var curUrl = $location.url();
+                        $location.url("/login/?redirect="+curUrl);
+                    }
+                    else {
+                        $scope.page = data;
+                    }
                 },
                 function (data, status) {
                     //$scope.processError(data, status);
@@ -1114,7 +1173,13 @@ angular.module('myApp.controllers', [])
             );
         };
 
-        $scope.getConfiguration();
+        $scope.init = function() {
+            $scope.getConfiguration();
+        };
+
+        $scope.init();
+
+
     }])
 
     .controller('SingleItemViewCtrl', ['$scope', '$routeParams', function ($scope, $routeParams) {
@@ -1122,4 +1187,4 @@ angular.module('myApp.controllers', [])
         $scope.itemId = $routeParams.itemId;
     }])
 
-;
+;;

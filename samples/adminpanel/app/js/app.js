@@ -22,6 +22,7 @@ config(['$routeProvider', function($routeProvider) {
 
     $routeProvider.when('/a/:appPath/users', {templateUrl: 'partials/users.html', controller: 'UsersCtrl'});
     $routeProvider.when('/roles', {templateUrl: 'partials/roles.html', controller: 'RolesCtrl'});
+    $routeProvider.when('/login/', {templateUrl: 'partials/login.html', controller: 'LoginCtrl'});
     $routeProvider.when('/a/:appPath/lists/:listId/', {templateUrl: 'partials/widget-host.html', controller: 'ListDetailCtrl'});
     $routeProvider.when('/a/:appPath/lists/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
     $routeProvider.when('/a/:appPath/content/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});

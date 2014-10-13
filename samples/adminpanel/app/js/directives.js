@@ -19,7 +19,7 @@ angular.module('myApp.directives', []).
             },
 
             controller: ['$scope', '$location', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable',
-                function ($scope, $location, $cookies, message, CosmosService, namedcolection, calculator, hashtable) {
+                function ($scope, $location, message, CosmosService, namedcolection, calculator, hashtable) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
@@ -42,7 +42,6 @@ angular.module('myApp.directives', []).
                         }
                     }
                 };
-
 
                 $scope.prepareObject = function (item, data) {
                     angular.forEach(item.fields, function (value, index) {
@@ -200,7 +199,8 @@ angular.module('myApp.directives', []).
                 $scope.processFormResult = function(form, result){
                     if(form && form.onsuccess){
                         if(form.onsuccess.type === "url"){
-                            window.location.href = form.onsuccess.value + "?_id="+ ($scope.item.dataId || result);
+                            var _id = ($scope.item.dataId || JSON.parse(result));
+                            window.location.href = form.onsuccess.value.replace("{{_id}}",_id);
                         }
                         else if(form.onsuccess.type === "message"){
                             message.push({"message":form.onsuccess.value, "title":"Sucess", "data": result});

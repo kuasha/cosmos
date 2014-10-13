@@ -306,8 +306,8 @@ class LoginHandler(RequestHandler):
     @tornado.web.asynchronous
     @gen.coroutine
     def post(self):
-        username = self.get_argument("username")
-        password = self.get_argument("password")
+        username = self.get_argument("username", None)
+        password = self.get_argument("password", None)
 
         if not username or len(username) < 1:
             data = json.loads(self.request.body)
