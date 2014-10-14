@@ -469,6 +469,9 @@ angular.module('myApp.controllers', [])
             if (!selected_role || selected_role.length < 1) {
                 return;
             }
+            if(!$scope.user.roles){
+                $scope.user.roles = [];
+            }
             var dup = false;
             angular.forEach($scope.user.roles, function (rolesid, index) {
                 if (rolesid === selected_role) {

@@ -394,12 +394,42 @@ class ServiceAPITests(LoggedTestCase):
 
         user_cookies = self.login(user_json.get("username"), self.standard_user_password)
 
-        url = self.service_url+ self.test_owned_object_name
+        url = self.service_url + self.test_owned_object_name
         self.log_request_url(url)
         data = json.dumps({"address": "test"})
         response = requests.post(url, data=data, cookies=user_cookies)
         self.log_status_code(response.status_code)
         self.failUnless(response.status_code == 200)
+
+        self._delete_user(cookies, user_json)
+        self._delete_role(cookies, role_json)
+
+    def test_user_can_access_access_objects_not_owned_with_role(self):
+        cookies = self.admin_login()
+
+        role_json = self._create_new_role(cookies)
+        role = role_json.get("sid")
+        user_json = self._create_user_with_given_roles(cookies, [role])
+
+        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
+
+        url = self.service_url + self.test_object_name
+        self.log_request_url(url)
+        data = json.dumps({"name": "test"})
+        response = requests.post(url, data=data, cookies=cookies)
+        self.log_status_code(response.status_code)
+        self.failUnless(response.status_code == 200)
+
+        _id = json.loads(response.text)
+
+        object_url = url + "/" + _id+"?columns=name"
+
+        response = requests.get(object_url, cookies=user_cookies)
+        self.log_status_code(response.status_code)
+        self.failUnless(response.status_code == 200)
+
+        data = json.loads(response.text)
+        self.failUnlessEqual(data["name"], "test")
 
         self._delete_user(cookies, user_json)
         self._delete_role(cookies, role_json)

@@ -32,16 +32,23 @@ class ObjectService():
 
     def check_access(self, user, object_name, properties, access, check_owner=False):
         roles = self.rbac_service.get_roles(user)
+
+        # We must check all roles for possible access before checking owner access, so we need to loop twice.
+        # Since owner access is suggested rare optimizing for role access here,
         for role in roles:
             has_access = self.rbac_service.has_access(role, object_name, properties, access)
             if has_access:
+                logging.debug("ObjectService:: check _access {0} is granted to {1} as role accessible for properties {2}.".format(object_name, user, properties))
                 return ACCESS_TYPE_ROLE
 
+        for role in roles:
             if check_owner:
                 has_owner_access = self.rbac_service.has_owner_access(role, object_name, properties, access)
                 if has_owner_access:
+                    logging.debug("ObjectService:: check _access {0} is granted to {1} as owner accessible for properties {2}.".format(object_name, user, properties))
                     return ACCESS_TYPE_OWNER_ONLY
 
+        logging.warn("ObjectService:: check _access {0} is DENIED to {1} for properties {2}.".format(object_name, user, properties))
         raise tornado.web.HTTPError(401, "Unauthorized")
 
     def save(self, user, object_name, data):
@@ -112,6 +119,7 @@ class ObjectService():
     # http://docs.mongodb.org/manual/faq/developers/#dollar-sign-operator-escaping
     def update(self, user, object_name, id, data):
         logging.debug("ObjectService::update::{0}".format(object_name))
+        logging.debug("Data: {0}".format(data))
         assert len(id) > 0
         assert isinstance(data, dict)
 

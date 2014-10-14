@@ -133,6 +133,9 @@ class RbacServiceTest(LoggedTestCase):
     def test_all_user_has_loggedinusers_role(self):
         pass
 
+    @skip("Test not implemented")
+    def test_role_access_get_preference_to_owner_access(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
