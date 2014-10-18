@@ -822,10 +822,43 @@ angular.module('myApp.controllers', [])
             };
 
             $scope.optionFormByType = {
-                "text": {
+                "input": {
                     "fields": [
                         {"type": "text", "title": "Title", "name": "title"},
-                        {"type": "text", "title": "Name", "name": "name"}
+                        {"type": "text", "title": "Name", "name": "name"},
+                        {
+                                    "title": "Type",
+                                    "type": "select",
+                                    "options": {
+                                        "choices": [
+                                            {"value": "text","title": "Text"},
+                                            {"value": "password", "title": "Password"},
+                                            {"value": "button", "title": "Button" },
+                                            {"value": "checkbox", "title": "Check box" },
+                                            {"value": "color", "title": "Color" },
+                                            {"value": "date", "title": "Date" },
+                                            {"value": "datetime", "title": "Date time" },
+                                            {"value": "datetime-local", "title": "Local datetime" },
+                                            {"value": "email", "title": "Email" },
+                                            {"value": "file", "title": "File" },
+                                            {"value": "hidden", "title": "Hidden" },
+                                            {"value": "image", "title": "Image" },
+                                            {"value": "month", "title": "Month" },
+                                            {"value": "number", "title": "Number" },
+                                            {"value": "radio", "title": "Radio" },
+                                            {"value": "range", "title": "Range" },
+                                            {"value": "reset", "title": "Reset" },
+                                            {"value": "search", "title": "Search" },
+                                            {"value": "submit", "title": "Submit" },
+                                            {"value": "tel", "title": "Telephone" },
+                                            {"value": "time", "title": "Time" },
+                                            {"value": "url", "title": "URL" },
+                                            {"value": "week", "title": "Week" }
+                                        ]
+                                    },
+                                    "name": "htmltype",
+                                    "nullable": false
+                        }
                     ]
                 },
                 "form": {
@@ -921,7 +954,7 @@ angular.module('myApp.controllers', [])
             };
 
             $scope.toolsList = [
-                {title: 'Text', type: "text"},
+                {title: 'Input', type: "input"},
                 {title: 'Static', type: "static", options: {"value": ""}},
                 {title: 'Text Area', type: "textarea", options: {}},
                 {title: 'Code editor', type: "codeeditor", options: {}},

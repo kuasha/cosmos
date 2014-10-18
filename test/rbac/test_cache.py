@@ -11,6 +11,7 @@ from cosmos.rbac.object import WELL_KNOWN_ROLES, WELL_KNOWN_ROLE_GROUPS
 from cosmos.rbac.service import sample_role, sample_role_group
 from test import LoggedTestCase
 
+
 class RoleItemTest(LoggedTestCase):
 
     def test__init__(self):

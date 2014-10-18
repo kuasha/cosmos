@@ -100,6 +100,8 @@ class ServiceHandler(requesthandler.RequestHandler):
         except ValueError, ve:
             raise tornado.web.HTTPError(400, ve.message)
 
+        # It is important that _id is not passed to save method, insert method is ok to use.
+        # If _id is passed to save method it could overwrite object owned by other user
         self.clean_data(data)
 
         obj_serv = self.settings['object_service']
@@ -108,7 +110,7 @@ class ServiceHandler(requesthandler.RequestHandler):
         for preprocessor in preprocessor_list:
             yield preprocessor(obj_serv, object_name, data, AccessType.INSERT)
 
-        promise = obj_serv.save(self.current_user, object_name, data)
+        promise = obj_serv.insert(self.current_user, object_name, data)
         result = yield promise
         data = MongoObjectJSONEncoder().encode(result)
 

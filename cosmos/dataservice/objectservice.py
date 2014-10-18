@@ -67,6 +67,28 @@ class ObjectService():
         else:
             data['owner'] = SYSTEM_USER
 
+        #TODO: Make sure user can not insert data for object owned by other user. With _id it may be possible.
+
+        result = self.db[object_name].save(data)
+
+        return result
+
+    def insert(self, user, object_name, data):
+        logging.debug("ObjectService::insert::{0}".format(object_name))
+        assert isinstance(data, dict)
+
+        properties = self.get_properties(data)
+        self.check_access(user, object_name, properties, AccessType.INSERT, True)
+
+        self.create_access_log( user, object_name, AccessType.INSERT)
+
+        data['createtime'] = str(datetime.datetime.now())
+
+        if user:
+            data['owner'] = str(user.get("_id"))
+        else:
+            data['owner'] = SYSTEM_USER
+
         result = self.db[object_name].insert(data)
 
         return result

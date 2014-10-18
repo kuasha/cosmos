@@ -344,8 +344,9 @@ angular.module('myApp.directives', []).
                             break;
 
                         //Form fields
+                        case "input":
                         case "text":
-                            template = '<span><label>{{item.title}}</label><input type="text" ng-model="val"/></span>';
+                            template = '<span><label>{{item.title}}</label><input type="{{item.htmltype || \'text\'}}" ng-model="val"/></span>';
                             break;
 
                         case "static":

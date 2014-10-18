@@ -5,6 +5,7 @@
  License :: OSI Approved :: MIT License
 """
 
+import unittest
 import hashlib
 import time
 import random
@@ -19,6 +20,7 @@ from cosmos.rbac.service import RbacService
 import samples.barebone.cosmosmain as cosmosmain
 from test import *
 from cosmos.rbac.object import ADMIN_USER_ROLE_SID, COSMOS_ROLE_OBJECT_NAME, COSMOS_ROLE_GROUP_OBJECT_NAME
+
 
 class ServiceAPITests(LoggedTestCase):
     @classmethod
@@ -845,8 +847,6 @@ class ServiceAPITests(LoggedTestCase):
     def test_operation_fails_if_data_contains_reserved_keys(self):
         #Test fails for data with reserved mongodb keys like $set
         pass
-
-
 
 if __name__ == "__main__":
     unittest.main()
