@@ -18,8 +18,8 @@ END_POINTS = [
     (r"/logout/", LogoutHandler),
     (r"/service/(.*)", ServiceHandler),
     (r"/gridfs/(.*)", GridFSServiceHandler),
-    (r"/application/install/", AppServiceHandler),
-    (r"/application/export/(.*)", AppExportHandler),
+    (r"/application/install/", AppInstallHandler),
+    (r"/application/package/(.*)", AppPackageHandler),
     #TODO: authenticaion and authorization required for change monitor and handler.
     (r"/changemonitor", ChangeMonitor),
     (r"/handlechange", ChangeRequestHandler),

@@ -58,7 +58,7 @@ class ObjectService():
         properties = self.get_properties(data)
         self.check_access(user, object_name, properties, AccessType.INSERT, True)
 
-        self.create_access_log( user, object_name, AccessType.INSERT)
+        self.create_access_log(user, object_name, AccessType.INSERT)
 
         data['createtime'] = str(datetime.datetime.now())
 
@@ -67,9 +67,12 @@ class ObjectService():
         else:
             data['owner'] = SYSTEM_USER
 
+        if data.get("_id"):
+            data["_id"] = ObjectId(str(data["_id"]))
+
         #TODO: Make sure user can not insert data for object owned by other user. With _id it may be possible.
 
-        result = self.db[object_name].save(data, )
+        result = self.db[object_name].save(data)
 
         return result
 
@@ -174,7 +177,7 @@ class ObjectService():
 
         return result
 
-    def save_file(self, user, collection_name, file):
+    def save_file(self, user, collection_name, file_object, file_id=None):
         logging.debug("ObjectService::save_file::{0}".format(collection_name))
 
         properties = ['body', 'content_type', 'filename', 'collection_name', 'createtime', 'owner']
@@ -183,7 +186,7 @@ class ObjectService():
 
         self.create_access_log(user, collection_name, AccessType.INSERT)
 
-        return save_file_in_gridfs(self.db, user, collection_name, file, properties)
+        return save_file_in_gridfs(self.db, user, collection_name, file_object, properties, file_id)
 
     def load_file(self, user, collection_name, file_id):
         logging.debug("ObjectService::load_file::{0}".format(collection_name))
@@ -327,22 +330,27 @@ class ObjectService():
         return post_processor_list
 
 @gen.coroutine
-def save_file_in_gridfs(db, user, collection_name, file, properties):
+def save_file_in_gridfs(db, user, collection_name, file_object, properties, file_id=None):
     fs = motor.MotorGridFS(db)
-    gridin = yield fs.new_file()
+    if file_id:
+        oid = ObjectId(str(file_id))
+        gridin = yield fs.new_file(_id=oid)
+    else:
+        gridin = yield fs.new_file()
 
-    length = len(file.body)
-    md5_dig = hashlib.md5(file.body).hexdigest()
-    result = yield gridin.write(file.body)
+    file_body = file_object.get("body")
+    length = len(file_body)
+    md5_dig = hashlib.md5(file_body).hexdigest()
+    result = yield gridin.write(file_body)
 
     # TODO: we can write another chunk- as many times we want-
     # When support for streaming file comes in mainstram tornado branch
     # we should use that
 
     if 'content_type' in properties:
-        yield gridin.set('content_type', file.get("content_type"))
+        yield gridin.set('content_type', file_object.get("content_type"))
 
-    yield gridin.set('filename', file.get("filename"))
+    yield gridin.set('filename', file_object.get("filename"))
     yield gridin.set('collection_name', collection_name)
 
     current_time = str(datetime.datetime.now())
