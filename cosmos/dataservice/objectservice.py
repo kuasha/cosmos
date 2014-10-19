@@ -69,7 +69,7 @@ class ObjectService():
 
         #TODO: Make sure user can not insert data for object owned by other user. With _id it may be possible.
 
-        result = self.db[object_name].save(data)
+        result = self.db[object_name].save(data, )
 
         return result
 
