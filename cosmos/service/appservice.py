@@ -4,6 +4,7 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
+import os
 import json
 import zipfile
 import io
@@ -18,7 +19,7 @@ OBJECT_DATA_FILE_NAME = "object_data.json"
 APPLICATION_FILE_NAME = 'application.json'
 CURRENT_ARCHIVE_VERSION = "0.01.000.00"
 APPLICATION_OBJECT_NAME = "cosmos.applications"
-
+zip_file_root = "sources"
 
 class AppInstallHandler(requesthandler.RequestHandler):
 
@@ -54,6 +55,9 @@ class AppInstallHandler(requesthandler.RequestHandler):
         if name == "file_objects":
             self.import_files(object_service, values, app_zip_file)
 
+        if name == "source_files":
+            self.import_source_files(values, app_zip_file)
+
     @gen.coroutine
     def import_files(self, object_service, files_objects, app_zip_file):
         for file_object in files_objects[0]:
@@ -68,6 +72,18 @@ class AppInstallHandler(requesthandler.RequestHandler):
             file_to_save = {"body": object_data, "content_type":content_type, "filename": filename}
 
             object_service.save_file(self.current_user, collection_name, file_to_save, file_id)
+
+    @gen.coroutine
+    def import_source_files(self, source_setttings, app_zip_file):
+        if source_setttings:
+            source_root = self.settings.get('source_root')
+            for source_file_name in source_setttings:
+                source_file_path = os.path.join(source_root, source_file_name)
+                zip_file_path = os.path.join(zip_file_root, source_file_name)
+                source_file_content_h = app_zip_file.open(zip_file_path)
+                source_file_content = source_file_content_h.read()
+                with open(source_file_path, 'w') as f:
+                    f.write(source_file_content)
 
     @gen.coroutine
     def setup_global_settings(self, application_object):
@@ -144,7 +160,7 @@ class AppPackageHandler(requesthandler.RequestHandler):
                 bootstrap_objects = []
 
                 object_settings = settings.get("objects")
-
+                # Package object data
                 if object_settings:
                     for object_name in object_settings:
                         object_service = self.settings['object_service']
@@ -161,8 +177,8 @@ class AppPackageHandler(requesthandler.RequestHandler):
 
                 file_objects_data = []
 
+                # Package files
                 file_settings = settings.get("file_objects")
-
                 if file_settings:
                     for directory_object_name in file_settings:
                         promise = object_service.list_file(self.current_user, directory_object_name)
@@ -180,12 +196,29 @@ class AppPackageHandler(requesthandler.RequestHandler):
                             file_path = collection_name+"/"+str(file_id)+"/"+filename
                             zf.writestr(file_path, result.get("body"))
 
+                # Package source files
+                source_setttings = settings.get("source_code")
+                source_file_config = []
+
+                source_root = self.settings.get('source_root')
+                if source_setttings:
+                    for source_file_name in source_setttings:
+                        self.validate_source_file_name(source_file_name)
+
+                        source_file_path = os.path.join(source_root, source_file_name)
+                        zip_file_path = os.path.join(zip_file_root, source_file_name)
+                        source_file_config.append(source_file_name)
+                        with open(source_file_path, 'r') as content_file:
+                            content = content_file.read()
+                            zf.writestr(zip_file_path, content)
+
                 application_cab = MongoObjectJSONEncoder().encode({
                     "exporttime": str(datetime.datetime.utcnow()),
                     "archive_version": CURRENT_ARCHIVE_VERSION,
                     "settings": [
                         {"name": "bootstrap_objects", "value": bootstrap_objects},
-                        {"name": "file_objects", "value": file_objects_data}
+                        {"name": "file_objects", "value": file_objects_data},
+                        {"name": "source_files", "directory": zip_file_root, "value": source_file_config}
                     ]
                 })
 
@@ -194,3 +227,7 @@ class AppPackageHandler(requesthandler.RequestHandler):
         self.set_header("Content-Type", "application/zip")
         self.set_header("content-disposition", "attachment; filename='" + application_id + ".xapp'")
         self.write(mf.getvalue())
+
+    def validate_source_file_name(self, source_file_name):
+        # TODO: Make sure path does not contain .. or similar things or start with root ( / or drive letter)
+        pass

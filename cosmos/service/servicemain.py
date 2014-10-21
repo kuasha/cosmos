@@ -42,7 +42,8 @@ def start_web_service(options):
                 google_oauth=options.google_oauth,
                 github_oauth=options.github_oauth,
                 directory_listing_allowed=options.directory_listing_allowed,
-                object_service = object_service
+                object_service=object_service,
+                source_root=options.source_root
             )
 
     application = tornado.web.Application(
