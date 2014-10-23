@@ -19,6 +19,7 @@ config(['$routeProvider', function($routeProvider) {
 
     $routeProvider.when('/a/:appPath?/', {templateUrl: 'partials/pageholder.html', controller: 'IndexCtrl'});
 
+    $routeProvider.when('/install', {templateUrl: 'partials/install.html', controller: 'HomeCtrl'});
     $routeProvider.when('/message', {templateUrl: 'partials/message.html', controller: 'MessageViewCtrl'});
 
     $routeProvider.when('/a/:appPath/users', {templateUrl: 'partials/users.html', controller: 'UsersCtrl'});

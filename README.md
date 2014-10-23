@@ -38,6 +38,14 @@ Then from mongo console do rs.initiate()
 }
 ```
 
+If you see error like following  
+
+```
+"errmsg" : "couldn't initiate : can't find self in the replset config"
+```
+
+you may need to change the ```bind_ip = 0.0.0.0``` or as appropriate in the ```/etc/mongodb.conf``` file.
+
 Now do rs.config() to see the status
 
 ```

@@ -28,8 +28,8 @@ class AppInstallHandler(requesthandler.RequestHandler):
     def get(self):
         self.write('''
                 <form enctype="multipart/form-data" method="POST">
-                    File tu upload: <input name="application" type="file" /><br />
-                    <input type="submit" value="Upload File" />
+                    Application package: <input name="application" type="file" /><br />
+                    <input type="submit" value="Install" />
                 </form>''')
 
         self.finish()

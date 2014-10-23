@@ -66,6 +66,10 @@ angular.module('myApp.controllers', [])
 
             $scope.appPath = $routeParams.appPath;
 
+            $scope.processError = function(data, status){
+                $location.path('/install/');
+            };
+
             $scope.getConfiguration = function () {
                 if($scope.appPath && $scope.appPath.length > 0){
                     $scope.getAppConfiguration();
@@ -75,11 +79,13 @@ angular.module('myApp.controllers', [])
 
                     CosmosService.get(url, function (returnedData) {
                             if (!returnedData || returnedData.length != 1) {
-                                var msg = "Exactly one global settings is expected for path = "
-                                    + $scope.appPath + ". Found = " + ((!returnedData) ? 0 : returnedData.length);
+                                //var msg = "Exactly one global settings is expected for path = "
+                                //    + $scope.appPath + ". Found = " + ((!returnedData) ? 0 : returnedData.length);
 
-                                message.push({"message": msg, "title": "Invalid configuration", "data": ""});
-                                $location.path('/message');
+                                //message.push({"message": msg, "title": "Invalid configuration", "data": ""});
+                                //$location.path('/message');
+
+                                $location.path('/install/');
                                 return;
                             }
 
@@ -104,18 +110,20 @@ angular.module('myApp.controllers', [])
                     url = '/service/cosmos.applications/?filter={"path":"' + $scope.appPath + '"}';
                 }
                 else{
-                    var msg = "Default application not found.";
-                    message.push({"message": msg, "title": "Invalid configuration", "data": ""});
-                    $location.path('/message');
+                    //var msg = "Default application not found.";
+                    //message.push({"message": msg, "title": "Invalid configuration", "data": ""});
+                    //$location.path('/message');
+                    $location.path('/install/');
                     return;
                 }
 
                 CosmosService.get(url, function (returnedData) {
                         if (!returnedData || returnedData.length != 1) {
-                            var msg = "Exactly one application is expected for path = "
-                                + $scope.appPath + ". Found = " + ((!returnedData) ? 0 : returnedData.length);
-                            message.push({"message": msg, "title": "Invalid application name", "data": ""});
-                            $location.path('/message');
+                            //var msg = "Exactly one application is expected for path = "
+                            //    + $scope.appPath + ". Found = " + ((!returnedData) ? 0 : returnedData.length);
+                            //message.push({"message": msg, "title": "Invalid application name", "data": ""});
+                            //$location.path('/message');
+                            $location.path('/install/');
                             return;
                         }
 
