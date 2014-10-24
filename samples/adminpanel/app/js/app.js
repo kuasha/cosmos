@@ -27,7 +27,7 @@ config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/login/', {templateUrl: 'partials/login.html', controller: 'LoginCtrl'});
     $routeProvider.when('/a/:appPath/lists/:listId/', {templateUrl: 'partials/widget-host.html', controller: 'ListDetailCtrl'});
     $routeProvider.when('/a/:appPath/lists/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
-    $routeProvider.when('/a/:appPath/content/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
+    $routeProvider.when('/a/:appPath/content/:fileObjectName/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
     $routeProvider.when('/a/:appPath/formdesign/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
     $routeProvider.when('/a/:appPath/forms/:formId?/:dataId?', {templateUrl: 'partials/formview.html', controller: 'FormViewCtrl'});
 

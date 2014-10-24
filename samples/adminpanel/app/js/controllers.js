@@ -715,7 +715,11 @@ angular.module('myApp.controllers', [])
         };
     }])
 
-    .controller('FileUploadCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
+    .controller('FileUploadCtrl', ['$scope', '$modal', '$routeParams', 'CosmosService',
+        function ($scope, $modal, $routeParams, CosmosService) {
+
+        $scope.fileObjectName = $routeParams.fileObjectName;
+        document.uploadForm.action = "/gridfs/" + $scope.fileObjectName + "/";
 
         $scope.clearError = function () {
             $scope.hasError = false;
@@ -773,7 +777,7 @@ angular.module('myApp.controllers', [])
             var file = $scope.uploaded_files[index];
             if (confirm('Are you sure you want to delete the file ' + file.filename + '?')) {
                 var file_id = file.file_id;
-                CosmosService.delete('/gridfs/userfiles.products/' + file_id + '/', function (data) {
+                CosmosService.delete('/gridfs/'+$scope.fileObjectName+'/' + file_id + '/', function (data) {
                         $scope.uploaded_files.splice(index, 1);
                     },
                     function (data, status) {
@@ -784,7 +788,7 @@ angular.module('myApp.controllers', [])
         };
 
         $scope.getFiles = function () {
-            CosmosService.get('/gridfs/userfiles.products/', function (data) {
+            CosmosService.get('/gridfs/'+$scope.fileObjectName+'/', function (data) {
                     $scope.uploaded_files = data;
                 },
                 function (data, status) {
@@ -794,7 +798,6 @@ angular.module('myApp.controllers', [])
         };
 
         $scope.getFiles();
-
     }])
 
     .controller('FormDesignController', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
