@@ -264,6 +264,11 @@ angular.module('myApp.directives', []).
                             template = '<'+item.blocktype+' ng-class="item.cssclass">{{item.value}}</'+item.blocktype+'>';
                             break;
 
+                        case "hyperlink":
+                            $scope.validateBlockType(item.blocktype);
+                            template = '<a ng-class="item.cssclass" href="'+item.value.href+'">'+item.value.text+'</a>';
+                            break;
+
                         case "image":
                             template = '<img ng-src="{{item.src}}" />';
                             break;
