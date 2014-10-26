@@ -125,6 +125,21 @@ angular.module('myApp.directives', []).
                     }
                 };
 
+                //START MenuRef methods
+                $scope.getMenuConfiguration = function () {
+                    var url = '/service/cosmos.menuconfigurations/' + $scope.item.value.menuId + '/';
+                    CosmosService.get(url, function (data) {
+                            $scope.data = {};
+                            $scope.menuConfiguration = data;
+                        },
+                        function (data, status) {
+                            //TODO: $scope.processError(data, status);
+                        }
+                    );
+                };
+
+                //END MenuRef methods
+
                 //START List methods
 
                 //List ref
@@ -335,6 +350,11 @@ angular.module('myApp.directives', []).
                         case "menuitem":
                             template = '' +
                                 '   <a href="{{item.value.href}}">{{item.value.title}}</a>';
+                            break;
+
+                        case "menuref":
+                            template = '' +
+                            '<field ng-if="menuConfiguration" item="menuConfiguration"></field>';
                             break;
 
                         case "compositeblock":
@@ -559,6 +579,11 @@ angular.module('myApp.directives', []).
                     headElement.append(newElement);
                     //TODO: maybe remove the "element"
                     return;
+                }
+
+                if(scope.item.type === "menuref") {
+                    scope.menuConfiguration = {"brandtitle": "", "type":"menu", "fields":[]};
+                    scope.getMenuConfiguration();
                 }
 
                 console.log("Field template" + template);
