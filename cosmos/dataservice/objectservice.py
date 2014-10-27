@@ -207,7 +207,7 @@ class ObjectService():
         logging.debug("ObjectService::save_file::{0}".format(collection_name))
         properties = ['body', 'content_type', 'filename', 'collection_name', 'createtime', 'owner', 'md5', 'length']
 
-        allowed_access_type = self.check_access(user, collection_name, properties, AccessType.INSERT, True)
+        allowed_access_type = self.check_access(user, collection_name, properties, AccessType.READ, True)
 
         query = {'collection_name': collection_name}
         if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:

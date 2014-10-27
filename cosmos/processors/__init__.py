@@ -27,7 +27,7 @@ def before_role_insert(object_service, object_name, data, access_type):
         sid = sid.strip()
         data["sid"] = sid
 
-        if sid != ANONYMOUS_USER_ROLE_SID or sid != LOGGED_IN_USER_ROLE_SID:
+        if sid != ANONYMOUS_USER_ROLE_SID and sid != LOGGED_IN_USER_ROLE_SID:
             for role in WELL_KNOWN_ROLES:
                 if role.sid == sid:
                     raise tornado.web.HTTPError(409, "Conflict: Duplicate role sid")
