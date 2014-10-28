@@ -2,17 +2,17 @@
 
 
 // Declare app level module which depends on filters, and services
-var myApp = angular.module('myApp', [
+var cosmosUI = angular.module('cosmosUI', [
     'ngRoute',
     'ui.bootstrap',
     'ui.sortable',
     'ui.ace',
     'yaru22.jsonHuman',
     'LocalStorageModule',
-    'myApp.filters',
-    'myApp.services',
-    'myApp.directives',
-    'myApp.controllers'
+    'cosmosUI.filters',
+    'cosmosUI.services',
+    'cosmosUI.directives',
+    'cosmosUI.controllers'
 ]).
 config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/terminal', {templateUrl: 'partials/home.html', controller: 'HomeCtrl'});
@@ -39,11 +39,11 @@ config(['$routeProvider', function($routeProvider) {
     $routeProvider.otherwise({redirectTo: '/a/'});
 }]);
 
-myApp.config(function (localStorageServiceProvider) {
-  localStorageServiceProvider.setPrefix('myApp');
+cosmosUI.config(function (localStorageServiceProvider) {
+  localStorageServiceProvider.setPrefix('cosmosUI');
 });
 
-myApp.factory('$templateCache', function($cacheFactory, $http, $injector) {
+cosmosUI.factory('$templateCache', function($cacheFactory, $http, $injector) {
     var cache = $cacheFactory('templates');
     var widgetPromise;
 

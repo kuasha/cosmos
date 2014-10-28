@@ -1,43 +1,35 @@
-'use strict';
+/**
+ * Created by maruf on 10/28/14.
+ */
 
-/* Directives */
+directives.directive('field', function ($compile) {
+    return {
+        restrict: 'E',
+        scope: {
+            item: '=',
+            val: '='
+        },
 
-
-angular.module('myApp.directives', []).
-    directive('appVersion', ['version', function (version) {
-        return function (scope, elm, attrs) {
-            elm.text(version);
-        };
-    }])
-
-    .directive('field', function ($compile) {
-        return {
-            restrict: 'E',
-            scope: {
-                item: '=',
-                val: '='
-            },
-
-            controller: ['$scope', '$location','$routeParams', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable','cosmos.settings',
-                function ($scope, $location, $routeParams, message, CosmosService, namedcolection, calculator, hashtable, settings) {
+        controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable', 'cosmos.settings',
+            function ($scope, $location, $routeParams, message, CosmosService, namedcolection, calculator, hashtable, settings) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
                 $scope.hashtable = hashtable;
 
-                $scope.receiveServiceDataAs =  function(data, args) {
-                    if(!args) {
+                $scope.receiveServiceDataAs = function (data, args) {
+                    if (!args) {
                         return;
                     }
 
                     var name = args['name'];
                     var parse = args['parse'];
 
-                    if(name) {
-                        if(parse) {
+                    if (name) {
+                        if (parse) {
                             $scope[name] = JSON.parse(data);
                         }
-                        else{
+                        else {
                             $scope[name] = data;
                         }
                     }
@@ -55,10 +47,10 @@ angular.module('myApp.directives', []).
                             $scope.prepareObject(value, data[value.name][0]);
                         }
                         else {
-                            if(value.name) {
+                            if (value.name) {
                                 data[value.name] = "";
                             }
-                            else{
+                            else {
                                 //data[value] = "";
                             }
                         }
@@ -76,7 +68,7 @@ angular.module('myApp.directives', []).
                     var newItem = {};
                     $scope.prepareObject($scope.item, newItem);
 
-                    if(!$scope.val){
+                    if (!$scope.val) {
                         //TODO: This condition should be handled from link function
                         $scope.val = [];
                     }
@@ -100,7 +92,7 @@ angular.module('myApp.directives', []).
 
                 $scope.updateOptions = function (field) {
                     var lookup;
-                    if($scope.item.options.saveValueOnly){
+                    if ($scope.item.options.saveValueOnly) {
                         $scope.val = undefined;
                         lookup = $scope.getLookup(field, $scope.ref);
                     }
@@ -140,11 +132,11 @@ angular.module('myApp.directives', []).
                 $scope.getMenuConfiguration = function () {
                     $scope.appPath = $routeParams.appPath;
 
-                    settings.getAppSettings($scope.appPath, "menuconfigobject", function(objectName){
-                             var url = '/service/'+objectName+'/' + $scope.item.value.menuId + '/';
+                    settings.getAppSettings($scope.appPath, "menuconfigobject", function (objectName) {
+                            var url = '/service/' + objectName + '/' + $scope.item.value.menuId + '/';
                             $scope.getMenuConfigurationByUrl(url);
                         },
-                        function(status, data){
+                        function (status, data) {
                             var url = '/service/cosmos.menuconfigurations/' + $scope.item.value.menuId + '/';
                             $scope.getMenuConfigurationByUrl(url);
                         }
@@ -157,7 +149,7 @@ angular.module('myApp.directives', []).
 
                 //List ref
 
-                $scope.getListDataBy = function(columns, objectName){
+                $scope.getListDataBy = function (columns, objectName) {
                     var columnsCsv = '';
                     angular.forEach(columns, function (column, index) {
                         columnsCsv += column.name + ",";
@@ -173,7 +165,7 @@ angular.module('myApp.directives', []).
                     );
                 };
 
-                $scope.getListDataFromConfig = function(listConfiguration){
+                $scope.getListDataFromConfig = function (listConfiguration) {
                     var columns = listConfiguration.columns;
                     var objectName = listConfiguration.objectName;
 
@@ -195,11 +187,11 @@ angular.module('myApp.directives', []).
                 $scope.getListConfiguration = function () {
                     $scope.appPath = $routeParams.appPath;
 
-                    settings.getAppSettings($scope.appPath, "listconfigobject", function(objectName){
-                             var url = '/service/'+objectName+'/' + $scope.item.value.listId + '/';
+                    settings.getAppSettings($scope.appPath, "listconfigobject", function (objectName) {
+                            var url = '/service/' + objectName + '/' + $scope.item.value.listId + '/';
                             $scope.getListConfigurationByUrl(url);
                         },
-                        function(status, data){
+                        function (status, data) {
                             var url = '/service/cosmos.listconfigurations/' + $scope.item.value.listId + '/';
                             $scope.getListConfigurationByUrl(url);
                         }
@@ -213,7 +205,7 @@ angular.module('myApp.directives', []).
                     CosmosService.get(url, function (data) {
                             $scope.data = {};
                             $scope.form = data;
-                            if($scope.val) {
+                            if ($scope.val) {
                                 $scope.getFormData($scope.form, $scope.val);
                             }
                         },
@@ -226,11 +218,11 @@ angular.module('myApp.directives', []).
                 $scope.getFormConfiguration = function () {
                     $scope.appPath = $routeParams.appPath;
 
-                    settings.getAppSettings($scope.appPath, "formconfigobject", function(objectName){
-                             var url = '/service/'+objectName+'/' + $scope.item.value.formId + '/';
+                    settings.getAppSettings($scope.appPath, "formconfigobject", function (objectName) {
+                            var url = '/service/' + objectName + '/' + $scope.item.value.formId + '/';
                             $scope.getFormConfigurationByUrl(url);
                         },
-                        function(status, data){
+                        function (status, data) {
                             var url = '/service/cosmos.forms/' + $scope.item.value.formId + '/';
                             $scope.getFormConfigurationByUrl(url);
                         }
@@ -250,26 +242,26 @@ angular.module('myApp.directives', []).
                     }
                 };
 
-                $scope.processFormResult = function(form, result){
-                    if(form && form.onsuccess){
-                        if(form.onsuccess.type === "url"){
+                $scope.processFormResult = function (form, result) {
+                    if (form && form.onsuccess) {
+                        if (form.onsuccess.type === "url") {
                             var _id = ($scope.item.dataId || JSON.parse(result));
-                            window.location.href = form.onsuccess.value.replace("{{_id}}",_id);
+                            window.location.href = form.onsuccess.value.replace("{{_id}}", _id);
                         }
-                        else if(form.onsuccess.type === "message"){
-                            message.push({"message":form.onsuccess.value, "title":"Sucess", "data": result});
+                        else if (form.onsuccess.type === "message") {
+                            message.push({"message": form.onsuccess.value, "title": "Sucess", "data": result});
                             $location.path('/message');
                         }
-                        else if(form.onsuccess.type === "inlinemessage"){
+                        else if (form.onsuccess.type === "inlinemessage") {
                             $scope.submitDone = true;
                         }
                     }
                 };
 
                 $scope.onFormSubmit = function () {
-                    if($scope.form.action) {
-                        if($scope.form.action) {
-                            if(!$scope.item.dataId) {
+                    if ($scope.form.action) {
+                        if ($scope.form.action) {
+                            if (!$scope.item.dataId) {
                                 CosmosService.post($scope.form.action, $scope.data, function (data) {
                                         $scope.processFormResult($scope.form, data);
                                     },
@@ -278,8 +270,8 @@ angular.module('myApp.directives', []).
                                     }
                                 );
                             }
-                            else{
-                                var url = $scope.form.action + '/'+ $scope.item.dataId + '/';
+                            else {
+                                var url = $scope.form.action + '/' + $scope.item.dataId + '/';
                                 CosmosService.put(url, $scope.data, function (data) {
                                         $scope.processFormResult($scope.form, data);
                                     },
@@ -293,7 +285,7 @@ angular.module('myApp.directives', []).
                 };
                 // END FormRef methods
 
-                $scope.validateBlockType = function(blockType){
+                $scope.validateBlockType = function (blockType) {
                     switch (blockType) {
                         case 'h1':
                         case 'h2':
@@ -315,12 +307,12 @@ angular.module('myApp.directives', []).
                         //Page fields
                         case "htmlblock":
                             $scope.validateBlockType(item.blocktype);
-                            template = '<'+item.blocktype+' ng-class="item.cssclass">{{item.value}}</'+item.blocktype+'>';
+                            template = '<' + item.blocktype + ' ng-class="item.cssclass">{{item.value}}</' + item.blocktype + '>';
                             break;
 
                         case "hyperlink":
                             $scope.validateBlockType(item.blocktype);
-                            template = '<a ng-class="item.cssclass" href="'+item.value.href+'">'+item.value.text+'</a>';
+                            template = '<a ng-class="item.cssclass" href="' + item.value.href + '">' + item.value.text + '</a>';
                             break;
 
                         case "image":
@@ -328,38 +320,38 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "twocolumn":
-                            template = ''+
-                                '<div class="container-fluid">'+
-                                '   <div class="row">'+
+                            template = '' +
+                                '<div class="container-fluid">' +
+                                '   <div class="row">' +
                                 '       <div class="{{item.leftcolumn.cssclass}}">' +
                                 '           <field item="item.leftcolumn"></field>' +
-                                '       </div>'+
+                                '       </div>' +
                                 '       <div class="{{item.rightcolumn.cssclass}}">' +
                                 '           <field item="item.rightcolumn"></field>' +
-                                '       </div>'+
-                                '   </div>'+
+                                '       </div>' +
+                                '   </div>' +
                                 '</div>';
                             break;
 
                         case "threecolumn":
-                            template = ''+
-                                '<div class="container-fluid">'+
-                                '   <div class="row">'+
+                            template = '' +
+                                '<div class="container-fluid">' +
+                                '   <div class="row">' +
                                 '       <div class="{{item.leftcolumn.cssclass}}">' +
                                 '           <field item="item.leftcolumn"></field>' +
-                                '       </div>'+
+                                '       </div>' +
                                 '       <div class="{{item.middlecolumn.cssclass}}">' +
                                 '           <field item="item.middlecolumn"></field>' +
-                                '       </div>'+
+                                '       </div>' +
                                 '       <div class="{{item.rightcolumn.cssclass}}">' +
                                 '           <field item="item.rightcolumn"></field>' +
-                                '       </div>'+
-                                '   </div>'+
+                                '       </div>' +
+                                '   </div>' +
                                 '</div>';
                             break;
 
                         case "menu":
-                            if(item.navtype === "sidebar"){
+                            if (item.navtype === "sidebar") {
                                 template = '' +
                                     '<ul class="well nav nav-pills nav-stacked">' +
                                     '   <li ng-repeat="field in item.fields">' +
@@ -393,7 +385,7 @@ angular.module('myApp.directives', []).
 
                         case "menuref":
                             template = '' +
-                            '<field ng-if="menuConfiguration" item="menuConfiguration"></field>';
+                                '<field ng-if="menuConfiguration" item="menuConfiguration"></field>';
                             break;
 
                         case "compositeblock":
@@ -404,7 +396,7 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "widgethost":
-                            template = '<div ng-include="\''+item.value+'\'" class="'+item.cssclass+'"></div>';
+                            template = '<div ng-include="\'' + item.value + '\'" class="' + item.cssclass + '"></div>';
                             break;
 
                         //Form fields
@@ -447,7 +439,7 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "lookup":
-                            if(item.options.saveValueOnly){
+                            if (item.options.saveValueOnly) {
                                 template = '' +
                                     '<label class="control-label">{{item.title}}</label>' +
                                     '<select ng-if="!item.options.hideRefType" ng-model="ref" ' +
@@ -501,7 +493,7 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "cssref":
-                            template='<link data-ng-href="{{item.href}}" rel="stylesheet" />';
+                            template = '<link data-ng-href="{{item.href}}" rel="stylesheet" />';
                             break;
 
                         case "listref":
@@ -522,7 +514,7 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "array":
-                            if(item.options && item.options.primitive) {
+                            if (item.options && item.options.primitive) {
                                 template =
                                     '<div>' +
                                     '   <label>{{item.title}}</label>' +
@@ -553,7 +545,7 @@ angular.module('myApp.directives', []).
                             break;
 
                         case "itemview":
-                            template = '<div ng-include="\''+item.value.widget+'\'" class="'+item.cssclass+'"></div>';
+                            template = '<div ng-include="\'' + item.value.widget + '\'" class="' + item.cssclass + '"></div>';
                             break;
 
 
@@ -565,239 +557,71 @@ angular.module('myApp.directives', []).
                 };
             }],
 
-            link: function (scope, element, attributes) {
-                console.log("Creating field " + scope.item.type);
-                var template = scope.getTemplate(scope.item);
-                if (!template) {
-                    return;
+        link: function (scope, element, attributes) {
+            console.log("Creating field " + scope.item.type);
+            var template = scope.getTemplate(scope.item);
+            if (!template) {
+                return;
+            }
+
+            if (scope.item.type === "static") {
+                scope.val = scope.item.options.value;
+            }
+
+            if (scope.item.type === "array") {
+                if (!scope.val || scope.val.length < 1) {
+                    scope.val = [];
                 }
+            }
 
-                if (scope.item.type === "static") {
-                    scope.val = scope.item.options.value;
+            if (scope.item.type === "composite" || scope.item.type === "form") {
+                if (!scope.val) {
+                    scope.val = {};
                 }
+            }
 
-                if (scope.item.type === "array") {
-                    if (!scope.val || scope.val.length < 1) {
-                        scope.val = [];
-                    }
+            if (scope.item.type === "lookup") {
+                scope.item.optionData = {};
+                if (!scope.val && !scope.item.options.saveValueOnly) {
+                    scope.val = {"ref": null, "data": null};
                 }
-
-                if (scope.item.type === "composite" || scope.item.type === "form") {
-                    if (!scope.val) {
-                        scope.val = {};
-                    }
+                else if ((scope.val && scope.val.ref) || (scope.item.options.saveValueOnly && scope.ref)) {
+                    scope.updateOptions(scope.item);
                 }
-
-                if (scope.item.type === "lookup") {
-                    scope.item.optionData = {};
-                    if (!scope.val && !scope.item.options.saveValueOnly) {
-                        scope.val = {"ref": null, "data": null};
-                    }
-                    else if ((scope.val && scope.val.ref) ||(scope.item.options.saveValueOnly && scope.ref)) {
-                        scope.updateOptions(scope.item);
-                    }
-                    else if (scope.item.options.saveValueOnly && scope.item.options.hideRefType){
-                        scope.ref = scope.item.options.lookups[0].ref;
-                        scope.updateOptions(scope.item);
-                    }
+                else if (scope.item.options.saveValueOnly && scope.item.options.hideRefType) {
+                    scope.ref = scope.item.options.lookups[0].ref;
+                    scope.updateOptions(scope.item);
                 }
+            }
 
-                if(scope.item.type === "listref"){
-                    scope.getListConfiguration();
-                }
+            if (scope.item.type === "listref") {
+                scope.getListConfiguration();
+            }
 
-                if(scope.item.type === "formref") {
-                    scope.getFormConfiguration();
-                }
+            if (scope.item.type === "formref") {
+                scope.getFormConfiguration();
+            }
 
-                if(scope.item.type === "cssref") {
-                    var headElement = angular.element(document.getElementsByTagName('head')[0]);
-
-                    var newElement = angular.element(template);
-                    $compile(newElement)(scope);
-                    headElement.append(newElement);
-                    //TODO: maybe remove the "element"
-                    return;
-                }
-
-                if(scope.item.type === "menuref") {
-                    scope.menuConfiguration = {"brandtitle": "", "type":"menu", "fields":[]};
-                    scope.getMenuConfiguration();
-                }
-
-                console.log("Field template" + template);
+            if (scope.item.type === "cssref") {
+                var headElement = angular.element(document.getElementsByTagName('head')[0]);
 
                 var newElement = angular.element(template);
                 $compile(newElement)(scope);
-                element.replaceWith(newElement);
+                headElement.append(newElement);
+                //TODO: maybe remove the "element"
+                return;
             }
-        };
-    })
 
-    .directive('errorBanner', function ($compile) {
-        //TODO: create sub-scope with its own data attribute and clearError() method
-            return {
-                restrict: "E",
-                template: '<div ng-show="hasError" class="bg-warning">' +
-                    '    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>' +
-                    '    <div>' +
-                    '        <label>Error code:</label>' +
-                    '        <span ng-bind="status" />' +
-                    '    </div>' +
-                    '   <div ng-bind="status_data"></div>' +
-                    '</div>'
+            if (scope.item.type === "menuref") {
+                scope.menuConfiguration = {"brandtitle": "", "type": "menu", "fields": []};
+                scope.getMenuConfiguration();
             }
-    })
 
-    .directive('page', function ($compile) {
-        return {
-            restrict: 'E',
-            scope: {
-                pageId: '=pageid'  // because pageId will translate to page-id
-            },
+            console.log("Field template" + template);
 
-            controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
-                function ($scope, $location, $routeParams, message, CosmosService, settings) {
-
-                    $scope.getConfigurationByUrl = function (url) {
-                        CosmosService.get(url, function (data) {
-                                $scope.pagedef = data;
-                            },
-                            function (data, status) {
-                                //TODO: $scope.processError(data, status);
-                            }
-                        );
-                    };
-
-                    $scope.getConfiguration = function () {
-                        if (!$scope.pageId) {
-                            return;
-                        }
-
-                        $scope.appPath = $routeParams.appPath;
-
-                        settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
-                                var url = '/service/' + objectName + '/' + $scope.pageId + '/';
-                                $scope.getConfigurationByUrl(url);
-                            },
-                            function (status, data) {
-                                var url = '/service/cosmos.pages/' + $scope.pageId + '/';
-                                $scope.getConfigurationByUrl(url);
-                            }
-                        );
-                    };
-
-                    $scope.getTemplate = function () {
-                        var template = '' +
-                            '    <div ng-repeat="field in pagedef.fields">\n' +
-                            '        <field item="field"></field>\n' +
-                            '    </div>\n' +
-                            '{{page}}' +
-                            '';
-                        return template;
-                    }
-                }],
-
-            link: function (scope, element, attributes) {
-                console.log("Creating page");
-                scope.pagedef = [];
-                var template = scope.getTemplate();
-                if (!template) {
-                    return;
-                }
-
-                scope.getConfiguration();
-
-                var newElement = angular.element(template);
-                $compile(newElement)(scope);
-                element.replaceWith(newElement);
-            }
+            var newElement = angular.element(template);
+            $compile(newElement)(scope);
+            element.replaceWith(newElement);
         }
-    })
-
-    .directive('objectview', function ($compile) {
-        return {
-            restrict: 'E',
-            scope: {
-                itemId: '=',
-                configId: '='
-            },
-
-            controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
-                function ($scope, $location, $routeParams, message, CosmosService, settings) {
-
-                    $scope.getConfigurationByUrl = function (url) {
-                        CosmosService.get(url, function (data) {
-                                $scope.config = data;
-                                $scope.loadSingleItem();
-                            },
-                            function (data, status) {
-                                //$scope.processError(data, status);
-                            }
-                        );
-                    };
-
-
-                    $scope.getConfiguration = function () {
-                        $scope.appPath = $routeParams.appPath;
-
-                        settings.getAppSettings($scope.appPath, "singleitemconfigobject", function(objectName){
-                                 var url = '/service/'+objectName+'/' + $scope.configId + '/';
-                                $scope.getConfigurationByUrl(url);
-                            },
-                            function(status, data){
-                                var url = '/service/cosmos.singleitemconfig/' + $scope.configId + '/';
-                                $scope.getConfigurationByUrl(url);
-                            }
-                        );
-                    };
-
-                    $scope.loadSingleItem = function () {
-
-                        var objectName = $scope.config.objectName;
-                        var columns = $scope.config.columns;
-
-                        var columnsCsv = '';
-                        angular.forEach(columns, function (column, index) {
-                            columnsCsv += column.name + ",";
-                        });
-
-                        var url = '/service/' + objectName + '/' + $scope.itemId + '/?columns=' + columnsCsv;
-
-                        CosmosService.get(url, function (data) {
-                                $scope.data = data;
-                            },
-                            function (data, status) {
-                                //TODO: $scope.processError(data, status);
-                            }
-                        );
-                    };
-
-                    $scope.getTemplate = function () {
-                        var template = '' +
-                            '    <div ng-repeat="field in config.fields">\n' +
-                            '        <field item="field" val="$parent.data"></field>\n' +
-                            '    </div>\n' +
-                            '';
-                        return template;
-                    };
-                }],
-
-            link: function (scope, element, attributes) {
-                console.log("Creating page");
-                scope.pagedef = [];
-                var template = scope.getTemplate();
-                if (!template) {
-                    return;
-                }
-
-                scope.getConfiguration();
-
-                var newElement = angular.element(template);
-                $compile(newElement)(scope);
-                element.replaceWith(newElement);
-            }
-        }
-    })
-
-;
+    };
+});

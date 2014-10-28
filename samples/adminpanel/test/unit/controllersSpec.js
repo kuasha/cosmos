@@ -3,8 +3,8 @@
 /* jasmine specs for controllers go here */
 
 describe('controllers', function(){
-  beforeEach(module('myApp'));
-  beforeEach(module('myApp.controllers'));
+  beforeEach(module('cosmosUI'));
+  beforeEach(module('cosmosUI.controllers'));
 
 
     it('should have HomeCtrl defined', inject(function($controller) {
