@@ -18,8 +18,8 @@ angular.module('myApp.directives', []).
                 val: '='
             },
 
-            controller: ['$scope', '$location', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable',
-                function ($scope, $location, message, CosmosService, namedcolection, calculator, hashtable) {
+            controller: ['$scope', '$location','$routeParams', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable','cosmos.cachedloader',
+                function ($scope, $location, $routeParams, message, CosmosService, namedcolection, calculator, hashtable, cachedloader) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
@@ -125,15 +125,55 @@ angular.module('myApp.directives', []).
                     }
                 };
 
+                //TODO: Duplicated code - create a service instead
+                $scope.getAppSettings = function(appPath, settingsName, successCallback, errorCallback){
+                    var appCache = "Application." + appPath;
+                    var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
+
+                    cachedloader.get(appCache, appUrl,
+                        function (applications) {
+                            if(applications && applications.length == 1){
+                                var application = applications[0];
+                            }
+
+                            if(application && application["settings"]
+                                && application["settings"]["objecrmap"]
+                                && application["settings"]["objecrmap"][settingsName]){
+                                successCallback(application["settings"]["objecrmap"][settingsName]);
+                                            + "/" + $scope.item.value.listId + '/';
+                            }
+                            else{
+                                errorCallback("Settings not found for the given name.", 404);
+                            }
+
+                        },
+                        function(data, status){
+                            errorCallback(data, status);
+                        });
+                };
+
                 //START MenuRef methods
-                $scope.getMenuConfiguration = function () {
-                    var url = '/service/cosmos.menuconfigurations/' + $scope.item.value.menuId + '/';
+                $scope.getMenuConfigurationByUrl = function (url) {
                     CosmosService.get(url, function (data) {
                             $scope.data = {};
                             $scope.menuConfiguration = data;
                         },
                         function (data, status) {
                             //TODO: $scope.processError(data, status);
+                        }
+                    );
+                };
+
+                $scope.getMenuConfiguration = function () {
+                    $scope.appPath = $routeParams.appPath;
+
+                    $scope.getAppSettings($scope.appPath, "menuconfigobject", function(objectName){
+                             var url = '/service/'+objectName+'/' + $scope.item.value.menuId + '/';
+                            $scope.getMenuConfigurationByUrl(url);
+                        },
+                        function(status, data){
+                            var url = '/service/cosmos.menuconfigurations/' + $scope.item.value.menuId + '/';
+                            $scope.getMenuConfigurationByUrl(url);
                         }
                     );
                 };
@@ -167,8 +207,7 @@ angular.module('myApp.directives', []).
                     $scope.getListDataBy(columns, objectName);
                 };
 
-                $scope.getListConfiguration = function () {
-                    var url = '/service/cosmos.listconfigurations/' + $scope.item.value.listId + '/';
+                $scope.getListConfigurationByUrl = function (url) {
                     CosmosService.get(url, function (data) {
                             $scope.data = {};
                             $scope.listConfiguration = data;
@@ -180,11 +219,24 @@ angular.module('myApp.directives', []).
                     );
                 };
 
+                $scope.getListConfiguration = function () {
+                    $scope.appPath = $routeParams.appPath;
+
+                    $scope.getAppSettings($scope.appPath, "listconfigobject", function(objectName){
+                             var url = '/service/'+objectName+'/' + $scope.item.value.listId + '/';
+                            $scope.getListConfigurationByUrl(url);
+                        },
+                        function(status, data){
+                            var url = '/service/cosmos.listconfigurations/' + $scope.item.value.listId + '/';
+                            $scope.getListConfigurationByUrl(url);
+                        }
+                    );
+                };
+
                 //END List methods
 
                 // START FormRef methods
-                $scope.getFormConfiguration = function () {
-                    var url = '/service/cosmos.forms/' + $scope.item.value.formId + '/';
+                $scope.getFormConfigurationByUrl = function (url) {
                     CosmosService.get(url, function (data) {
                             $scope.data = {};
                             $scope.form = data;
@@ -194,6 +246,20 @@ angular.module('myApp.directives', []).
                         },
                         function (data, status) {
                             //TODO: $scope.processError(data, status);
+                        }
+                    );
+                };
+
+                $scope.getFormConfiguration = function () {
+                    $scope.appPath = $routeParams.appPath;
+
+                    $scope.getAppSettings($scope.appPath, "formconfigobject", function(objectName){
+                             var url = '/service/'+objectName+'/' + $scope.item.value.formId + '/';
+                            $scope.getFormConfigurationByUrl(url);
+                        },
+                        function(status, data){
+                            var url = '/service/cosmos.forms/' + $scope.item.value.formId + '/';
+                            $scope.getFormConfigurationByUrl(url);
                         }
                     );
                 };
@@ -619,18 +685,57 @@ angular.module('myApp.directives', []).
 
             controller: ['$scope', '$location', 'message', 'CosmosService',
                     function ($scope, $location, message, CosmosService) {
-                $scope.getConfiguration = function () {
-                    if(! $scope.pageId){
-                        return;
-                    }
 
-                    var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+                //TODO: Duplicated code - create a service instead
+                $scope.getAppSettings = function(appPath, settingsName, successCallback, errorCallback){
+                        var appCache = "Application." + appPath;
+                        var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
 
+                        cachedloader.get(appCache, appUrl,
+                            function (applications) {
+                                if(applications && applications.length == 1){
+                                    var application = applications[0];
+                                }
+
+                                if(application && application["settings"]
+                                    && application["settings"]["objecrmap"]
+                                    && application["settings"]["objecrmap"][settingsName]){
+                                    successCallback(application["settings"]["objecrmap"][settingsName]);
+                                }
+                                else{
+                                    errorCallback("Settings not found for the given name.", 404);
+                                }
+
+                            },
+                            function(data, status){
+                                errorCallback(data, status);
+                            });
+                };
+
+                $scope.getConfigurationByUrl = function (url) {
                     CosmosService.get(url, function (data) {
                             $scope.pagedef = data;
                         },
                         function (data, status) {
                             //TODO: $scope.processError(data, status);
+                        }
+                    );
+                };
+
+                $scope.getConfiguration = function () {
+                    if(! $scope.pageId){
+                        return;
+                    }
+
+                    $scope.appPath = $routeParams.appPath;
+
+                    $scope.getAppSettings($scope.appPath, "pageconfigobject", function(objectName){
+                             var url = '/service/'+objectName+'/' + $scope.pageId + '/';
+                            $scope.getConfigurationByUrl(url);
+                        },
+                        function(status, data){
+                            var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+                            $scope.getConfigurationByUrl(url);
                         }
                     );
                 };
@@ -671,17 +776,57 @@ angular.module('myApp.directives', []).
                 configId: '='
             },
 
-            controller: ['$scope', '$location', 'message', 'CosmosService',
-                function ($scope, $location, message, CosmosService) {
-                    $scope.getConfiguration = function () {
-                        var url = '/service/cosmos.singleitemconfig/' + $scope.configId + '/';
+            controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService',
+                function ($scope, $location, $routeParams, message, CosmosService) {
 
+                    //TODO: Duplicated code - create a service instead
+                    $scope.getAppSettings = function(appPath, settingsName, successCallback, errorCallback){
+                        var appCache = "Application." + appPath;
+                        var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
+
+                        cachedloader.get(appCache, appUrl,
+                            function (applications) {
+                                if(applications && applications.length == 1){
+                                    var application = applications[0];
+                                }
+
+                                if(application && application["settings"]
+                                    && application["settings"]["objecrmap"]
+                                    && application["settings"]["objecrmap"][settingsName]){
+                                    successCallback(application["settings"]["objecrmap"][settingsName]);
+                                }
+                                else{
+                                    errorCallback("Settings not found for the given name.", 404);
+                                }
+
+                            },
+                            function(data, status){
+                                errorCallback(data, status);
+                            });
+                    };
+
+                    $scope.getConfigurationByUrl = function (url) {
                         CosmosService.get(url, function (data) {
                                 $scope.config = data;
                                 $scope.loadSingleItem();
                             },
                             function (data, status) {
                                 //$scope.processError(data, status);
+                            }
+                        );
+                    };
+
+
+                    $scope.getConfiguration = function () {
+                        $scope.appPath = $routeParams.appPath;
+
+                        $scope.getAppSettings($scope.appPath, "singleitemconfigobject", function(objectName){
+                                 var url = '/service/'+objectName+'/' + $scope.configId + '/';
+                                $scope.getConfigurationByUrl(url);
+                            },
+                            function(status, data){
+                                var url = '/service/cosmos.singleitemconfig/' + $scope.configId + '/';
+                                $scope.getConfigurationByUrl(url);
                             }
                         );
                     };

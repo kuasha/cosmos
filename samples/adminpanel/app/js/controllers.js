@@ -59,8 +59,8 @@ angular.module('myApp.controllers', [])
             };
     }])
 
-    .controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'message',
-        function ($scope, $routeParams, $location, CosmosService, message) {
+    .controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'message', 'cosmos.cachedloader',
+        function ($scope, $routeParams, $location, CosmosService, message, cachedloader) {
 
             $scope.pageRefs = [];
 
@@ -117,7 +117,9 @@ angular.module('myApp.controllers', [])
                     return;
                 }
 
-                CosmosService.get(url, function (returnedData) {
+                var appCache = "Application." + ($scope.appPath || $scope.appId);
+
+                cachedloader.get(appCache, url, function (returnedData) {
                         if (!returnedData || returnedData.length != 1) {
                             //var msg = "Exactly one application is expected for path = "
                             //    + $scope.appPath + ". Found = " + ((!returnedData) ? 0 : returnedData.length);
@@ -629,7 +631,7 @@ angular.module('myApp.controllers', [])
         };
 
         $scope.getData = function () {
-            var url = '/service/cosmos.listconfigurations/'
+            var url = '/service/cosmos.listconfigurations/';
 
             CosmosService.get(url, function (data) {
                     $scope.lists = data;
@@ -1016,6 +1018,8 @@ angular.module('myApp.controllers', [])
 
             $scope.getConfiguration = function () {
                 if ($scope.formId) {
+
+                    //TODO: get object name from application configuration
                     var url = '/service/cosmos.forms/' + $scope.formId + '/';
 
                     CosmosService.get(url, function (data) {
@@ -1198,36 +1202,74 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('PageViewCtrl', ['$scope', '$routeParams', '$location', 'CosmosService',
-    function ($scope, $routeParams, $location, CosmosService) {
-        $scope.pageId = $routeParams.pageId;
+    .controller('PageViewCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'cosmos.cachedloader',
+        function ($scope, $routeParams, $location, CosmosService, cachedloader) {
+            $scope.pageId = $routeParams.pageId;
 
-        $scope.getConfiguration = function () {
-            var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+            //TODO: Duplicated code - create a service instead
+            $scope.getAppSettings = function (appPath, settingsName, successCallback, errorCallback) {
+                var appCache = "Application." + appPath;
+                var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
 
-            CosmosService.get(url, function (data) {
-                    if(data.loginRequired && !loggedIn()){
-                        var curUrl = $location.url();
-                        $location.url("/login/?redirect="+curUrl);
+                cachedloader.get(appCache, appUrl,
+                    function (applications) {
+                        if (applications && applications.length == 1) {
+                            var application = applications[0];
+                        }
+
+                        if (application && application["settings"]
+                            && application["settings"]["objecrmap"]
+                            && application["settings"]["objecrmap"][settingsName]) {
+                            successCallback(application["settings"]["objecrmap"][settingsName]);
+                        }
+                        else {
+                            errorCallback("Settings not found for the given name.", 404);
+                        }
+
+                    },
+                    function (data, status) {
+                        errorCallback(data, status);
+                    });
+            };
+
+            $scope.getConfigurationByUrl = function (url) {
+                CosmosService.get(url, function (data) {
+                        if (data.loginRequired && !loggedIn()) {
+                            var curUrl = $location.url();
+                            $location.url("/login/?redirect=" + curUrl);
+                        }
+                        else {
+                            $scope.page = data;
+                        }
+                    },
+                    function (data, status) {
+                        //$scope.processError(data, status);
                     }
-                    else {
-                        $scope.page = data;
+                );
+            };
+
+            $scope.getConfiguration = function () {
+                $scope.appPath = $routeParams.appPath;
+
+                $scope.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
+                        var url = '/service/' + objectName + '/' + $scope.pageId + '/';
+                        $scope.getConfigurationByUrl(url);
+                    },
+                    function (status, data) {
+                        var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+                        $scope.getConfigurationByUrl(url);
                     }
-                },
-                function (data, status) {
-                    //$scope.processError(data, status);
-                }
-            );
-        };
+                );
+            };
 
-        $scope.init = function() {
-            $scope.getConfiguration();
-        };
+            $scope.init = function () {
+                $scope.getConfiguration();
+            };
 
-        $scope.init();
+            $scope.init();
 
 
-    }])
+        }])
 
     .controller('SingleItemViewCtrl', ['$scope', '$routeParams', function ($scope, $routeParams) {
         $scope.configId = $routeParams.configId;
