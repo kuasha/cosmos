@@ -18,8 +18,8 @@ angular.module('myApp.directives', []).
                 val: '='
             },
 
-            controller: ['$scope', '$location','$routeParams', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable','cosmos.cachedloader',
-                function ($scope, $location, $routeParams, message, CosmosService, namedcolection, calculator, hashtable, cachedloader) {
+            controller: ['$scope', '$location','$routeParams', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable','cosmos.settings',
+                function ($scope, $location, $routeParams, message, CosmosService, namedcolection, calculator, hashtable, settings) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
@@ -125,33 +125,6 @@ angular.module('myApp.directives', []).
                     }
                 };
 
-                //TODO: Duplicated code - create a service instead
-                $scope.getAppSettings = function(appPath, settingsName, successCallback, errorCallback){
-                    var appCache = "Application." + appPath;
-                    var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
-
-                    cachedloader.get(appCache, appUrl,
-                        function (applications) {
-                            if(applications && applications.length == 1){
-                                var application = applications[0];
-                            }
-
-                            if(application && application["settings"]
-                                && application["settings"]["objecrmap"]
-                                && application["settings"]["objecrmap"][settingsName]){
-                                successCallback(application["settings"]["objecrmap"][settingsName]);
-                                            + "/" + $scope.item.value.listId + '/';
-                            }
-                            else{
-                                errorCallback("Settings not found for the given name.", 404);
-                            }
-
-                        },
-                        function(data, status){
-                            errorCallback(data, status);
-                        });
-                };
-
                 //START MenuRef methods
                 $scope.getMenuConfigurationByUrl = function (url) {
                     CosmosService.get(url, function (data) {
@@ -167,7 +140,7 @@ angular.module('myApp.directives', []).
                 $scope.getMenuConfiguration = function () {
                     $scope.appPath = $routeParams.appPath;
 
-                    $scope.getAppSettings($scope.appPath, "menuconfigobject", function(objectName){
+                    settings.getAppSettings($scope.appPath, "menuconfigobject", function(objectName){
                              var url = '/service/'+objectName+'/' + $scope.item.value.menuId + '/';
                             $scope.getMenuConfigurationByUrl(url);
                         },
@@ -222,7 +195,7 @@ angular.module('myApp.directives', []).
                 $scope.getListConfiguration = function () {
                     $scope.appPath = $routeParams.appPath;
 
-                    $scope.getAppSettings($scope.appPath, "listconfigobject", function(objectName){
+                    settings.getAppSettings($scope.appPath, "listconfigobject", function(objectName){
                              var url = '/service/'+objectName+'/' + $scope.item.value.listId + '/';
                             $scope.getListConfigurationByUrl(url);
                         },
@@ -253,7 +226,7 @@ angular.module('myApp.directives', []).
                 $scope.getFormConfiguration = function () {
                     $scope.appPath = $routeParams.appPath;
 
-                    $scope.getAppSettings($scope.appPath, "formconfigobject", function(objectName){
+                    settings.getAppSettings($scope.appPath, "formconfigobject", function(objectName){
                              var url = '/service/'+objectName+'/' + $scope.item.value.formId + '/';
                             $scope.getFormConfigurationByUrl(url);
                         },
@@ -683,73 +656,47 @@ angular.module('myApp.directives', []).
                 pageId: '=pageid'  // because pageId will translate to page-id
             },
 
-            controller: ['$scope', '$location', 'message', 'CosmosService',
-                    function ($scope, $location, message, CosmosService) {
+            controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
+                function ($scope, $location, $routeParams, message, CosmosService, settings) {
 
-                //TODO: Duplicated code - create a service instead
-                $scope.getAppSettings = function(appPath, settingsName, successCallback, errorCallback){
-                        var appCache = "Application." + appPath;
-                        var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
-
-                        cachedloader.get(appCache, appUrl,
-                            function (applications) {
-                                if(applications && applications.length == 1){
-                                    var application = applications[0];
-                                }
-
-                                if(application && application["settings"]
-                                    && application["settings"]["objecrmap"]
-                                    && application["settings"]["objecrmap"][settingsName]){
-                                    successCallback(application["settings"]["objecrmap"][settingsName]);
-                                }
-                                else{
-                                    errorCallback("Settings not found for the given name.", 404);
-                                }
-
+                    $scope.getConfigurationByUrl = function (url) {
+                        CosmosService.get(url, function (data) {
+                                $scope.pagedef = data;
                             },
-                            function(data, status){
-                                errorCallback(data, status);
-                            });
-                };
+                            function (data, status) {
+                                //TODO: $scope.processError(data, status);
+                            }
+                        );
+                    };
 
-                $scope.getConfigurationByUrl = function (url) {
-                    CosmosService.get(url, function (data) {
-                            $scope.pagedef = data;
-                        },
-                        function (data, status) {
-                            //TODO: $scope.processError(data, status);
+                    $scope.getConfiguration = function () {
+                        if (!$scope.pageId) {
+                            return;
                         }
-                    );
-                };
 
-                $scope.getConfiguration = function () {
-                    if(! $scope.pageId){
-                        return;
+                        $scope.appPath = $routeParams.appPath;
+
+                        settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
+                                var url = '/service/' + objectName + '/' + $scope.pageId + '/';
+                                $scope.getConfigurationByUrl(url);
+                            },
+                            function (status, data) {
+                                var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+                                $scope.getConfigurationByUrl(url);
+                            }
+                        );
+                    };
+
+                    $scope.getTemplate = function () {
+                        var template = '' +
+                            '    <div ng-repeat="field in pagedef.fields">\n' +
+                            '        <field item="field"></field>\n' +
+                            '    </div>\n' +
+                            '{{page}}' +
+                            '';
+                        return template;
                     }
-
-                    $scope.appPath = $routeParams.appPath;
-
-                    $scope.getAppSettings($scope.appPath, "pageconfigobject", function(objectName){
-                             var url = '/service/'+objectName+'/' + $scope.pageId + '/';
-                            $scope.getConfigurationByUrl(url);
-                        },
-                        function(status, data){
-                            var url = '/service/cosmos.pages/' + $scope.pageId + '/';
-                            $scope.getConfigurationByUrl(url);
-                        }
-                    );
-                };
-
-                $scope.getTemplate = function(){
-                    var template = ''+
-                                    '    <div ng-repeat="field in pagedef.fields">\n' +
-                                    '        <field item="field"></field>\n' +
-                                    '    </div>\n'+
-                                    '{{page}}'+
-                                    '';
-                    return template;
-                }
-            }],
+                }],
 
             link: function (scope, element, attributes) {
                 console.log("Creating page");
@@ -776,34 +723,8 @@ angular.module('myApp.directives', []).
                 configId: '='
             },
 
-            controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService',
-                function ($scope, $location, $routeParams, message, CosmosService) {
-
-                    //TODO: Duplicated code - create a service instead
-                    $scope.getAppSettings = function(appPath, settingsName, successCallback, errorCallback){
-                        var appCache = "Application." + appPath;
-                        var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
-
-                        cachedloader.get(appCache, appUrl,
-                            function (applications) {
-                                if(applications && applications.length == 1){
-                                    var application = applications[0];
-                                }
-
-                                if(application && application["settings"]
-                                    && application["settings"]["objecrmap"]
-                                    && application["settings"]["objecrmap"][settingsName]){
-                                    successCallback(application["settings"]["objecrmap"][settingsName]);
-                                }
-                                else{
-                                    errorCallback("Settings not found for the given name.", 404);
-                                }
-
-                            },
-                            function(data, status){
-                                errorCallback(data, status);
-                            });
-                    };
+            controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
+                function ($scope, $location, $routeParams, message, CosmosService, settings) {
 
                     $scope.getConfigurationByUrl = function (url) {
                         CosmosService.get(url, function (data) {
@@ -820,7 +741,7 @@ angular.module('myApp.directives', []).
                     $scope.getConfiguration = function () {
                         $scope.appPath = $routeParams.appPath;
 
-                        $scope.getAppSettings($scope.appPath, "singleitemconfigobject", function(objectName){
+                        settings.getAppSettings($scope.appPath, "singleitemconfigobject", function(objectName){
                                  var url = '/service/'+objectName+'/' + $scope.configId + '/';
                                 $scope.getConfigurationByUrl(url);
                             },

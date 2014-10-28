@@ -1202,35 +1202,9 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('PageViewCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'cosmos.cachedloader',
-        function ($scope, $routeParams, $location, CosmosService, cachedloader) {
+    .controller('PageViewCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'cosmos.settings',
+        function ($scope, $routeParams, $location, CosmosService, settings) {
             $scope.pageId = $routeParams.pageId;
-
-            //TODO: Duplicated code - create a service instead
-            $scope.getAppSettings = function (appPath, settingsName, successCallback, errorCallback) {
-                var appCache = "Application." + appPath;
-                var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
-
-                cachedloader.get(appCache, appUrl,
-                    function (applications) {
-                        if (applications && applications.length == 1) {
-                            var application = applications[0];
-                        }
-
-                        if (application && application["settings"]
-                            && application["settings"]["objecrmap"]
-                            && application["settings"]["objecrmap"][settingsName]) {
-                            successCallback(application["settings"]["objecrmap"][settingsName]);
-                        }
-                        else {
-                            errorCallback("Settings not found for the given name.", 404);
-                        }
-
-                    },
-                    function (data, status) {
-                        errorCallback(data, status);
-                    });
-            };
 
             $scope.getConfigurationByUrl = function (url) {
                 CosmosService.get(url, function (data) {
@@ -1251,7 +1225,7 @@ angular.module('myApp.controllers', [])
             $scope.getConfiguration = function () {
                 $scope.appPath = $routeParams.appPath;
 
-                $scope.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
+                settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
                         var url = '/service/' + objectName + '/' + $scope.pageId + '/';
                         $scope.getConfigurationByUrl(url);
                     },
@@ -1275,5 +1249,4 @@ angular.module('myApp.controllers', [])
         $scope.configId = $routeParams.configId;
         $scope.itemId = $routeParams.itemId;
     }])
-
-;;
+;
