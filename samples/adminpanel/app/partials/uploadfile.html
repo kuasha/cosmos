@@ -38,7 +38,7 @@
     </tbody>
 </table>
 
-<form id="uploadForm" name="uploadForm" method='POST' enctype='multipart/form-data' target='submit-iframe' action="/gridfs/">
+<form ng-init="setAction()" id="uploadForm" name="uploadForm" method='POST' enctype='multipart/form-data' target='submit-iframe' action="/gridfs/">
     <div class="file-list" id="fileList">
         <input class="file-selector" name="uploadedfile" type="file" onchange="angular.element(this).scope().fileNameChanged(this)" />
     </div>

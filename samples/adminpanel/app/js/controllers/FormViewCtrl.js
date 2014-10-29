@@ -88,6 +88,4 @@ controllers.controller('FormViewCtrl', ['$scope', '$routeParams', '$location', '
             }
         };
 
-        $scope.getConfiguration();
-
     }]);

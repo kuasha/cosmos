@@ -6,7 +6,10 @@ controllers.controller('FileUploadCtrl', ['$scope', '$modal', '$routeParams', 'C
     function ($scope, $modal, $routeParams, CosmosService) {
 
         $scope.fileObjectName = $routeParams.fileObjectName;
-        document.uploadForm.action = "/gridfs/" + $scope.fileObjectName + "/";
+
+        $scope.setAction = function() {
+            document.uploadForm.action = "/gridfs/" + $scope.fileObjectName + "/";
+        };
 
         $scope.clearError = function () {
             $scope.hasError = false;
