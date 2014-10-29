@@ -6,8 +6,7 @@ module.exports = function(config){
     files : [
       'app/bower_components/jquery/dist/jquery.js',
       'app/bower_components/jquery-ui/jquery-ui.js',
-
-      "lib/js/bootstrap.min.js",
+      "app/bower_components/bootstrap/dist/js/bootstrap.min.js",
 
       'app/bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js',
 
