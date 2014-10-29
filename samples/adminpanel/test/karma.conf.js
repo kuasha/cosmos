@@ -4,9 +4,10 @@ module.exports = function(config){
     basePath : '../',
 
     files : [
-      "lib/js/jquery.min.js",
+      'app/bower_components/jquery/dist/jquery.js',
+      'app/bower_components/jquery-ui/jquery-ui.js',
+
       "lib/js/bootstrap.min.js",
-      "lib/js/jquery-ui.js",
 
       'app/bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js',
 
@@ -50,5 +51,3 @@ module.exports = function(config){
 
   });
 };
-
-
