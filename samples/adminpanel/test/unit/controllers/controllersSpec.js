@@ -84,6 +84,4 @@ describe('controllers', function(){
         var msgCtrl = $controller('UsersCtrl', { $scope: {} });
 
     }));
-
-
 });
