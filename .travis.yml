@@ -8,6 +8,15 @@ install:
   - pip install mongolog
   - pip install mock
   - pip install requests
+  - npm install karma
+  - npm install karma-cli
+  - npm install karma-jasmine
+  - npm install karma-coverage
+  - npm install karma-phantomjs-launcher
+  - npm install karma-chrome-launcher
+  - npm install karma-firefox-launcher
+  - npm install karma-junit-reporter
+
 
 services:
   - mongodb
@@ -16,4 +25,6 @@ before_script:
  - mongo 127.0.0.1/cosmos --eval 'db.cosmos.users.insert({ "username":"admin","roles":["43425097-e630-41ea-88eb-17b339339706"],"email":"admin@cosmosframework.com","password":"hmac:1ddb4e6b0b810f59018babbb5dc0eed4"});'
 
 # command to run tests
-script: python setup.py test
+script:
+  - python setup.py test
+  - karma start --single-run --browsers PhantomJS samples/adminpanel/test/karma.conf.js

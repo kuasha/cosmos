@@ -16,5 +16,8 @@
     "angular-ui-ace":"~0.1.x",
     "angular-json-human":"~1.2.x",
     "angular-local-storage": ""
+  },
+  "resolutions": {
+    "angular": "1.3.0"
   }
 }
