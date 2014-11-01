@@ -3,8 +3,8 @@
 /* jasmine specs for controllers go here */
 
 describe('controllers', function(){
-  beforeEach(module('cosmosUI'));
-  beforeEach(module('cosmosUI.controllers'));
+    beforeEach(module('cosmosUI'));
+    beforeEach(module('cosmosUI.controllers'));
 
 
     it('should have HomeCtrl defined', inject(function($controller) {
@@ -23,12 +23,11 @@ describe('controllers', function(){
 
     }));
 
-    /*
-    it('should have ShowJsonDataCtrl defined', inject(function($controller) {
+
+    xit('should have ShowJsonDataCtrl defined', inject(function($controller) {
         var msgCtrl = $controller('ShowJsonDataCtrl', { $scope: {} });
 
     }));
-    */
 
     it('should have SingleItemViewCtrl defined', inject(function($controller) {
         var msgCtrl = $controller('SingleItemViewCtrl', { $scope: {} });

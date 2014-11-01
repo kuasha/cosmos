@@ -7,9 +7,7 @@ describe('Unit testing field directive', function () {
     var $rootScope;
     var $httpBackend;
 
-    var widgetValue = {"_cosmos_service_array_result_": true, "_d": "[{\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a7220edb05831be77e51b\", \"name\": \"cosmos.widget_error_banner.html\", \"template\": \"<div ng-show=\\\"hasError\\\" class=\\\"bg-warning\\\">\\n    <button class=\\\"btn btn-xs btn-danger glyphicon glyphicon-remove pull-right\\\" ng-click=\\\"clearError();\\\"><\/button>\\n    <div><label>Error code:<\/label><span ng-bind=\\\"status\\\" /><\/div> \\n    <div ng-bind=\\\"status_data\\\"><\/div>\\n<\/div>\", \"createtime\": \"2014-10-24 15:37:04.133380\"}, {\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a722eedb05831be77e51c\", \"name\": \"cosmos.basiclist.html\", \"template\": \"<div>\\n<error ng-include=\\\" 'cosmos.widget_error_banner.html' \\\" />\\n<\/div>\\n<h3>{{listConfiguration.title}}<\/h3>\\n<div class=\\\"left-col\\\">\\n<\/div>\\n<table class=\\\"table table-hover right-col\\\">\\n    <thead>\\n        <tr>\\n            <th ng-repeat=\\\"column in listConfiguration.columns\\\" ng-if=\\\"column.showInList\\\">{{column.title}}<\/th>\\n            <th ng-if=\\\"listConfiguration.editable && listConfiguration.itemeditor_id\\\">&nbsp;<\/th>\\n        <\/tr>\\n    <\/thead>\\n    <tbody>\\n        <tr ng-repeat=\\\"item in data\\\">\\n            <td ng-repeat=\\\"column in listConfiguration.columns\\\" ng-click=\\\"showDetails('lg', item, listConfiguration)\\\" ng-if=\\\"column.showInList\\\">\\n                <div ng-if=\\\"column.widget && column.widget.length>0\\\" ng-include=\\\"column.widget\\\">\\n                <\/div>                \\n                \\n                <div ng-if=\\\"!column.widget\\\">\\n                    {{item[column.name]}}\\n                <\/div>\\n                \\n            <\/td>\\n            <td ng-if=\\\"listConfiguration.editable &&listConfiguration.itemeditor_id\\\">\\n                <a href=\\\"#/forms/{{listConfiguration.itemeditor_id}}/{{item._id}}\\\">Edit<\/a>\\n            <\/td>\\n        <\/tr>\\n    <\/tbody>\\n<\/table>\", \"createtime\": \"2014-10-24 15:37:18.685009\"}, {\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a724cedb05831be77e51e\", \"name\": \"cosmos.editor-view.html\", \"template\": \"<div ui-ace class=\\\"editor\\\" readonly=\\\"readonly\\\" ng-model=\\\"item[column.name]\\\"><\/div>\", \"createtime\": \"2014-10-24 15:37:48.629870\"}, {\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a728aedb05831be77e51f\", \"name\": \"cosmos.listconfig-columns.html\", \"template\": \"<div ng-repeat=\\\"column in item.columns\\\">\\n    {{column.title}} ({{column.name}})\\n<\/div>\", \"createtime\": \"2014-10-24 15:38:50.641060\"}, {\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a7297edb05831be77e520\", \"name\": \"cosmos.form_list_widget.html\", \"template\": \"<div ng-repeat=\\\"item in data\\\"><a href=\\\"#/forms/{{item['_id']}}\\\">{{item['title']}}<\/a> <a class=\\\"btn btn-xs btn-warning glyphicon glyphicon-edit pull-right\\\" href=\\\"#/formdesign/{{item['_id']}}\\\"><\/a><\/div>\", \"createtime\": \"2014-10-24 15:39:03.216181\"}, {\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a72a1edb05831be77e521\", \"name\": \"cosmos.forms-list.html\", \"template\": \" <div>\\n <error ng-include=\\\" 'cosmos.widget_error_banner.html' \\\" /><\/div>\\n <h3>{{listConfiguration.title}}<\/h3> \\n <div class=\\\"left-col\\\"><\/div><div class=\\\"right-col\\\" ng-include=\\\" 'cosmos.form_list_widget.html' \\\" ><\/div>\\n <a class=\\\"btn btn-primary\\\" href=\\\"#/formdesign/\\\">New form<\/a>\", \"createtime\": \"2014-10-24 15:39:13.579272\"}]"
-    };
-
+    var widgetValue = {"_cosmos_service_array_result_": true, "_d": "[{\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a7220edb05831be77e51b\", \"name\": \"cosmos.widget_error_banner.html\", \"template\": \"<div ng-show=\\\"hasError\\\" class=\\\"bg-warning\\\">\\n    <button class=\\\"btn btn-xs btn-danger glyphicon glyphicon-remove pull-right\\\" ng-click=\\\"clearError();\\\"><\/button>\\n    <div><label>Error code:<\/label><span ng-bind=\\\"status\\\" /><\/div> \\n    <div ng-bind=\\\"status_data\\\"><\/div>\\n<\/div>\", \"createtime\": \"2014-10-24 15:37:04.133380\"}, {\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a722eedb05831be77e51c\", \"name\": \"cosmos.basiclist.html\", \"template\": \"<div>\\n<error ng-include=\\\" 'cosmos.widget_error_banner.html' \\\" />\\n<\/div>\\n<h3>{{listConfiguration.title}}<\/h3>\\n<div class=\\\"left-col\\\">\\n<\/div>\\n<table class=\\\"table table-hover right-col\\\">\\n    <thead>\\n        <tr>\\n            <th ng-repeat=\\\"column in listConfiguration.columns\\\" ng-if=\\\"column.showInList\\\">{{column.title}}<\/th>\\n            <th ng-if=\\\"listConfiguration.editable && listConfiguration.itemeditor_id\\\">&nbsp;<\/th>\\n        <\/tr>\\n    <\/thead>\\n    <tbody>\\n        <tr ng-repeat=\\\"item in data\\\">\\n            <td ng-repeat=\\\"column in listConfiguration.columns\\\" ng-click=\\\"showDetails('lg', item, listConfiguration)\\\" ng-if=\\\"column.showInList\\\">\\n                <div ng-if=\\\"column.widget && column.widget.length>0\\\" ng-include=\\\"column.widget\\\">\\n                <\/div>                \\n                \\n                <div ng-if=\\\"!column.widget\\\">\\n                    {{item[column.name]}}\\n                <\/div>\\n                \\n            <\/td>\\n            <td ng-if=\\\"listConfiguration.editable &&listConfiguration.itemeditor_id\\\">\\n                <a href=\\\"#/forms/{{listConfiguration.itemeditor_id}}/{{item._id}}\\\">Edit<\/a>\\n            <\/td>\\n        <\/tr>\\n    <\/tbody>\\n<\/table>\", \"createtime\": \"2014-10-24 15:37:18.685009\"}, {\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a724cedb05831be77e51e\", \"name\": \"cosmos.editor-view.html\", \"template\": \"<div ui-ace class=\\\"editor\\\" readonly=\\\"readonly\\\" ng-model=\\\"item[column.name]\\\"><\/div>\", \"createtime\": \"2014-10-24 15:37:48.629870\"}, {\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a728aedb05831be77e51f\", \"name\": \"cosmos.listconfig-columns.html\", \"template\": \"<div ng-repeat=\\\"column in item.columns\\\">\\n    {{column.title}} ({{column.name}})\\n<\/div>\", \"createtime\": \"2014-10-24 15:38:50.641060\"}, {\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a7297edb05831be77e520\", \"name\": \"cosmos.form_list_widget.html\", \"template\": \"<div ng-repeat=\\\"item in data\\\"><a href=\\\"#/forms/{{item['_id']}}\\\">{{item['title']}}<\/a> <a class=\\\"btn btn-xs btn-warning glyphicon glyphicon-edit pull-right\\\" href=\\\"#/formdesign/{{item['_id']}}\\\"><\/a><\/div>\", \"createtime\": \"2014-10-24 15:39:03.216181\"}, {\"owner\": \"544a71a0edb058300640f65e\", \"_id\": \"544a72a1edb05831be77e521\", \"name\": \"cosmos.forms-list.html\", \"template\": \" <div>\\n <error ng-include=\\\" 'cosmos.widget_error_banner.html' \\\" /><\/div>\\n <h3>{{listConfiguration.title}}<\/h3> \\n <div class=\\\"left-col\\\"><\/div><div class=\\\"right-col\\\" ng-include=\\\" 'cosmos.form_list_widget.html' \\\" ><\/div>\\n <a class=\\\"btn btn-primary\\\" href=\\\"#/formdesign/\\\">New form<\/a>\", \"createtime\": \"2014-10-24 15:39:13.579272\"}]"};
 
     beforeEach(module('cosmosUI'));
     beforeEach(module('cosmosUI.directives'));
@@ -27,8 +25,8 @@ describe('Unit testing field directive', function () {
     }));
 
     afterEach(function () {
-        //$httpBackend.verifyNoOutstandingExpectation();
-        //$httpBackend.verifyNoOutstandingRequest();
+        $httpBackend.verifyNoOutstandingExpectation();
+        $httpBackend.verifyNoOutstandingRequest();
     });
 
     it('created htmlblock field correctly', function () {
@@ -178,19 +176,45 @@ describe('Unit testing field directive', function () {
         expect(element.html()).toContain(expectedValue);
     });
 
-    xit('creates cssref field correctly', function () {
+    it('creates cssref field correctly', function () {
 
         $httpBackend.whenGET("/service/cosmos.widgets/").respond(widgetValue);
         $httpBackend.whenGET("monohori.cartlink").respond(widgetValue);
 
         $scope = $rootScope.$new();
-        $scope.cssrefItem = {"type": "image", "href": "testcsslink"};
+        $scope.cssrefItem = {"type": "cssref", "href": "testcsslink"};
 
         var element = $compile('<div><field item="cssrefItem" val="name"></field></div>')($scope);
 
         $scope.$digest();
+        var expectedElementValue = '<!-- cssref put into header  -->';
+        expect(element.html()).toContain(expectedElementValue);
 
-        //TODO: validate that it woprked
+        var headElement = angular.element(document.getElementsByTagName('head')[0]);
+        var expectedValue = '<link data-ng-href="testcsslink" rel="stylesheet" class="ng-scope" href="testcsslink">';
+
+        expect(headElement.html()).toContain(expectedValue);
+    });
+
+    xit('creates form field correctly', function () {
+    });
+
+    xit('creates page field correctly', function () {
+    });
+
+    xit('creates composite field correctly', function () {
+    });
+
+    xit('creates array field correctly', function () {
+    });
+
+    xit('creates formref field correctly', function () {
+    });
+
+    xit('creates lookup field correctly', function () {
+    });
+
+    xit('creates listref field correctly', function () {
     });
 
 });

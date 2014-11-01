@@ -601,14 +601,15 @@ directives.directive('field', function ($compile) {
                 scope.getFormConfiguration();
             }
 
+
             if (scope.item.type === "cssref") {
                 var headElement = angular.element(document.getElementsByTagName('head')[0]);
 
                 var newElement = angular.element(template);
                 $compile(newElement)(scope);
                 headElement.append(newElement);
-                //TODO: maybe remove the "element"
-                return;
+
+                template = "<!-- cssref put into header  -->";
             }
 
             if (scope.item.type === "menuref") {

@@ -13,7 +13,15 @@ Why use cosmos
 ==============
 It is supposed to save most of the time people spend on forms, lists, charts, models, security related code.
 
-Prepare Mongodb 
+
+Test coverage
+=============
+
+Currently there are 50+ test cases for backend / services and 30+ test cases for frontend. It covers about 80% of server 
+side code and 40% of front end code. Tests covers all basic functionality. Target is to get to 90% or more coverage.  
+
+
+Prepare Mongodb
 ===============
 
 Current version of the framework has only mongodb support. You should have mongodb installed configured for replication:
