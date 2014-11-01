@@ -1,15 +1,14 @@
-<error-banner></error-banner>
-
-<form>
-    <div>
-        <h1>{{form.title}}</h1>
-    </div>
-    <ul>
-        <li ng-repeat="field in form.fields">
-            <field item="field" val="data[field.name]"></field>
-        </li>
-    </ul>
-    <button class="btn btn-primary" ng-click="onSubmit()">Submit</button>
-</form>
-<hr />
-{{data}}
+<div class="container theme-showcase" role="main">
+    <error-banner></error-banner>
+    <form ng-init="getConfiguration()">
+        <div>
+            <h1>{{form.title}}</h1>
+        </div>
+        <ul>
+            <li ng-repeat="field in form.fields">
+                <field item="field" val="data[field.name]"></field>
+            </li>
+        </ul>
+        <button class="btn btn-primary" ng-click="onSubmit()">Submit</button>
+    </form>
+</div>

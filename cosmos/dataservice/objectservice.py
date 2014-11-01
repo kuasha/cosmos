@@ -32,16 +32,23 @@ class ObjectService():
 
     def check_access(self, user, object_name, properties, access, check_owner=False):
         roles = self.rbac_service.get_roles(user)
+
+        # We must check all roles for possible access before checking owner access, so we need to loop twice.
+        # Since owner access is suggested rare optimizing for role access here,
         for role in roles:
             has_access = self.rbac_service.has_access(role, object_name, properties, access)
             if has_access:
+                logging.debug("ObjectService:: check _access {0} is granted to {1} as role accessible for properties {2}.".format(object_name, user, properties))
                 return ACCESS_TYPE_ROLE
 
+        for role in roles:
             if check_owner:
                 has_owner_access = self.rbac_service.has_owner_access(role, object_name, properties, access)
                 if has_owner_access:
+                    logging.debug("ObjectService:: check _access {0} is granted to {1} as owner accessible for properties {2}.".format(object_name, user, properties))
                     return ACCESS_TYPE_OWNER_ONLY
 
+        logging.warn("ObjectService:: check _access {0} is DENIED to {1} for properties {2}.".format(object_name, user, properties))
         raise tornado.web.HTTPError(401, "Unauthorized")
 
     def save(self, user, object_name, data):
@@ -51,10 +58,39 @@ class ObjectService():
         properties = self.get_properties(data)
         self.check_access(user, object_name, properties, AccessType.INSERT, True)
 
+        self.create_access_log(user, object_name, AccessType.INSERT)
+
+        data['createtime'] = str(datetime.datetime.now())
+
+        if user:
+            data['owner'] = str(user.get("_id"))
+        else:
+            data['owner'] = SYSTEM_USER
+
+        if data.get("_id"):
+            data["_id"] = ObjectId(str(data["_id"]))
+
+        #TODO: Make sure user can not insert data for object owned by other user. With _id it may be possible.
+
+        result = self.db[object_name].save(data)
+
+        return result
+
+    def insert(self, user, object_name, data):
+        logging.debug("ObjectService::insert::{0}".format(object_name))
+        assert isinstance(data, dict)
+
+        properties = self.get_properties(data)
+        self.check_access(user, object_name, properties, AccessType.INSERT, True)
+
         self.create_access_log( user, object_name, AccessType.INSERT)
 
         data['createtime'] = str(datetime.datetime.now())
-        data['owner'] = str(user.get("_id"))
+
+        if user:
+            data['owner'] = str(user.get("_id"))
+        else:
+            data['owner'] = SYSTEM_USER
 
         result = self.db[object_name].insert(data)
 
@@ -108,6 +144,7 @@ class ObjectService():
     # http://docs.mongodb.org/manual/faq/developers/#dollar-sign-operator-escaping
     def update(self, user, object_name, id, data):
         logging.debug("ObjectService::update::{0}".format(object_name))
+        logging.debug("Data: {0}".format(data))
         assert len(id) > 0
         assert isinstance(data, dict)
 
@@ -140,7 +177,7 @@ class ObjectService():
 
         return result
 
-    def save_file(self, user, collection_name, file):
+    def save_file(self, user, collection_name, file_object, file_id=None):
         logging.debug("ObjectService::save_file::{0}".format(collection_name))
 
         properties = ['body', 'content_type', 'filename', 'collection_name', 'createtime', 'owner']
@@ -149,7 +186,7 @@ class ObjectService():
 
         self.create_access_log(user, collection_name, AccessType.INSERT)
 
-        return save_file_in_gridfs(self.db, user, collection_name, file, properties)
+        return save_file_in_gridfs(self.db, user, collection_name, file_object, properties, file_id)
 
     def load_file(self, user, collection_name, file_id):
         logging.debug("ObjectService::load_file::{0}".format(collection_name))
@@ -170,7 +207,7 @@ class ObjectService():
         logging.debug("ObjectService::save_file::{0}".format(collection_name))
         properties = ['body', 'content_type', 'filename', 'collection_name', 'createtime', 'owner', 'md5', 'length']
 
-        allowed_access_type = self.check_access(user, collection_name, properties, AccessType.INSERT, True)
+        allowed_access_type = self.check_access(user, collection_name, properties, AccessType.READ, True)
 
         query = {'collection_name': collection_name}
         if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
@@ -293,22 +330,27 @@ class ObjectService():
         return post_processor_list
 
 @gen.coroutine
-def save_file_in_gridfs(db, user, collection_name, file, properties):
+def save_file_in_gridfs(db, user, collection_name, file_object, properties, file_id=None):
     fs = motor.MotorGridFS(db)
-    gridin = yield fs.new_file()
+    if file_id:
+        oid = ObjectId(str(file_id))
+        gridin = yield fs.new_file(_id=oid)
+    else:
+        gridin = yield fs.new_file()
 
-    length = len(file.body)
-    md5_dig = hashlib.md5(file.body).hexdigest()
-    result = yield gridin.write(file.body)
+    file_body = file_object.get("body")
+    length = len(file_body)
+    md5_dig = hashlib.md5(file_body).hexdigest()
+    result = yield gridin.write(file_body)
 
     # TODO: we can write another chunk- as many times we want-
     # When support for streaming file comes in mainstram tornado branch
     # we should use that
 
     if 'content_type' in properties:
-        yield gridin.set('content_type', file.get("content_type"))
+        yield gridin.set('content_type', file_object.get("content_type"))
 
-    yield gridin.set('filename', file.get("filename"))
+    yield gridin.set('filename', file_object.get("filename"))
     yield gridin.set('collection_name', collection_name)
 
     current_time = str(datetime.datetime.now())

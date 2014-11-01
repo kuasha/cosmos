@@ -5,6 +5,7 @@
  License :: OSI Approved :: MIT License
 """
 
+import unittest
 import hashlib
 import time
 import random
@@ -19,6 +20,7 @@ from cosmos.rbac.service import RbacService
 import samples.barebone.cosmosmain as cosmosmain
 from test import *
 from cosmos.rbac.object import ADMIN_USER_ROLE_SID, COSMOS_ROLE_OBJECT_NAME, COSMOS_ROLE_GROUP_OBJECT_NAME
+
 
 class ServiceAPITests(LoggedTestCase):
     @classmethod
@@ -87,8 +89,12 @@ class ServiceAPITests(LoggedTestCase):
         cookies = self.admin_login()
         params = json.dumps({'username': self.admin_username, "password": self.admin_password, "roles":[]})
         url = self.service_url+"cosmos.users/"
-        response = requests.post(url, data=params, cookies = cookies)
+        response = requests.post(url, data=params, cookies=cookies)
         self.failUnless(response.status_code == 409)
+
+    def get_sample_user(self):
+        return {"username": "testuser"+str(int(random.random()*100000)), "password": self.standard_user_password, "roles":[]}
+
 
     def get_test_role(self):
         return {'name': "testrole", "type": "object.Role", "role_items": [
@@ -169,7 +175,7 @@ class ServiceAPITests(LoggedTestCase):
 
         role_url = url+response.text.strip('"')+'/'
         self.log_request_url(role_url)
-        response = requests.get(role_url, cookies = cookies)
+        response = requests.get(role_url, cookies=cookies)
         self.log_status_code(response.status_code)
         self.failUnless(response.status_code == 200)
 
@@ -199,7 +205,6 @@ class ServiceAPITests(LoggedTestCase):
         sample_role = self.get_test_role2()
         return self._create_new_given_role(cookies, sample_role)
 
-
     def failUnlessEquals(self, value1, value2, msg=None):
         self.logger.info("{}. Comparing {} and {}".format(msg, value1, value2))
         self.failUnless(value1 == value2)
@@ -218,9 +223,6 @@ class ServiceAPITests(LoggedTestCase):
         response = requests.post(url, data=params, cookies = cookies)
         self.failUnless(response.status_code == 409)
 
-    def get_sample_user(self):
-        return {"username": "testuser"+str(int(random.random()*100000)), "password": self.standard_user_password, "roles":[]}
-
     def log_request_url(self, user_url):
         self.logger.info(user_url)
 
@@ -235,7 +237,7 @@ class ServiceAPITests(LoggedTestCase):
         self.failUnless(response.status_code == 200)
         user_url = url+response.text.strip('"')+'/'
         self.log_request_url(user_url)
-        response = requests.get(user_url, cookies = cookies)
+        response = requests.get(user_url, cookies=cookies)
         self.log_status_code(response.status_code)
         self.failUnless(response.status_code == 200)
 
@@ -394,12 +396,42 @@ class ServiceAPITests(LoggedTestCase):
 
         user_cookies = self.login(user_json.get("username"), self.standard_user_password)
 
-        url = self.service_url+ self.test_owned_object_name
+        url = self.service_url + self.test_owned_object_name
         self.log_request_url(url)
         data = json.dumps({"address": "test"})
         response = requests.post(url, data=data, cookies=user_cookies)
         self.log_status_code(response.status_code)
         self.failUnless(response.status_code == 200)
+
+        self._delete_user(cookies, user_json)
+        self._delete_role(cookies, role_json)
+
+    def test_user_can_access_access_objects_not_owned_with_role(self):
+        cookies = self.admin_login()
+
+        role_json = self._create_new_role(cookies)
+        role = role_json.get("sid")
+        user_json = self._create_user_with_given_roles(cookies, [role])
+
+        user_cookies = self.login(user_json.get("username"), self.standard_user_password)
+
+        url = self.service_url + self.test_object_name
+        self.log_request_url(url)
+        data = json.dumps({"name": "test"})
+        response = requests.post(url, data=data, cookies=cookies)
+        self.log_status_code(response.status_code)
+        self.failUnless(response.status_code == 200)
+
+        _id = json.loads(response.text)
+
+        object_url = url + "/" + _id+"?columns=name"
+
+        response = requests.get(object_url, cookies=user_cookies)
+        self.log_status_code(response.status_code)
+        self.failUnless(response.status_code == 200)
+
+        data = json.loads(response.text)
+        self.failUnlessEqual(data["name"], "test")
 
         self._delete_user(cookies, user_json)
         self._delete_role(cookies, role_json)

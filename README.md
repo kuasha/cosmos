@@ -13,7 +13,15 @@ Why use cosmos
 ==============
 It is supposed to save most of the time people spend on forms, lists, charts, models, security related code.
 
-Prepare Mongodb 
+
+Test coverage
+=============
+
+Currently there are 50+ test cases for backend / services and 30+ test cases for frontend. It covers about 80% of server 
+side code and 40% of front end code. Tests covers all basic functionality. Target is to get to 90% or more coverage.  
+
+
+Prepare Mongodb
 ===============
 
 Current version of the framework has only mongodb support. You should have mongodb installed configured for replication:
@@ -37,6 +45,14 @@ Then from mongo console do rs.initiate()
 	"ok" : 1
 }
 ```
+
+If you see error like following  
+
+```
+"errmsg" : "couldn't initiate : can't find self in the replset config"
+```
+
+you may need to change the ```bind_ip = 0.0.0.0``` or as appropriate in the ```/etc/mongodb.conf``` file.
 
 Now do rs.config() to see the status
 
@@ -101,8 +117,38 @@ Features
 10. Test coverage
 
 
-Supporters
-----------
+Development
+===========
+
+You are most welcome to contribute on this project. Please have your change with your test code ready and request a pull request for ```dev``` branch. 
+
+Running tests
+-------------
+
+To run backend tests use
+
+```
+python setup.py test
+```
+
+To run frontend tests use
+
+```
+  karma start --single-run --browsers PhantomJS samples/adminpanel/test/karma.conf.js
+```
+
+To keep the process running remove the ```--single-run``` option. You may also use Chrome or Firefox browser to run tests.
+  
+  
+
+
+License
+-------
+Released under the MIT License. Please look at the included LICENSE file for details.
+
+
+Sponsors
+--------
 
 JetBrains has generously provided us with unlimited license of the PyCharm IDE for this project.
 http://www.jetbrains.com/pycharm/

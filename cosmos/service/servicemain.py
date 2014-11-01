@@ -18,13 +18,13 @@ import cosmos.service.auth
 def init_observers(db, object_service, observers):
     loader = BootLoader()
     loader.init_observers(object_service, observers)
-    loader.load_roles(db)
+    loader.load_roles(object_service)
     loader.load_role_groups(db)
 
 def start_web_service(options):
 
     cosmos.service.auth.hmac_key = options.hmac_key
-    object_service = ObjectService(rbac_service = RbacService(), db=options.db)
+    object_service = ObjectService(rbac_service=RbacService(), db=options.db)
 
     init_observers(options.db, object_service, options.observers)
 
@@ -42,7 +42,8 @@ def start_web_service(options):
                 google_oauth=options.google_oauth,
                 github_oauth=options.github_oauth,
                 directory_listing_allowed=options.directory_listing_allowed,
-                object_service = object_service
+                object_service=object_service,
+                source_root=options.source_root
             )
 
     application = tornado.web.Application(

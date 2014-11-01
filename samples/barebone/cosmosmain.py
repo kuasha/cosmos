@@ -8,7 +8,6 @@
 import sys
 import os
 import signal
-
 import motor
 
 from cosmos.admin.commands import CommandHandler
@@ -59,6 +58,7 @@ def start_service(options):
     cosmos.service.servicemain.start_web_service(options)
 
 def get_options(port):
+    source_root = os.path.dirname(os.path.realpath(__file__))
     options = Options(**dict(
         endpoints=endpoints.END_POINTS,
         db_uri=settings.DATABASE_URI,
@@ -84,7 +84,8 @@ def get_options(port):
         github_oauth=settings.GITHUB_OAUTH_SETTINGS,
         start_db_monitor=settings.START_OBJECT_CHANGE_MONITOR,
         start_web_service=settings.START_WEB_SERVER,
-        directory_listing_allowed=settings.directory_listing_allowed
+        directory_listing_allowed=settings.directory_listing_allowed,
+        source_root=source_root
     ))
 
     options.db = init_database(options)

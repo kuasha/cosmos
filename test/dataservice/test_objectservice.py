@@ -57,6 +57,10 @@ class ObjectServiceTest(LoggedTestCase):
         except tornado.web.HTTPError:
             pass
 
+    @skip("Test not implemented")
+    def test_gridfs_save_uses_file_id_when_provided(self):
+        pass
+
 
 
 if __name__ == "__main__":

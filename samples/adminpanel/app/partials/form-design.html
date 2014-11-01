@@ -51,10 +51,10 @@
 
 </style>
 
-<script type="text/ng-template" id="text-field.html">
+<script type="text/ng-template" id="input-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <label>{{field.title}}</label>
-        <input ng-class="field.className" type="text" name="{{field.model}}" readonly="readonly" disabled="disabled"/>
+        <input ng-class="field.className" type="{{field.htmltype || 'text'}}" name="{{field.model}}" readonly="readonly" disabled="disabled"/>
     </div>
 </script>
 

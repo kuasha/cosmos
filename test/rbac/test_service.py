@@ -4,11 +4,13 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
+from unittest import skip
 from mock import MagicMock
 
 from test import *
 from cosmos.rbac.service import *
 from cosmos.service.utils import *
+
 
 class RbacServiceTest(LoggedTestCase):
 
@@ -34,7 +36,7 @@ class RbacServiceTest(LoggedTestCase):
 
         service = RbacService()
         found_roles = service.get_roles(user)
-        self.failUnless(len(found_roles)==1)
+        self.failUnless(len(found_roles)==3)
         admin_role = self._get_admin_role()
 
         self.failUnless(self._role_equals(found_roles[0], admin_role))
@@ -118,17 +120,40 @@ class RbacServiceTest(LoggedTestCase):
         #Test user gets expanded roles correctly
         user = {"username": "testuser", "roles": [sample_role_group["sid"]] }
         found_user_roles = serv.get_roles(user)
-        assert len(found_user_roles) == 2
-        found_sid_list=[]
+        assert len(found_user_roles) == 4
+        found_sid_list = []
 
         for role in found_user_roles:
             found_sid_list.append(role.sid)
 
+        assert ANONYMOUS_USER_ROLE_SID in found_sid_list
+        assert LOGGED_IN_USER_ROLE_SID in found_sid_list
         assert "43425097-e630-41ea-88eb-17b339339707" in found_sid_list
         assert "43425097-e630-41ea-88eb-17b339339706" in found_sid_list
 
+    def test_all_user_has_loggedinusers_role(self):
+        serv = RbacService()
+
+        user = {"username": "testuser", "roles": [] }
+        found_user_roles = serv.get_roles(user)
+        assert len(found_user_roles) == 2
+        found_sid_list = []
+
+        for role in found_user_roles:
+            found_sid_list.append(role.sid)
+
+        assert ANONYMOUS_USER_ROLE_SID in found_sid_list
+        assert LOGGED_IN_USER_ROLE_SID in found_sid_list
 
 
+    @skip("Test not implemented")
+    def test_role_access_get_preference_to_owner_access(self):
+        pass
+
+
+    @skip("Functionality not implemented")
+    def test_role_allow_regex_based_rule_matching(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
