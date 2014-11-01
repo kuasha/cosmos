@@ -311,7 +311,6 @@ directives.directive('field', function ($compile) {
                             break;
 
                         case "hyperlink":
-                            $scope.validateBlockType(item.blocktype);
                             template = '<a ng-class="item.cssclass" href="' + item.value.href + '">' + item.value.text + '</a>';
                             break;
 

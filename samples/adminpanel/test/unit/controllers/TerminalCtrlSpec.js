@@ -63,4 +63,42 @@ describe('HomeCtrl', function() {
         $httpBackend.flush();
         expect($scope.result).toEqual( JSON.stringify(expectedArrayData,  undefined, 4));
     });
+
+    it('should call $http post when post method is called', function () {
+        var homeCtrl = createController();
+        expect(homeCtrl).toBeDefined();
+        var postData = {"name": "book", "value": "The Art Of Computer Programming"};
+        var expectedReturnValue = '"544288458c66ab67ee4f0823"';
+        var url = '/services/test.object/';
+
+        $httpBackend.whenPOST(url).respond(expectedReturnValue);
+
+        $scope.service = url;
+
+        $scope.$apply(function() {
+            $scope.post(postData);
+        });
+
+        $httpBackend.flush();
+        expect($scope.result).toEqual( JSON.stringify(expectedReturnValue,  undefined, 4));
+    });
+
+    it('should call $http delete when delete method is called', function () {
+        var homeCtrl = createController();
+        expect(homeCtrl).toBeDefined();
+        var expectedReturnValue = { "n": 1, "ok": 1, "error": null};
+        var url = '/services/test.object/544288458c66ab67ee4f0823/';
+
+        $httpBackend.whenDELETE(url).respond(expectedReturnValue);
+
+        $scope.service = url;
+
+        $scope.$apply(function() {
+            $scope.delete();
+        });
+
+        $httpBackend.flush();
+        expect($scope.result).toEqual( JSON.stringify(expectedReturnValue,  undefined, 4));
+    });
+
 });

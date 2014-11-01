@@ -116,7 +116,7 @@ controllers.controller('UserModalInstanceCtrl', ['$scope', '$modalInstance', 'ro
     $scope.roles = roles;
 
     $scope.getRoleName = function (sid) {
-        var found_role = "[Builtin Role]"
+        var found_role = "[Builtin Role]";
         angular.forEach($scope.roles, function (role, key) {
             if (role.sid === sid) {
                 found_role = role.name;

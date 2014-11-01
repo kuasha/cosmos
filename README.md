@@ -109,6 +109,31 @@ Features
 10. Test coverage
 
 
+Development
+===========
+
+You are most welcome to contribute on this project. Please have your change with your test code ready and request a pull request for ```dev``` branch. 
+
+Running tests
+-------------
+
+To run backend tests use
+
+```
+python setup.py test
+```
+
+To run frontend tests use
+
+```
+  karma start --single-run --browsers PhantomJS samples/adminpanel/test/karma.conf.js
+```
+
+To keep the process running remove the ```--single-run``` option. You may also use Chrome or Firefox browser to run tests.
+  
+  
+
+
 License
 -------
 Released under the MIT License. Please look at the included LICENSE file for details.
