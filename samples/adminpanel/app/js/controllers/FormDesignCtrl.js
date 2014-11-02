@@ -134,6 +134,7 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                 {"type": "text", "title": "Name", "name": "name"},
                 {"title": "Options", "type": "composite", "options": {}, "fields": [
                     {"title": "Value only", "type": "checkbox", "name": "saveValueOnly"},
+                    {"title": "Hide reference", "type": "checkbox", "name": "hideRefType"},
 
                     {"title": "References", "type": "array", "name": "lookups", "fields": [
                         {"title": "Data endpoint", "type": "text", "name": "url"},

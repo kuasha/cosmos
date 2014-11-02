@@ -37,10 +37,19 @@ var directives = angular.module('cosmosUI.directives', []).
 
                     $scope.getConfigurationByUrl = function (url) {
                         CosmosService.get(url, function (data) {
-                                $scope.pagedef = data;
+                                if (data.loginRequired && !loggedIn()) {
+                                    var curUrl = $location.url();
+                                    $location.url("/login/?redirect=" + curUrl);
+                                }
+                                else {
+                                    $scope.pagedef = data;
+                                }
                             },
                             function (data, status) {
-                                //TODO: $scope.processError(data, status);
+                                if(status == 401){
+                                    var curUrl = $location.url();
+                                    $location.url("/login/?redirect=" + curUrl);
+                                }
                             }
                         );
                     };
