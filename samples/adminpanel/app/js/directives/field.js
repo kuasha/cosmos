@@ -10,8 +10,8 @@ directives.directive('field', function ($compile) {
             val: '='
         },
 
-        controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable', 'cosmos.settings',
-            function ($scope, $location, $routeParams, message, CosmosService, namedcolection, calculator, hashtable, settings) {
+        controller: ['$scope', '$location', '$routeParams', '$modal', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable', 'cosmos.settings',
+            function ($scope, $location, $routeParams, $modal, message, CosmosService, namedcolection, calculator, hashtable, settings) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
@@ -198,11 +198,47 @@ directives.directive('field', function ($compile) {
                     );
                 };
 
+                $scope.editListItem = function (data, listConfiguration) {
+                    if (listConfiguration.editable && listConfiguration.itemeditor_id) {
+                        var modalInstance = $modal.open({
+                            templateUrl: 'partials/formview.html',
+                            controller: "FormViewModalCtrl",
+                            size: 'lg',
+                            backdrop: 'static',
+                            //windowClass:'modal-huge', //TODO: set window bigger than default of lg window
+                            resolve: {
+                                model: function () {
+                                    return data;
+                                },
+                                formId: function(){
+                                    return listConfiguration.itemeditor_id;
+                                }
+                            }
+                        });
+                    }
+                };
+
+                $scope.showListItemDetails = function (data, listConfiguration) {
+                    if (listConfiguration.allowDetails) {
+                        var modalInstance = $modal.open({
+                            templateUrl: 'partials/show_json.html',
+                            controller: "ShowJsonDataCtrl",
+                            size: 'lg',
+                            backdrop: 'static',
+                            resolve: {
+                                model: function () {
+                                    return data;
+                                }
+                            }
+                        });
+                    }
+                };
+
                 //END List methods
 
                //START Chart methods
 
-                //List ref
+                //Chart ref
 
                 $scope.getChartDataBy = function (columns, objectName) {
                     //TODO: this function is duplicate to getListDataBy
@@ -432,7 +468,7 @@ directives.directive('field', function ($compile) {
                                                                <field item="field"></field> \
                                                         </li> \
                                                       </ul> \
-                                                    </div><!--/.nav-collapse --> \
+                                                    </div> \
                                                   </div> \
                                                 </nav>';
                             }
@@ -698,7 +734,15 @@ directives.directive('field', function ($compile) {
                 scope.$watch('data', function () {
                     if(scope.chartConfiguration && scope.data){
                         var containerId = '#chart'+scope.item.value.chartId;
-                        drawBarChart(containerId, scope.chartConfiguration.config, scope.data);
+                        if(scope.chartConfiguration.chartType === "bar") {
+                            drawBarChart(containerId, scope.chartConfiguration.config, scope.data);
+                        }
+                        else if(scope.chartConfiguration.chartType === "line") {
+                            drawLineChart(containerId, scope.chartConfiguration.config, scope.data);
+                        }
+                        else if(scope.chartConfiguration.chartType === "pie") {
+                            drawPieChart(containerId, scope.chartConfiguration.config, scope.data);
+                        }
                     }
                 });
                 scope.getChartConfiguration();
