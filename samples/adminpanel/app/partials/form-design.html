@@ -131,6 +131,38 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="condition-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{field.title}}</label>
+        <ul>
+            <li>
+                <label class="control-label">IF</label>
+                <ul class="apps-container"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.fields">
+                    <li class="innerCont" ng-repeat="field in field.fields">
+                        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.fields, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <label class="control-label">ELSE</label>
+                <ul class="apps-container"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.elsefields">
+                    <li class="innerCont" ng-repeat="field in field.elsefields">
+                        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.elsefields, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</script>
+
 <script type="text/ng-template" id="array-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <label class="control-label">{{field.title}} [ ]</label>

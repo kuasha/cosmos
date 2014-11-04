@@ -147,8 +147,8 @@ License
 Released under the MIT License. Please look at the included LICENSE file for details.
 
 
-Sponsors
---------
+Supporters
+----------
 
 JetBrains has generously provided us with unlimited license of the PyCharm IDE for this project.
 http://www.jetbrains.com/pycharm/

@@ -159,6 +159,14 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                 ], "name": "options"}
             ]
             },
+
+            "condition":{
+                "title": "Condition options", "type":"condition", "name":"condition", "fields":[
+                    {"type": "text", "title": "Title", "name": "title"},
+                    {"type": "text", "title": "Name", "name": "name"},
+                    {"type": "text", "title": "Expression", "name": "expression"}
+                ]
+            },
             "default": {
                 "fields": [
                     {"type": "text", "title": "Title", "name": "title"},
@@ -183,7 +191,8 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             ]}},
             {title: 'Group', type: "composite", options: {}, fields: []},
             {title: 'Array', type: "array", options: {}, fields: []},
-            {title: 'Lookup', type: "lookup", options: {}, fields: []}
+            {title: 'Lookup', type: "lookup", options: {}, fields: []},
+            {"title": "Condition", "type": "condition", fields: [], elsefields:[]}
         ];
 
         $scope.components = jQuery.extend(true, [], $scope.toolsList);
