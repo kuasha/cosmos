@@ -117,6 +117,9 @@ directives.directive('field', function ($compile) {
                     }
                 };
 
+                // TODO: get*ConfigurationByUrl and get*Configuration functions should be combined
+                // We should have configuration variable for all instead of specific name for config
+
                 //START MenuRef methods
                 $scope.getMenuConfigurationByUrl = function (url) {
                     CosmosService.get(url, function (data) {
@@ -412,33 +415,29 @@ directives.directive('field', function ($compile) {
 
                         case "twocolumn":
                             template = '' +
-                                '<div class="container-fluid">' +
                                 '   <div class="row">' +
-                                '       <div class="{{item.leftcolumn.cssclass}}">' +
-                                '           <field item="item.leftcolumn"></field>' +
+                                '       <div ng-repeat="field in item.leftcolumn" class="col-md-6">' +
+                                '           <field item="field"></field>' +
                                 '       </div>' +
-                                '       <div class="{{item.rightcolumn.cssclass}}">' +
-                                '           <field item="item.rightcolumn"></field>' +
+                                '       <div ng-repeat="field in item.rightcolumn" class="col-md-6">' +
+                                '           <field item="field"></field>' +
                                 '       </div>' +
-                                '   </div>' +
-                                '</div>';
+                                '   </div>';
                             break;
 
                         case "threecolumn":
                             template = '' +
-                                '<div class="container-fluid">' +
                                 '   <div class="row">' +
-                                '       <div class="{{item.leftcolumn.cssclass}}">' +
-                                '           <field item="item.leftcolumn"></field>' +
+                                '       <div ng-repeat="field in item.leftcolumn" class="col-xs-4">' +
+                                '           <field item="field"></field>' +
                                 '       </div>' +
-                                '       <div class="{{item.middlecolumn.cssclass}}">' +
-                                '           <field item="item.middlecolumn"></field>' +
+                                '       <div ng-repeat="field in item.midcolumn" class="col-xs-4">' +
+                                '           <field item="field"></field>' +
                                 '       </div>' +
-                                '       <div class="{{item.rightcolumn.cssclass}}">' +
-                                '           <field item="item.rightcolumn"></field>' +
+                                '       <div ng-repeat="field in item.rightcolumn" class="col-xs-4">' +
+                                '           <field item="field"></field>' +
                                 '       </div>' +
-                                '   </div>' +
-                                '</div>';
+                                '   </div>';
                             break;
 
                         case "menu":

@@ -6,13 +6,27 @@ controllers.controller('LoginCtrl', ['$scope', '$routeParams', '$location', 'Cos
             $scope.haveAccount = true;
 
             $scope.login = function(){
+                if (!$scope.username || $scope.username.length < 2) {
+                    $scope.error = "Username is required.";
+                    return;
+                }
+
+                if (!$scope.password || $scope.password.length < 4) {
+                    $scope.error = "Password is required and must be at least 4 character long.";
+                    return;
+                }
+
                 $http.post('/login/', {"username":$scope.username, "password":$scope.password }).
                   success(function(data, status, headers, config) {
                     $location.url($scope.redirectUrl || '/');
                   }).
                   error(function(data, status, headers, config) {
-                    $scope.error = data;
-
+                        if(status === 401){
+                            $scope.error = "Username or password did not match.";
+                        }
+                        else {
+                            $scope.error = data;
+                        }
                   });
             };
 

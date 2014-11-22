@@ -30,6 +30,7 @@ config(['$routeProvider', function($routeProvider) {
 
     $routeProvider.when('/a/:appPath/content/:fileObjectName/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
     $routeProvider.when('/a/:appPath/formdesign/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
+    $routeProvider.when('/a/:appPath/pagedesign/:pageId?', {templateUrl: 'partials/page-design.html', controller: 'PageDesignCtrl'});
     $routeProvider.when('/a/:appPath/forms/:formId?/:dataId?', {templateUrl: 'partials/formview.html', controller: 'FormViewCtrl'});
 
     $routeProvider.when('/a/:appPath/page/:pageId?', {templateUrl: 'partials/page.html', controller: 'PageViewCtrl'});

@@ -53,7 +53,7 @@
     drawPieChart("#chart", pieChartConfig , pieData);
 */
 
-//TODO: move/wrap functions of this file in a service so, users of the API can be unit tested.
+//TODO: move/wrap functions of this file in a service or directive as appropriate so users of the API can be unit tested.
 function drawBarChart(containerId, config, data) {
 
     if(!(data && data.length > 0)){
