@@ -93,11 +93,11 @@ directives.directive('field', function ($compile) {
                 $scope.updateOptions = function (field) {
                     var lookup;
                     if ($scope.item.options.saveValueOnly) {
-                        $scope.val = undefined;
+                        //$scope.val = undefined;
                         lookup = $scope.getLookup(field, $scope.ref);
                     }
                     else {
-                        $scope.val.data = undefined;
+                        //$scope.val.data = undefined;
                         lookup = $scope.getLookup(field, $scope.val.ref || $scope.ref);
                     }
 
@@ -340,7 +340,7 @@ directives.directive('field', function ($compile) {
                 $scope.processFormResult = function (form, result) {
                     if (form && form.onsuccess) {
                         if (form.onsuccess.type === "url") {
-                            var _id = ($scope.item.dataId || JSON.parse(result));
+                            var _id = ($scope.val || JSON.parse(result));
                             window.location.href = form.onsuccess.value.replace("{{_id}}", _id);
                         }
                         else if (form.onsuccess.type === "message") {
@@ -356,7 +356,7 @@ directives.directive('field', function ($compile) {
                 $scope.onFormSubmit = function () {
                     if ($scope.form.action) {
                         if ($scope.form.action) {
-                            if (!$scope.item.dataId) {
+                            if (!$scope.val) {
                                 CosmosService.post($scope.form.action, $scope.data, function (data) {
                                         $scope.processFormResult($scope.form, data);
                                     },
@@ -366,7 +366,7 @@ directives.directive('field', function ($compile) {
                                 );
                             }
                             else {
-                                var url = $scope.form.action + '/' + $scope.item.dataId + '/';
+                                var url = $scope.form.action + '/' + $scope.val + '/';
                                 CosmosService.put(url, $scope.data, function (data) {
                                         $scope.processFormResult($scope.form, data);
                                     },
