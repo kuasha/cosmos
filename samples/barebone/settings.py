@@ -51,6 +51,8 @@ GITHUB_OAUTH2_CALLBACK_URI = None
 
 login_url = "/login/"
 
+observers = []
+
 try:
     from local_settings import *
 except ImportError:

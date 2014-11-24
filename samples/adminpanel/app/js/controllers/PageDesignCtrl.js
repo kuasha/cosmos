@@ -72,6 +72,12 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     ]}
                 ]
             },
+
+            "widgethost": {
+                "fields": [
+                        {"type": "text", "title": "Widget Name", "name": "value"}
+                ]
+            },
             "condition":{
                 "title": "Condition options", "type":"condition", "name":"condition", "fields":[
                     {"type": "text", "title": "Title", "name": "title"},
@@ -109,7 +115,8 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             {title: 'Html', type: "htmlblock", options: {}},
             {title: '2 Columns', type: "twocolumn"},
             {title: '3 Columns', type: "threecolumn"},
-            {title: 'Chart', type: "chartref"}
+            {title: 'Chart', type: "chartref"},
+            {title: "Widget", type: "widgethost"}
 
         ];
 

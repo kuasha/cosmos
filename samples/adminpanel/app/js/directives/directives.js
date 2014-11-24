@@ -185,4 +185,38 @@ var directives = angular.module('cosmosUI.directives', []).
         }
     })
 
+    .directive('rawhtml', function ($compile) {
+        return {
+            restrict: 'E',
+            scope: {
+                htmlUrl: '='
+            },
+
+            controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
+                function ($scope, $location, $routeParams, message, CosmosService, settings) {
+
+                    $scope.getHtml = function () {
+                        var url= $scope.htmlUrl;
+
+                        CosmosService.get(url, function (data) {
+                                $scope.htmlBlock = data;
+                                var newElement = angular.element($scope.htmlBlock);
+                                $compile(newElement)($scope);
+                                $scope.element.replaceWith(newElement);
+                            },
+                            function (data, status) {
+                                //$scope.processError(data, status);
+                            }
+                        );
+                    };
+                }],
+
+            link: function (scope, element, attributes) {
+                console.log("Creating rawhtml element");
+                scope.element = element;
+                scope.getHtml();
+            }
+        }
+    })
+
 ;

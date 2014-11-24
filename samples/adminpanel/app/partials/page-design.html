@@ -77,6 +77,12 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="widgethost-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-bind="field.type"></div>
+    </div>
+</script>
+
 <script type="text/ng-template" id="htmlblock-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <div ng-if="field.blocktype">

@@ -69,7 +69,7 @@ def get_options(port):
         log_level=settings.LOG_LEVEL,
         config_log=settings.CONFIGURE_LOG,
         db_processor_endpoint=settings.DB_CHANGE_PROCESSOR_ENDPOINT_FORMAT.format(port),
-        observers=[],
+        observers=settings.observers,
         web_service_port=port,
         login_url=settings.login_url,
         cookie_secret=settings.COOKIE_SECRET,
