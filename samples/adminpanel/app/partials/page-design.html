@@ -249,13 +249,15 @@
     </div>
 </script>
 
-<div ng-show="hasError" class="bg-warning">
-    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
-    <div><label>Error code:</label><span ng-bind="status"/></div>
-    <div ng-bind="status_data"></div>
-</div>
 
-<div class="container-fluid">
+<div ng-init="init()" class="container-fluid">
+
+    <div ng-show="hasError" class="bg-warning">
+        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+        <div><label>Error code:</label><span ng-bind="status"/></div>
+        <div ng-bind="status_data"></div>
+    </div>
+
     <div class="row">
         <div class="col-sm-2">
                 <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">

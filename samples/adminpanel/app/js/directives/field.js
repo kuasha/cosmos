@@ -328,6 +328,7 @@ directives.directive('field', function ($compile) {
                     if (dataId) {
                         var url = form.action + '/' + dataId + '/';
                         CosmosService.get(url, function (data) {
+                                jQuery.extend(data, $scope.data);
                                 $scope.data = data;
                             },
                             function (data, status) {

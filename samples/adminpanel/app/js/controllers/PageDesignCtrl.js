@@ -2,11 +2,18 @@
  * Created by maruf on 11/11/14.
  */
 
-controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
-    function ($scope, $routeParams, $templateCache, $modal, CosmosService) {
+controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService','cosmos.settings', 'globalhashtable',
+    function ($scope, $routeParams, $templateCache, $modal, CosmosService, settings, hashtable) {
+
+        $scope.hashtable = hashtable;
+        $scope.cosmosCurrentApplicationRef = "_Cosmos_Current_Application_";
+
 
         $scope.designMode = true;
         $scope.activeTab = "tools";
+
+        $scope.selectedApplication = undefined;
+
         $scope.onsuccess_types = [
             {'name': 'message', 'title': 'Message'},
             {'name': 'url', 'title': 'Redirect'}
@@ -130,6 +137,7 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
         };
 
         $scope.pageId = $routeParams.pageId;
+        $scope.appPath = $routeParams.appPath;
 
         $scope.clearError = function () {
             $scope.hasError = false;
@@ -150,27 +158,42 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             $scope.page = page;
         };
 
-        $scope.getConfiguration = function () {
-            if ($scope.pageId) {
+        $scope.getConfigurationByUrl = function(url) {
+            CosmosService.get(url, function (data) {
+                    $scope.processPage(data);
+                },
+                function (data, status) {
+                    $scope.processError(data, status);
+                }
+            );
+        };
 
-                //TODO: get object name from application configuration
-                var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+        $scope.getPageConfiguration = function () {
+            if (($scope.appPath || $scope.selectedApplication) && $scope.pageId) {
 
-                CosmosService.get(url, function (data) {
-                        $scope.processPage(data);
+                var appPath = $scope.appPath || $scope.selectedApplication.path;
+
+                settings.getAppSettings(appPath, "pageconfigobject", function (objectName) {
+                        var url = '/service/' + objectName + '/' + $scope.pageId + '/';
+                        $scope.getConfigurationByUrl(url);
                     },
-                    function (data, status) {
-                        $scope.processError(data, status);
+                    function (status, data) {
+                        var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+                        $scope.getConfigurationByUrl(url);
                     }
                 );
             }
-            else {
+            else if(!$scope.page){
                 $scope.page = {
                     "title": "Test page",
                     "type": "page",
                     "fields": []
                 };
             }
+        };
+
+        $scope.getConfiguration = function () {
+            $scope.getPageConfiguration();
         };
 
         $scope.sortingLog = [];
@@ -209,14 +232,13 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             $scope.activeTab = tab;
         };
 
-        $scope.savePage = function () {
+        $scope.savePageWithUrl = function(url){
             $scope.clearError();
             $scope.result = null;
             var page_id = $scope.page._id;
-            var url = '/service/cosmos.pages/';
 
             if (page_id) {
-                url = url + page_id;
+                url = url + page_id + '/';
                 CosmosService.put(url, $scope.page, function (data) {
                         $scope.result = data;
                     },
@@ -237,7 +259,23 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             }
         };
 
-        $scope.getConfiguration();
+        $scope.savePage = function () {
+            var url = '/service/cosmos.pages/';
+
+            settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
+                    url = '/service/' + objectName + '/';
+                    $scope.savePageWithUrl(url);
+                },
+                function (status, data) {
+                    url = '/service/cosmos.pages/';
+                    $scope.savePageWithUrl(url);
+                }
+            );
+        };
+
+        $scope.init = function() {
+            $scope.getConfiguration();
+        }
     }]);
 
 

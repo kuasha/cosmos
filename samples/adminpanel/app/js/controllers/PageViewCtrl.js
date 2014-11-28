@@ -6,6 +6,7 @@
 controllers.controller('PageViewCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'cosmos.settings',
     function ($scope, $routeParams, $location, CosmosService, settings) {
         $scope.pageId = $routeParams.pageId;
+        $scope.appPath = $routeParams.appPath;
 
         $scope.getConfigurationByUrl = function (url) {
             CosmosService.get(url, function (data) {
@@ -24,8 +25,6 @@ controllers.controller('PageViewCtrl', ['$scope', '$routeParams', '$location', '
         };
 
         $scope.getConfiguration = function () {
-            $scope.appPath = $routeParams.appPath;
-
             settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
                     var url = '/service/' + objectName + '/' + $scope.pageId + '/';
                     $scope.getConfigurationByUrl(url);

@@ -1,0 +1,65 @@
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">Cosmos Terminal</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="#/lists/">Lists</a></li>
+                    <li><a href="#/users">Users</a></li>
+                    <li><a href="#/roles">Roles</a></li>
+                    <li ng-show="loggedIn()"> <a href="/logout/">Logout [{{userName}}]</a> </li>
+                    <li ng-show="!loggedIn()"><a href="/login.html">Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container theme-showcase" role="main" ng-init="init()">
+        <error-banner></error-banner>
+
+        <div>
+            <select ng-hide="isAppOpened()"
+                    ng-change="applicationChanged()"
+                    ng-model="selectedApplication"
+                    ng-model="myColor"
+                    ng-options="app.title for app in applications">
+            </select>
+
+            <button ng-hide = "isAppOpened()" ng-click="openApp()">Open App</button>
+        </div>
+
+        <label ng-show = "isAppOpened()">Currently opened App </label>
+        <div ng-bind="getCurrentApplicationTitle()"></div>
+
+        <button ng-show = "isAppOpened()" ng-click="closeApp()">Close App</button>
+
+        <div ng-show = "isAppOpened()">
+            <div id="pages">
+                <table class="table">
+                    <tr>
+                        <td>Pages</td>
+                    </tr>
+                    <tr ng-repeat="page in selectedApplication.pages">
+                        <td><a ng-href="#/appstudio/page/{{selectedApplication.path}}/{{page._id}}">{{page.title}}</a></td>
+                    </tr>
+                </table>
+                <a ng-href="#/appstudio/page/{{selectedApplication.path}}/" class="btn btn-primary">Create page</a>
+            </div>
+            <br />
+            <div id="forms">
+                <table class="table">
+                    <tr>
+                        <td>Forms</td>
+                    </tr>
+                    <tr ng-repeat="form in selectedApplication.forms">
+                        <td><a ng-href="#/appstudio/form/{{selectedApplication.path}}/{{form._id}}">{{form.title}}</a></td>
+                    </tr>
+                </table>
+                <a ng-href="#/appstudio/form/{{selectedApplication.path}}/" class="btn btn-primary">Create form</a>
+            </div>
+            <br />
+        </div>
+
+
+    </div>

@@ -28,6 +28,19 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', fun
                     errorCallback(data, status);
                 }
             );
+        },
+
+        getApplications : function(successCallback, errorCallback){
+            var appCache = "Application._Cosmos_All_Applications_";
+            var appUrl = '/service/cosmos.applications/';
+            cachedloader.get(appCache, appUrl,
+                function (applications) {
+                    successCallback(applications);
+                },
+                function (data, status) {
+                    errorCallback(data, status);
+                }
+            );
         }
     }
 }]);
