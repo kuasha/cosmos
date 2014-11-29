@@ -70,6 +70,14 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
 
             $scope.getItems("pages", "pageconfigobject", "cosmos.pages" ,app);
             $scope.getItems("forms", "formconfigobject", "cosmos.forms" ,app);
+            $scope.getItems("lists", "listconfigobject", "cosmos.lists" ,app);
+            $scope.getItems("widgets", "widgetobject", "cosmos.widgets" ,app);
+            $scope.getItems("menus", "menuconfigobject", "cosmos.menus" ,app);
+            $scope.getItems("singleitemviews", "singleitemconfigobject", "cosmos.singleitemviews" ,app);
+        };
+
+        $scope.loadAppItemsForSelectedApp = function(){
+            $scope.loadAppItems($scope.selectedApplication);
         };
 
         $scope.openApp = function(){
@@ -82,13 +90,8 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
             }
         };
 
-        $scope.clearAppItems = function(){
-            $scope.pages = undefined;
-        };
-
         $scope.closeApp = function(){
             $scope.hashtable.set($scope.cosmosCurrentApplicationRef, undefined);
-            $scope.clearAppItems();
         };
 
         $scope.getCurrentApplicationTitle = function(){

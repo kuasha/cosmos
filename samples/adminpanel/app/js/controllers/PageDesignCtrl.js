@@ -232,6 +232,7 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             $scope.activeTab = tab;
         };
 
+        //TODO: have a service to remove similar functions
         $scope.savePageWithUrl = function(url){
             $scope.clearError();
             $scope.result = null;

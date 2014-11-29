@@ -1,0 +1,23 @@
+<div ng-init="init()" class="container theme-showcase" role="main">
+    <label>/{{itemType}}/{{appPath}}/{{itemId}}</label>
+    <hr />
+
+    <div ng-if = "ready">
+        <div ng-if="itemType === 'widget'">
+            <field type="form" item="widgetEditorForm" val="widget"></field>
+        </div>
+        <div ng-if="itemType === 'list'">
+            <field type="form" item="listEditorForm" val="list"></field>
+        </div>
+
+        <div ng-if="itemType === 'menu'">
+            <field type="form" item="menuEditorForm" val="menu"></field>
+        </div>
+
+
+        <div>
+            <br />
+            <button ng-click="saveItem()" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</div>

@@ -496,7 +496,7 @@ directives.directive('field', function ($compile) {
                             break;
 
                         case "inlinewidget":
-                            template = item.value;
+                            template = item.value.widgettext || item.value;
                             break;
 
                         //Form fields

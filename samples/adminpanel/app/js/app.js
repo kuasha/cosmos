@@ -29,6 +29,8 @@ config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/appstudio/page/:appPath/:pageId?', {templateUrl: 'partials/page-design.html', controller: 'PageDesignCtrl'});
     $routeProvider.when('/appstudio/form/:appPath/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
 
+    $routeProvider.when('/appstudio/:itemType/:appPath/:itemId?', {templateUrl: 'partials/item-design.html', controller: 'ItemDesignCtrl'});
+
     $routeProvider.when('/a/:appPath/formdesign/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
     $routeProvider.when('/a/:appPath/pagedesign/:pageId?', {templateUrl: 'partials/page-design.html', controller: 'PageDesignCtrl'});
 

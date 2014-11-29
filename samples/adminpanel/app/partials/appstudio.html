@@ -1,65 +1,117 @@
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="/">Cosmos Terminal</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="#/lists/">Lists</a></li>
-                    <li><a href="#/users">Users</a></li>
-                    <li><a href="#/roles">Roles</a></li>
-                    <li ng-show="loggedIn()"> <a href="/logout/">Logout [{{userName}}]</a> </li>
-                    <li ng-show="!loggedIn()"><a href="/login.html">Login</a></li>
-                </ul>
-            </div>
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Cosmos Terminal</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/">Home</a></li>
+                <li><a href="#/lists/">Lists</a></li>
+                <li><a href="#/users">Users</a></li>
+                <li><a href="#/roles">Roles</a></li>
+                <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
+                <li ng-show="!loggedIn()"><a href="/login.html">Login</a></li>
+            </ul>
         </div>
     </div>
-    <div class="container theme-showcase" role="main" ng-init="init()">
-        <error-banner></error-banner>
+</div>
+<div class="container theme-showcase" role="main" ng-init="init()">
+    <error-banner></error-banner>
 
-        <div>
-            <select ng-hide="isAppOpened()"
-                    ng-change="applicationChanged()"
-                    ng-model="selectedApplication"
-                    ng-model="myColor"
-                    ng-options="app.title for app in applications">
-            </select>
+    <div>
+        <select ng-hide="isAppOpened()"
+                ng-change="applicationChanged()"
+                ng-model="selectedApplication"
+                ng-model="myColor"
+                ng-options="app.title for app in applications">
+        </select>
 
-            <button ng-hide = "isAppOpened()" ng-click="openApp()">Open App</button>
-        </div>
-
-        <label ng-show = "isAppOpened()">Currently opened App </label>
-        <div ng-bind="getCurrentApplicationTitle()"></div>
-
-        <button ng-show = "isAppOpened()" ng-click="closeApp()">Close App</button>
-
-        <div ng-show = "isAppOpened()">
-            <div id="pages">
-                <table class="table">
-                    <tr>
-                        <td>Pages</td>
-                    </tr>
-                    <tr ng-repeat="page in selectedApplication.pages">
-                        <td><a ng-href="#/appstudio/page/{{selectedApplication.path}}/{{page._id}}">{{page.title}}</a></td>
-                    </tr>
-                </table>
-                <a ng-href="#/appstudio/page/{{selectedApplication.path}}/" class="btn btn-primary">Create page</a>
-            </div>
-            <br />
-            <div id="forms">
-                <table class="table">
-                    <tr>
-                        <td>Forms</td>
-                    </tr>
-                    <tr ng-repeat="form in selectedApplication.forms">
-                        <td><a ng-href="#/appstudio/form/{{selectedApplication.path}}/{{form._id}}">{{form.title}}</a></td>
-                    </tr>
-                </table>
-                <a ng-href="#/appstudio/form/{{selectedApplication.path}}/" class="btn btn-primary">Create form</a>
-            </div>
-            <br />
-        </div>
-
-
+        <button ng-hide="isAppOpened()" ng-click="openApp()">Open App</button>
     </div>
+
+    <label ng-bind="getCurrentApplicationTitle()"></label>
+    <button ng-show="isAppOpened()" ng-click="closeApp()">Close App</button>
+    <button ng-show="isAppOpened()" ng-click="loadAppItemsForSelectedApp()">Refresh</button>
+
+    <div ng-show="isAppOpened()">
+
+        <tabset>
+            <tab heading="Pages">
+                <div id="pages">
+                    <table class="table">
+                        <tr>
+                            <td>Pages</td>
+                        </tr>
+                        <tr ng-repeat="page in selectedApplication.pages">
+                            <td>
+                                <a ng-href="#/appstudio/page/{{selectedApplication.path}}/{{page._id}}">[{{page.title}}]</a>
+                            </td>
+                        </tr>
+                    </table>
+                    <a ng-href="#/appstudio/page/{{selectedApplication.path}}/" class="btn btn-primary">Create page</a>
+                </div>
+            </tab>
+            <tab heading="Forms">
+                <div id="forms">
+                    <table class="table">
+                        <tr ng-repeat="form in selectedApplication.forms">
+                            <td>
+                                <a ng-href="#/appstudio/form/{{selectedApplication.path}}/{{form._id}}">[{{form.title}}]</a>
+                            </td>
+                        </tr>
+                    </table>
+                    <a ng-href="#/appstudio/form/{{selectedApplication.path}}/" class="btn btn-primary">Create form</a>
+                </div>
+            </tab>
+            <tab heading="Lists">
+                <div id="lists">
+                    <table class="table">
+                        <tr ng-repeat="list in selectedApplication.lists">
+                            <td>
+                                <a ng-href="#/appstudio/list/{{selectedApplication.path}}/{{list._id}}">[{{list.title}}]</a>
+                            </td>
+                        </tr>
+                    </table>
+                    <a ng-href="#/appstudio/form/{{selectedApplication.path}}/" class="btn btn-primary">Create List</a>
+                </div>
+            </tab>
+            <tab heading="Item Views">
+                <div id="singleitemviews">
+                    <table class="table">
+                        <tr ng-repeat="siv in selectedApplication.singleitemviews">
+                            <td>
+                                <a ng-href="#/appstudio/siv/{{selectedApplication.path}}/{{siv._id}}">[{{siv.title}}]</a>
+                            </td>
+                        </tr>
+                    </table>
+                    <a ng-href="#/appstudio/singleitemview/{{selectedApplication.path}}/" class="btn btn-primary">Create Item View</a>
+                </div>
+            </tab>
+
+            <tab heading="Widgets">
+                <div id="widgets">
+                    <table class="table">
+                        <tr ng-repeat="widget in selectedApplication.widgets">
+                            <td>
+                                <a ng-href="#/appstudio/widget/{{selectedApplication.path}}/{{widget._id}}">[{{widget.name}}]</a>
+                            </td>
+                        </tr>
+                    </table>
+                    <a ng-href="#/appstudio/widget/{{selectedApplication.path}}/" class="btn btn-primary">Create widget</a>
+                </div>
+            </tab>
+            <tab heading="Menus">
+                <div id="menus">
+                    <table class="table">
+                        <tr ng-repeat="menu in selectedApplication.menus">
+                            <td>
+                                <a ng-href="#/appstudio/menu/{{selectedApplication.path}}/{{menu._id}}">[{{menu.brandtitle}}]</a>
+                            </td>
+                        </tr>
+                    </table>
+                    <a ng-href="#/appstudio/menu/{{selectedApplication.path}}/" class="btn btn-primary">Create menu</a>
+                </div>
+            </tab>
+        </tabset>
+    </div>
+</div>

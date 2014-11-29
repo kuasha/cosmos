@@ -211,26 +211,34 @@
     </div>
 </script>
 
-<div ng-show="hasError" class="bg-warning">
-    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
-    <div><label>Error code:</label><span ng-bind="status"/></div>
-    <div ng-bind="status_data"></div>
-</div>
+<div ng-init="init()" class="container-fluid">
 
-<div class="container">
-    <div class="floatleft settings-tab-container">
-        <tabset justified="true">
-            <tab heading="Tools" acive="toolsActive();" select="selectTab('tools')">
-                <div>
+    <div ng-show="hasError" class="bg-warning">
+        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+        <div><label>Error code:</label><span ng-bind="status"/></div>
+        <div ng-bind="status_data"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-2">
                     <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
                         <li ng-repeat="comp in components">
                              {{comp.title}}
                         </li>
                     </ul>
-                </div>
-            </tab>
-            <tab heading="Settings" acive="settingsActive();" select="selectTab('settings');">
-                <div>
+        </div>
+        <div class="col-sm-8 page">
+        <div ng-click="selectItem(form); $event.stopPropagation();">
+            <label class="control-label">{{form.title}}</label>
+            <ul class="apps-container" ui-sortable="sortableOptions" ng-model="form.fields">
+                <li class="innerCont" ng-repeat="field in form.fields">
+                    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem(form.fields, $index);"></button>
+                    <div ng-include="field.type+'-field.html'"></div>
+                </li>
+            </ul>
+        </div>
+        </div>
+        <div class="col-sm-2">
                     <div ng-if="selectedItem">
                         <div>
                             <label>{{optionsform.title}}</label>
@@ -241,26 +249,13 @@
                             </li>
                         </ul>
                     </div>
-                </div>
-            </tab>
-        </tabset>
-    </div>
-
-    <div class="floatleft form">
-        <div ng-click="selectItem(form); $event.stopPropagation();">
-            <label class="control-label">{{form.title}}</label>
-            <ul class="apps-container" ui-sortable="sortableOptions" ng-model="form.fields">
-                <li class="innerCont" ng-repeat="field in form.fields">
-                    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem(form.fields, $index);"></button>
-                    <div ng-include="field.type+'-field.html'"></div>
-                </li>
-            </ul>
         </div>
     </div>
 
     <div style="clear: both;"></div>
+
     <div>
-        <button class="btn btn-success" ng-click="saveForm()">Save</button>
+        <button class="btn btn-success" ng-click="saveForm()">Save Form</button>
     </div>
     <div>
         <label>Data</label>
@@ -273,6 +268,3 @@
     </div>
 
 </div>
-
-
-
