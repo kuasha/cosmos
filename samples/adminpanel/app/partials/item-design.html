@@ -32,6 +32,10 @@
             <field type="form" item="singleitemconfigEditorForm" val="singleitemview"></field>
         </div>
 
+        <div ng-if="itemType === 'app'">
+            <field type="form" item="appEditorForm" val="app"></field>
+        </div>
+
         <div>
             <br />
             <button ng-click="saveItem()" class="btn btn-primary">Save</button>

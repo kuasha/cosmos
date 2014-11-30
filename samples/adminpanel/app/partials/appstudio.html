@@ -14,7 +14,7 @@
 </div>
 <div class="container theme-showcase" role="main" ng-init="init()">
     <error-banner></error-banner>
-
+    <!--
     <div ng-hide="isAppOpened()">
         <select ng-change="applicationChanged()"
                 ng-model="selectedApplication"
@@ -24,12 +24,53 @@
 
         <button ng-hide="isAppOpened()" ng-click="openApp()">Open App</button>
     </div>
+    -->
 
-    <label ng-bind="getCurrentApplicationTitle()"></label>
-    <button ng-show="isAppOpened()" ng-click="closeApp()">Close App</button>
-    <button ng-show="isAppOpened()" ng-click="loadAppItemsForSelectedApp()">Refresh</button>
+    <div>
+        <label ng-bind="getCurrentApplicationTitle()"></label>
+        <button ng-show="isAppOpened()" ng-click="closeApp()" class="btn btn-danger">Close App</button>
+        <button ng-show="isAppOpened()" ng-click="loadAppItemsForSelectedApp()" class="btn btn-success">Refresh</button>
+    </div>
 
     <div ng-hide="isAppOpened()">
+        <div ng-show="!loggedIn()">
+            <p>You should login (as admin) to install an application.</p>
+        </div>
+
+        <div ng-show="loggedIn()">
+            <h2>Install application</h2>
+
+            <form enctype="multipart/form-data" method="POST" action="/application/install/">
+                Application package: <input name="application" type="file"/><br/>
+                <input class="btn btn-primary" type="submit" value="       Install Application      "/>
+            </form>
+        </div>
+
+        <h2>Applications</h2>
+
+        <div id="app">
+            <table class="table">
+                <tr ng-repeat="capp in applications">
+                    <td>
+                        {{capp.title}}
+                    </td>
+                    <td>
+                        <a ng-href="#/appstudio/app/cosmosapp/{{capp._id}}" class="btn btn-primary">Settings</a>
+                    </td>
+                    <td>
+                        <a ng-href="/application/package/{{capp.id}}" class="btn btn-warning">Export App</a>
+                    </td>
+                    <td>
+                        <button ng-click="openApp(capp)" class="btn btn-success">Open App</button>
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <a ng-href="#/appstudio/app/cosmosapp" class="btn btn-primary">Create Application</a>
+        </div>
 
     </div>
 

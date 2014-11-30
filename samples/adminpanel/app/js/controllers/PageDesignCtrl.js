@@ -72,6 +72,13 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     ]}
                 ]
             },
+            "listref": {
+                "fields": [
+                    {"type": "composite", "title": "Settings", "name": "value", fields:[
+                        {"type": "text", "title": "List Id", "name": "listId"}
+                    ]}
+                ]
+            },
             "chartref": {
                 "fields": [
                     {"type": "composite", "title": "Settings", "name": "value", fields:[

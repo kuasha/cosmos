@@ -290,6 +290,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     },
                     {
                         "fields": [
+                            /*
                             {
                                 "fields": [],
                                 "title": "Index page",
@@ -307,6 +308,13 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                     ],
                                     "hideRefType": true
                                 },
+                                "name": "indexPageId"
+                            },
+                            */
+                            {
+                                "fields": [],
+                                "title": "Index page Id",
+                                "type": "input",
                                 "name": "indexPageId"
                             },
                             {
@@ -399,7 +407,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                 "title": "Object map",
                                 "type": "composite",
                                 "options": {},
-                                "name": "objecrmap"
+                                "name": "objectmap"
                             }
                         ],
                         "title": "Settings",
@@ -546,8 +554,16 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
 
             $scope.list = {"columns":[]};
             $scope.menu = {"fields":[]};
+            $scope.app = {"settings": { "source_code": [],"objects": [],"objectmap": {}, "file_objects": []}};
 
-            $scope.initApplication();
+            if($scope.itemType === "app"){
+                    var itemConfigName = $scope.getItemConfigName($scope.itemType);
+                    $scope.initForms();
+                    $scope.getItem($scope.itemType, itemConfigName);
+            }
+            else {
+                $scope.initApplication();
+            }
         };
     }])
 ;

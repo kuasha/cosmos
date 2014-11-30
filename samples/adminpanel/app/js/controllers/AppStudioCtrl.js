@@ -30,6 +30,12 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
             $scope.status_data = JSON.stringify(data);
         };
 
+        $scope.clearError = function () {
+            $scope.hasError = false;
+            $scope.status = "";
+            $scope.status_data = "";
+        };
+
         $scope.processItem = function (itemType, values) {
             var app = $scope.selectedApplication;
             app[itemType] = values;
@@ -56,8 +62,7 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
                         $scope.getItemsByUrl(itemType, url);
                     },
                     function (status, data) {
-                        var url = '/service/'+defaultObjectName+'/';
-                        $scope.getItemsByUrl(itemType, url);
+                        $scope.processError(status, data);
                     }
                 );
             }
@@ -80,7 +85,11 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
             $scope.loadAppItems($scope.selectedApplication);
         };
 
-        $scope.openApp = function(){
+        $scope.openApp = function(app){
+            if(app) {
+                $scope.selectedApplication = app;
+            }
+
             if($scope.selectedApplication){
                 $scope.loadAppItems($scope.selectedApplication);
                 $scope.hashtable.set($scope.cosmosCurrentApplicationRef, $scope.selectedApplication);

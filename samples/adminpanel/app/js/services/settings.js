@@ -4,9 +4,9 @@
 
 var getAppSettingsByAppImpl = function (application, settingsName) {
     if (application && application["settings"]
-        && application["settings"]["objecrmap"]
-        && application["settings"]["objecrmap"][settingsName]) {
-        var value = application["settings"]["objecrmap"][settingsName];
+        && application["settings"]["objectmap"]
+        && application["settings"]["objectmap"][settingsName]) {
+        var value = application["settings"]["objectmap"][settingsName];
 
         return value;
     }
@@ -15,6 +15,13 @@ var getAppSettingsByAppImpl = function (application, settingsName) {
 services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', function (CosmosService, cachedloader) {
     return{
         getAppSettings: function (appPath, settingsName, successCallback, errorCallback) {
+
+            if(appPath === "cosmosapp" && settingsName === "appconfigobject"){
+                if(successCallback){
+                    successCallback("cosmos.applications");
+                }
+            }
+
             var appCache = "Application." + appPath;
             var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
 

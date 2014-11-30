@@ -11,7 +11,7 @@ controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'Cos
         $scope.appPath = $routeParams.appPath;
 
         $scope.processError = function (data, status) {
-            $location.path('/install/');
+            $location.path('/appstudio/');
         };
 
         $scope.getConfiguration = function () {
@@ -68,7 +68,7 @@ controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'Cos
                         //    + $scope.appPath + ". Found = " + ((!returnedData) ? 0 : returnedData.length);
                         //message.push({"message": msg, "title": "Invalid application name", "data": ""});
                         //$location.path('/message');
-                        $location.path('/install/');
+                        $location.path('/appstudio/');
                         return;
                     }
 
