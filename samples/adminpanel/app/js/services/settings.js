@@ -48,6 +48,10 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', fun
         },
 
         getAppSettingsByApp : function (application, settingsName) {
+            if(settingsName === "appconfigobject"){
+                return "cosmos.applications";
+            }
+
             return getAppSettingsByAppImpl(application, settingsName);
         },
 

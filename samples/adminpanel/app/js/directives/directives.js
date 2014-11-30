@@ -85,7 +85,7 @@ var directives = angular.module('cosmosUI.directives', []).
 
             link: function (scope, element, attributes) {
                 console.log("Creating page");
-                scope.pagedef = [];
+                scope.pagedef = {};
                 var template = scope.getTemplate();
                 if (!template) {
                     return;
@@ -111,9 +111,53 @@ var directives = angular.module('cosmosUI.directives', []).
             controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
                 function ($scope, $location, $routeParams, message, CosmosService, settings) {
 
+                    $scope.getPageConfigurationByUrl = function (url) {
+                        CosmosService.get(url, function (data) {
+                                if (data.loginRequired && !loggedIn()) {
+                                    var curUrl = $location.url();
+                                    $location.url("/login/?redirect=" + curUrl);
+                                }
+                                else {
+                                    $scope.pagedef = data;
+                                }
+                            },
+                            function (data, status) {
+                                if(status == 401){
+                                    var curUrl = $location.url();
+                                    $location.url("/login/?redirect=" + curUrl);
+                                }
+                            }
+                        );
+                    };
+
+                    $scope.getPageConfiguration = function () {
+                        if (!$scope.pageId) {
+                            return;
+                        }
+
+                        $scope.appPath = $routeParams.appPath;
+
+                        settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
+                                var url = '/service/' + objectName + '/' + $scope.pageId + '/';
+                                $scope.getPageConfigurationByUrl(url);
+                            },
+                            function (status, data) {
+                                var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+                                $scope.getPageConfigurationByUrl(url);
+                            }
+                        );
+                    };
+
                     $scope.getConfigurationByUrl = function (url) {
                         CosmosService.get(url, function (data) {
                                 $scope.config = data;
+                                if($scope.config.pageId){
+                                    $scope.pageId = $scope.config.pageId;
+                                    $scope.getPageConfiguration();
+                                }
+                                else if ($scope.config.pagedef){
+                                    $scope.pagedef = $scope.config.pagedef;
+                                }
                                 $scope.loadSingleItem();
                             },
                             function (data, status) {
@@ -160,7 +204,7 @@ var directives = angular.module('cosmosUI.directives', []).
 
                     $scope.getTemplate = function () {
                         var template = '' +
-                            '    <div ng-repeat="field in config.fields">\n' +
+                            '    <div ng-repeat="field in pagedef.fields">\n' +
                             '        <field item="field" val="$parent.data"></field>\n' +
                             '    </div>\n' +
                             '';
@@ -170,7 +214,7 @@ var directives = angular.module('cosmosUI.directives', []).
 
             link: function (scope, element, attributes) {
                 console.log("Creating page");
-                scope.pagedef = [];
+                scope.pagedef = {};
                 var template = scope.getTemplate();
                 if (!template) {
                     return;

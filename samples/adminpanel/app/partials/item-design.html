@@ -1,3 +1,17 @@
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">App Studio</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/#/appstudio/">Home</a></li>
+                <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
+                <li ng-show="!loggedIn()"><a href="/login.html">Login</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
 <div ng-init="init()" class="container theme-showcase" role="main">
     <label>/{{itemType}}/{{appPath}}/{{itemId}}</label>
     <hr />
@@ -14,6 +28,9 @@
             <field type="form" item="menuEditorForm" val="menu"></field>
         </div>
 
+        <div ng-if="itemType === 'singleitemview'">
+            <field type="form" item="singleitemconfigEditorForm" val="singleitemview"></field>
+        </div>
 
         <div>
             <br />

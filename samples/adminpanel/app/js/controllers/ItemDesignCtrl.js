@@ -26,8 +26,12 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
 
             var widgetItemConfigName = $scope.getItemConfigName("widget");
             var widgetObjectname  = settings.getAppSettingsByApp($scope.app, widgetItemConfigName);
-
             var widgetsLoaderUrl ="/service/"+widgetObjectname+"?columns=name";
+
+            var pageItemConfigName = $scope.getItemConfigName("page");
+            var pageObjectname  = settings.getAppSettingsByApp($scope.app, pageItemConfigName);
+            var pageLoaderUrl ="/service/"+pageObjectname+"?columns=title";  //TODO: resolve chicken egg scenario
+
 
             $scope.listEditorForm = {
                 "name": "listconfiguration",
@@ -186,80 +190,236 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 "type": "form"
             };
 
-            $scope.oldform = {
-                "name": "menueditor",
-                "title": "Menu editor",
+            $scope.singleitemconfigEditorForm = {
+                "name": "singleitemviewform",
+                "title": "Single item view",
+                "type": "form",
                 "fields": [
                     {
-                        "title": "Brand title",
+                        "title": "Page Id",
                         "type": "input",
-                        "name": "brandtitle",
+                        "name": "pageId",
                         "htmltype": "text"
                     },
                     {
-                        "title": "Brand link",
+                        "title": "Object name",
                         "type": "input",
-                        "name": "brandhref",
+                        "name": "objectName",
                         "htmltype": "text"
                     },
                     {
                         "fields": [
                             {
-                                "title": "Type",
-                                "type": "select",
+                                "title": "Name",
+                                "type": "input",
+                                "name": "name",
+                                "htmltype": "text"
+                            }
+                        ],
+                        "title": "Columns",
+                        "type": "array",
+                        "options": {},
+                        "name": "columns"
+                    }
+                ]
+            };
+
+            $scope.appEditorForm = {
+                "name": "application",
+                "title": "Application",
+                "fields": [
+                    {
+                        "title": "Id",
+                        "type": "input",
+                        "name": "id",
+                        "htmltype": "text"
+                    },
+                    {
+                        "title": "Name",
+                        "type": "input",
+                        "name": "name",
+                        "htmltype": "text"
+                    },
+                    {
+                        "title": "Tite",
+                        "type": "input",
+                        "name": "title",
+                        "htmltype": "text"
+                    },
+                    {
+                        "title": "Path",
+                        "type": "input",
+                        "name": "path",
+                        "htmltype": "text"
+                    },
+                    {
+                        "title": "Version",
+                        "type": "input",
+                        "name": "version",
+                        "htmltype": "text"
+                    },
+                    {
+                        "title": "Contact email",
+                        "type": "input",
+                        "name": "contact",
+                        "htmltype": "email"
+                    },
+                    {
+                        "title": "Author",
+                        "type": "input",
+                        "name": "author",
+                        "htmltype": "text"
+                    },
+                    {
+                        "title": "Website",
+                        "type": "input",
+                        "name": "website",
+                        "htmltype": "text"
+                    },
+                    {
+                        "title": "Copyright",
+                        "type": "input",
+                        "name": "copyright",
+                        "htmltype": "text"
+                    },
+                    {
+                        "title": "License",
+                        "type": "input",
+                        "name": "license",
+                        "htmltype": "text"
+                    },
+                    {
+                        "fields": [
+                            {
+                                "fields": [],
+                                "title": "Index page",
+                                "type": "lookup",
                                 "options": {
-                                    "choices": [
+                                    "saveValueOnly": true,
+                                    "lookups": [
                                         {
-                                            "value": "menuitem",
-                                            "title": "Link"
-                                        },
-                                        {
-                                            "value": "inlinewidget",
-                                            "title": "Inline widget"
+                                            "url": pageLoaderUrl,
+                                            "ref": "Id",
+                                            "lookupname": "Index page",
+                                            "value": "_id",
+                                            "title": "title"
                                         }
-                                    ]
+                                    ],
+                                    "hideRefType": true
                                 },
-                                "name": "type"
+                                "name": "indexPageId"
                             },
                             {
                                 "fields": [
                                     {
-                                        "title": "Title",
+                                        "title": "Object name",
                                         "type": "input",
-                                        "name": "title",
-                                        "htmltype": "text"
-                                    },
-                                    {
-                                        "title": "Link",
-                                        "type": "input",
-                                        "name": "href",
+                                        "name": "objectName",
                                         "htmltype": "text"
                                     }
                                 ],
-                                "title": "Value",
-                                "type": "composite",
-                                "options": {},
-                                "name": "value"
+                                "title": "Objects",
+                                "type": "array",
+                                "options": {
+                                    "primitive": true
+                                },
+                                "name": "objects"
                             },
                             {
-                                "title": "CSS Class",
-                                "type": "input",
-                                "name": "cssclass",
-                                "htmltype": "text"
+                                "fields": [
+                                    {
+                                        "title": "File object name",
+                                        "type": "input",
+                                        "name": "fileObjectName",
+                                        "htmltype": "text"
+                                    }
+                                ],
+                                "title": "File objects",
+                                "type": "array",
+                                "options": {
+                                    "primitive": true
+                                },
+                                "name": "file_objects"
+                            },
+                            {
+                                "fields": [
+                                    {
+                                        "title": "File name",
+                                        "type": "input",
+                                        "name": "File name",
+                                        "htmltype": "text"
+                                    }
+                                ],
+                                "title": "Source files",
+                                "type": "array",
+                                "options": {
+                                    "primitive": true
+                                },
+                                "name": "source_code"
+                            },
+                            {
+                                "fields": [
+                                    {
+                                        "title": "List config object",
+                                        "type": "input",
+                                        "name": "listconfigobject",
+                                        "htmltype": "text"
+                                    },
+                                    {
+                                        "title": "Form config object",
+                                        "type": "input",
+                                        "name": "formconfigobject",
+                                        "htmltype": "text"
+                                    },
+                                    {
+                                        "title": "Menu config object",
+                                        "type": "input",
+                                        "name": "menuconfigobject",
+                                        "htmltype": "text"
+                                    },
+                                    {
+                                        "title": "Page config object",
+                                        "type": "input",
+                                        "name": "pageconfigobject",
+                                        "htmltype": "text"
+                                    },
+                                    {
+                                        "title": "Wiget object",
+                                        "type": "input",
+                                        "name": "widgetobject",
+                                        "htmltype": "text"
+                                    },
+                                    {
+                                        "title": "Single item config object",
+                                        "type": "input",
+                                        "name": "singleitemconfigobject",
+                                        "htmltype": "text"
+                                    }
+                                ],
+                                "title": "Object map",
+                                "type": "composite",
+                                "options": {},
+                                "name": "objecrmap"
                             }
                         ],
-                        "title": "Fields",
-                        "type": "array",
+                        "title": "Settings",
+                        "type": "composite",
                         "options": {},
-                        "name": "fields"
+                        "name": "settings"
                     }
                 ],
-                "type": "form"
-            }
+                "onsuccess": {
+                    "type": "message",
+                    "value": "Application has been saved"
+                },
+                "owner": "5415b4b7d70af3e2078df1c1",
+                "modifytime": "2014-10-26 19:21:49.707748",
+                "action": "/service/cosmos.applications",
+                "_id": "544be3efedb05831be77e534",
+                "type": "form",
+                "createtime": "2014-10-26 18:18:16.677394"
+            };
         };
-
-
-
 
         $scope.itemType = $routeParams.itemType;
         $scope.appPath = $routeParams.appPath;
@@ -275,6 +435,10 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
         $scope.processItem = function (itemType, value) {
             $scope[itemType] = value || {};
             $scope.ready=true;
+        };
+
+        $scope.processError = function(data, status){
+            //TODO: Implement
         };
 
         $scope.getItemByUrl = function(itemType, url) {
@@ -314,6 +478,13 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             }
             if(itemType === "menu"){
                 return "menuconfigobject";
+            }
+            if(itemType === "singleitemview"){
+                return "singleitemconfigobject";
+            }
+
+            if(itemType === "app"){
+                return "appconfigobject";
             }
         };
 
@@ -372,6 +543,10 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
 
         $scope.init = function(){
             var itemConfigName = $scope.getItemConfigName($scope.itemType);
+
+            $scope.list = {"columns":[]};
+            $scope.menu = {"fields":[]};
+
             $scope.initApplication();
         };
     }])

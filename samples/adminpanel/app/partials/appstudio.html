@@ -1,14 +1,11 @@
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/">Cosmos Terminal</a>
+            <a class="navbar-brand" href="/">App Studio</a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="/">Home</a></li>
-                <li><a href="#/lists/">Lists</a></li>
-                <li><a href="#/users">Users</a></li>
-                <li><a href="#/roles">Roles</a></li>
+                <li><a href="/#/appstudio/">Home</a></li>
                 <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
                 <li ng-show="!loggedIn()"><a href="/login.html">Login</a></li>
             </ul>
@@ -18,9 +15,8 @@
 <div class="container theme-showcase" role="main" ng-init="init()">
     <error-banner></error-banner>
 
-    <div>
-        <select ng-hide="isAppOpened()"
-                ng-change="applicationChanged()"
+    <div ng-hide="isAppOpened()">
+        <select ng-change="applicationChanged()"
                 ng-model="selectedApplication"
                 ng-model="myColor"
                 ng-options="app.title for app in applications">
@@ -33,6 +29,10 @@
     <button ng-show="isAppOpened()" ng-click="closeApp()">Close App</button>
     <button ng-show="isAppOpened()" ng-click="loadAppItemsForSelectedApp()">Refresh</button>
 
+    <div ng-hide="isAppOpened()">
+
+    </div>
+
     <div ng-show="isAppOpened()">
 
         <tabset>
@@ -40,11 +40,15 @@
                 <div id="pages">
                     <table class="table">
                         <tr>
-                            <td>Pages</td>
+                            <td>Control</td>
+                            <td>View</td>
                         </tr>
                         <tr ng-repeat="page in selectedApplication.pages">
                             <td>
-                                <a ng-href="#/appstudio/page/{{selectedApplication.path}}/{{page._id}}">[{{page.title}}]</a>
+                                <a ng-href="#/appstudio/page/{{selectedApplication.path}}/{{page._id}}">[Edit {{page.title}}]</a>
+                            </td>
+                            <td>
+                                <a ng-href="#/a/{{selectedApplication.path}}/page/{{page._id}}">[View {{page.title}}]</a>
                             </td>
                         </tr>
                     </table>
@@ -72,7 +76,7 @@
                             </td>
                         </tr>
                     </table>
-                    <a ng-href="#/appstudio/form/{{selectedApplication.path}}/" class="btn btn-primary">Create List</a>
+                    <a ng-href="#/appstudio/list/{{selectedApplication.path}}/" class="btn btn-primary">Create List</a>
                 </div>
             </tab>
             <tab heading="Item Views">
@@ -80,7 +84,7 @@
                     <table class="table">
                         <tr ng-repeat="siv in selectedApplication.singleitemviews">
                             <td>
-                                <a ng-href="#/appstudio/siv/{{selectedApplication.path}}/{{siv._id}}">[{{siv.title}}]</a>
+                                <a ng-href="#/appstudio/singleitemview/{{selectedApplication.path}}/{{siv._id}}">[{{siv.objectName}}]</a>
                             </td>
                         </tr>
                     </table>
