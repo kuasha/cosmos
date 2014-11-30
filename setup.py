@@ -5,7 +5,7 @@ except ImportError:
 
 setup(
     name='cosmos',
-    version='0.01.050.00',
+    version='0.01.051.00',
     packages=['cosmos', 'cosmos.admin', 'cosmos.admin.samples', 'cosmos.datamonitor', 'cosmos.dataservice', 'cosmos.rbac', 'cosmos.schema',
               'cosmos.service', 'cosmos.processors', 'test'],
     url='http://cosmosframework.com',
