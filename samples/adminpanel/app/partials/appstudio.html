@@ -28,8 +28,8 @@
 
     <div>
         <label ng-bind="getCurrentApplicationTitle()"></label>
-        <button ng-show="isAppOpened()" ng-click="closeApp()" class="btn btn-danger">Close App</button>
-        <button ng-show="isAppOpened()" ng-click="loadAppItemsForSelectedApp()" class="btn btn-success">Refresh</button>
+        <button ng-show="isAppOpened()" ng-click="closeApp()" class="btn btn-danger btn-xs">Close App</button>
+        <button ng-show="isAppOpened()" ng-click="loadAppItemsForSelectedApp()" class="btn btn-success btn-xs">Refresh</button>
     </div>
 
     <div ng-hide="isAppOpened()">
@@ -120,6 +120,18 @@
                     <a ng-href="#/appstudio/list/{{selectedApplication.path}}/" class="btn btn-primary">Create List</a>
                 </div>
             </tab>
+            <tab heading="Charts">
+                <div ng-if="false" id="charts">
+                    <table class="table">
+                        <tr ng-repeat="chart in selectedApplication.charts">
+                            <td>
+                                <a ng-href="#/appstudio/chart/{{selectedApplication.path}}/{{chart._id}}">[{{chart.title}}]</a>
+                            </td>
+                        </tr>
+                    </table>
+                    <a ng-href="#/appstudio/chart/{{selectedApplication.path}}/" class="btn btn-primary">Create Chart</a>
+                </div>
+            </tab>
             <tab heading="Item Views">
                 <div id="singleitemviews">
                     <table class="table">
@@ -132,7 +144,6 @@
                     <a ng-href="#/appstudio/singleitemview/{{selectedApplication.path}}/" class="btn btn-primary">Create Item View</a>
                 </div>
             </tab>
-
             <tab heading="Widgets">
                 <div id="widgets">
                     <table class="table">

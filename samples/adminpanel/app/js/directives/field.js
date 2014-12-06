@@ -596,6 +596,10 @@ directives.directive('field', function ($compile) {
                             template = '<link data-ng-href="{{item.href}}" rel="stylesheet" />';
                             break;
 
+                        case "jsref":
+                            template = '<script data-ng-src="item.src" />';
+                            break;
+
                         case "listref":
                             template = '<div ng-if="listConfiguration !== undefined"><div ng-include="listConfiguration.widgetName" /></div></div>';
                             break;
@@ -760,6 +764,16 @@ directives.directive('field', function ($compile) {
                 headElement.append(newElement);
 
                 template = "<!-- cssref has been placed into header  -->";
+            }
+
+            if (scope.item.type === "jsref") {
+                var headElement = angular.element(document.getElementsByTagName('head')[0]);
+
+                var newElement = angular.element(template);
+                $compile(newElement)(scope);
+                headElement.append(newElement);
+
+                template = "<!-- jsref has been placed into header  -->";
             }
 
             if (scope.item.type === "menuref") {

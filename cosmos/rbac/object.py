@@ -22,6 +22,7 @@ class AccessType:
     READ = "READ"
     UPDATE = "WRITE"
     DELETE = "DELETE"
+    SEARCH = "SEARCH"
 
     def __init__(self):
         pass

@@ -2,8 +2,8 @@
  * Created by maruf on 10/28/14.
  */
 
-controllers.controller('FormDesignController', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
-    function ($scope, $routeParams, $templateCache, $modal, CosmosService) {
+controllers.controller('FormDesignController', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService', 'cosmos.settings',
+    function ($scope, $routeParams, $templateCache, $modal, CosmosService, settings) {
 
         $scope.designMode = true;
         $scope.activeTab = "tools";
@@ -22,13 +22,6 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             else {
                 $scope.optionsform = $scope.optionFormByType["default"];
             }
-        };
-
-        $scope.toolsActive = function () {
-            return $scope.activeTab === "tools";
-        };
-        $scope.settingsActive = function () {
-            return $scope.activeTab === "settings";
         };
 
         $scope.optionsform = {
@@ -160,8 +153,8 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             ]
             },
 
-            "condition":{
-                "title": "Condition options", "type":"condition", "name":"condition", "fields":[
+            "condition": {
+                "title": "Condition options", "type": "condition", "name": "condition", "fields": [
                     {"type": "text", "title": "Title", "name": "title"},
                     {"type": "text", "title": "Name", "name": "name"},
                     {"type": "text", "title": "Expression", "name": "expression"}
@@ -192,7 +185,7 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             {title: 'Group', type: "composite", options: {}, fields: []},
             {title: 'Array', type: "array", options: {}, fields: []},
             {title: 'Lookup', type: "lookup", options: {}, fields: []},
-            {"title": "Condition", "type": "condition", fields: [], elsefields:[]}
+            {"title": "Condition", "type": "condition", fields: [], elsefields: []}
         ];
 
         $scope.components = jQuery.extend(true, [], $scope.toolsList);
@@ -206,6 +199,8 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
 
 
         $scope.formId = $routeParams.formId;
+        $scope.appPath = $routeParams.appPath;
+        $scope.itemConfigName = "formconfigobject";
 
         $scope.clearError = function () {
             $scope.hasError = false;
@@ -228,15 +223,21 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
 
         $scope.getConfiguration = function () {
             if ($scope.formId) {
+                var appPath = $scope.appPath;
 
-                //TODO: get object name from application configuration
-                var url = '/service/cosmos.forms/' + $scope.formId + '/';
+                settings.getAppSettings(appPath, $scope.itemConfigName, function (objectName) {
+                        var url = '/service/' + objectName + '/' + $scope.formId + '/';
 
-                CosmosService.get(url, function (data) {
-                        $scope.processForm(data);
+                        CosmosService.get(url, function (data) {
+                                $scope.processForm(data);
+                            },
+                            function (data, status) {
+                                $scope.processError(data, status);
+                            }
+                        );
                     },
-                    function (data, status) {
-                        $scope.processError(data, status);
+                    function (status, data) {
+                        $scope.processError(status, data);
                     }
                 );
             }
@@ -296,29 +297,38 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             $scope.clearError();
             $scope.result = null;
             var form_id = $scope.form._id;
-            var url = '/service/cosmos.forms/';
 
-            if (form_id) {
-                url = url + form_id;
-                CosmosService.put(url, $scope.form, function (data) {
-                        $scope.result = data;
-                    },
-                    function (data, status) {
-                        $scope.processError(data, status);
+            var appPath = $scope.appPath;
+            settings.getAppSettings(appPath, $scope.itemConfigName,
+                function (objectName) {
+                    var url = '/service/' + objectName + '/';
+
+                    if (form_id) {
+                        url = url + form_id;
+                        CosmosService.put(url, $scope.form, function (data) {
+                                $scope.result = data;
+                            },
+                            function (data, status) {
+                                $scope.processError(data, status);
+                            }
+                        );
                     }
-                );
-            }
-            else {
-                CosmosService.post(url, $scope.form, function (data) {
-                        $scope.result = data;
-                        $scope.form._id = JSON.parse(data);
-                    },
-                    function (data, status) {
-                        $scope.processError(data, status);
+                    else {
+                        CosmosService.post(url, $scope.form, function (data) {
+                                $scope.result = data;
+                                $scope.form._id = JSON.parse(data);
+                            },
+                            function (data, status) {
+                                $scope.processError(data, status);
+                            }
+                        );
                     }
-                );
-            }
+                },
+                function (status, data) {
+                    $scope.processError(status, data);
+                }
+            );
         };
 
         $scope.getConfiguration();
-    }])
+    }]);

@@ -52,13 +52,16 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
             );
         };
 
-        $scope.getItems = function (itemType,  itemConfigName, defaultObjectName, app) {
+        $scope.getItems = function (itemType,  itemConfigName, app) {
             if (app && app.path) {
 
                 var appPath = app.path;
 
                 settings.getAppSettings(appPath, itemConfigName, function (objectName) {
                         var url = '/service/' + objectName + '/';
+                        if(itemConfigName === "widgetobject"){
+                            url = url + '?filter={"app_id":"'+app._id+'"}';
+                        }
                         $scope.getItemsByUrl(itemType, url);
                     },
                     function (status, data) {
@@ -73,12 +76,12 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
                 return;
             }
 
-            $scope.getItems("pages", "pageconfigobject", "cosmos.pages" ,app);
-            $scope.getItems("forms", "formconfigobject", "cosmos.forms" ,app);
-            $scope.getItems("lists", "listconfigobject", "cosmos.lists" ,app);
-            $scope.getItems("widgets", "widgetobject", "cosmos.widgets" ,app);
-            $scope.getItems("menus", "menuconfigobject", "cosmos.menus" ,app);
-            $scope.getItems("singleitemviews", "singleitemconfigobject", "cosmos.singleitemviews" ,app);
+            $scope.getItems("pages", "pageconfigobject" ,app);
+            $scope.getItems("forms", "formconfigobject" ,app);
+            $scope.getItems("lists", "listconfigobject" ,app);
+            $scope.getItems("widgets", "widgetobject" ,app);
+            $scope.getItems("menus", "menuconfigobject" ,app);
+            $scope.getItems("singleitemviews", "singleitemconfigobject", app);
         };
 
         $scope.loadAppItemsForSelectedApp = function(){

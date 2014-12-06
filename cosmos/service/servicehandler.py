@@ -66,6 +66,7 @@ class ServiceHandler(requesthandler.RequestHandler):
             data = MongoObjectJSONEncoder().encode(result)
         else:
             cursor = obj_serv.find(self.current_user, object_name, query, columns)
+            #TODO: use to_list to create list
             result_list = []
             while(yield cursor.fetch_next):
                 qry_result=cursor.next_object()

@@ -848,5 +848,10 @@ class ServiceAPITests(LoggedTestCase):
         #Test fails for data with reserved mongodb keys like $set
         pass
 
+    @skip("Test not implemented")
+    def test_search_operation_works(self):
+        pass
+
+
 if __name__ == "__main__":
     unittest.main()

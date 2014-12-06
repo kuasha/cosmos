@@ -24,12 +24,14 @@ side code and 40% of front end code. Tests covers all basic functionality. Targe
 Prepare Mongodb
 ===============
 
-Current version of the framework has only mongodb support. You should have mongodb installed configured for replication:
+Current version of the framework has only mongodb (version 2.6 or newer) support. You should have mongodb installed 
+configured for search and replication:
 
 
 In /etc/mongodb.conf add the following line to enable replication
 
 ```
+setParameter=textSearchEnabled=true
 replSet = rs0
 ```
 
@@ -71,6 +73,18 @@ Now do rs.config() to see the status
 }
 
 ```
+
+Index db collection for text search
+-----------------------------------
+
+Before you can builtin use search API you have to enable search in mongodb for each collection.
+   
+Here is an example: 
+
+```
+db.cosmos.pages.ensureIndex({"title": "text"})
+```
+
 
 Install cosmos
 ==============

@@ -2,6 +2,7 @@ import tornado
 
 from cosmos.datamonitor.monitor import ChangeMonitor, ChangeRequestHandler
 from cosmos.service.auth import *
+from cosmos.service.search import SearchHandler
 from cosmos.service.servicehandler import *
 from cosmos.service.gridfsservice import *
 from cosmos.service.appservice import *
@@ -17,6 +18,7 @@ END_POINTS = [
     (r"/login/", LoginHandler),
     (r"/logout/", LogoutHandler),
     (r"/service/(.*)", ServiceHandler),
+    (r"/search/(.*)/", SearchHandler),
     (r"/gridfs/(.*)", GridFSServiceHandler),
     (r"/application/install/", AppInstallHandler),
     (r"/application/package/(.*)", AppPackageHandler),

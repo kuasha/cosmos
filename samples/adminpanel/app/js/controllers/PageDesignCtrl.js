@@ -86,7 +86,16 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     ]}
                 ]
             },
-
+            "cssref": {
+                "fields": [
+                    {"type": "text", "title": "href", "name": "href"}
+                ]
+            },
+            "jsref": {
+                "fields": [
+                    {"type": "text", "title": "src", "name": "src"}
+                ]
+            },
             "widgethost": {
                 "fields": [
                         {"type": "text", "title": "Widget Name", "name": "value"}
@@ -130,8 +139,9 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             {title: '2 Columns', type: "twocolumn"},
             {title: '3 Columns', type: "threecolumn"},
             {title: 'Chart', type: "chartref"},
-            {title: "Widget", type: "widgethost"}
-
+            {title: "Widget", type: "widgethost"},
+            {title: "CSS File", type: "cssref"},
+            {title: "JS File", type: "jsref"}
         ];
 
         $scope.components = jQuery.extend(true, [], $scope.toolsList);
@@ -268,14 +278,13 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
         };
 
         $scope.savePage = function () {
-            var url = '/service/cosmos.pages/';
 
             settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
-                    url = '/service/' + objectName + '/';
+                    var url = '/service/' + objectName + '/';
                     $scope.savePageWithUrl(url);
                 },
                 function (status, data) {
-                    url = '/service/cosmos.pages/';
+                    var url = '/service/cosmos.pages/';
                     $scope.savePageWithUrl(url);
                 }
             );

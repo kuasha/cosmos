@@ -28,10 +28,11 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             var widgetObjectname  = settings.getAppSettingsByApp($scope.app, widgetItemConfigName);
             var widgetsLoaderUrl ="/service/"+widgetObjectname+"?columns=name";
 
+            /*
             var pageItemConfigName = $scope.getItemConfigName("page");
             var pageObjectname  = settings.getAppSettingsByApp($scope.app, pageItemConfigName);
             var pageLoaderUrl ="/service/"+pageObjectname+"?columns=title";  //TODO: resolve chicken egg scenario
-
+            */
 
             $scope.listEditorForm = {
                 "name": "listconfiguration",
@@ -392,9 +393,9 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                         "htmltype": "text"
                                     },
                                     {
-                                        "title": "Wiget object",
+                                        "title": "Chart config object",
                                         "type": "input",
-                                        "name": "widgetobject",
+                                        "name": "chartconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
@@ -464,7 +465,10 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 var itemConfigName = $scope.getItemConfigName($scope.itemType);
 
                 settings.getAppSettings($scope.appPath, itemConfigName, function (objectName) {
-                        var url = '/service/' + objectName + '/' + $scope.itemId;
+                        var url = '/service/' + objectName + '/' + $scope.itemId+"/";
+                        if($scope.itemType === "widget"){
+                            url = url + '?filter={"app_id":"'+$scope.app._id+'"}';
+                        }
                         $scope.getItemByUrl(itemType, url);
                     },
                     function (status, data) {
@@ -511,6 +515,9 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 );
             }
             else {
+                if($scope.itemType === "widget"){
+                    $scope["widget"]["app_id"]=$scope.app._id;
+                }
                 CosmosService.post(url, $scope[$scope.itemType], function (data) {
                         $scope.result = data;
                         $scope.itemId = JSON.parse(data);
