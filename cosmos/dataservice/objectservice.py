@@ -120,6 +120,29 @@ class ObjectService():
 
         return result
 
+    def text_search(self, user, object_name, query, columns, limit=5000):
+        logging.debug("ObjectService::text_search::{0}".format(object_name))
+
+        allowed_access_type = self.check_access(user, object_name, columns, AccessType.SEARCH, True)
+
+        if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
+            if query:
+                assert isinstance(query, dict)
+                query["owner"] = str(user.get("_id"))
+            else:
+                query = {"owner": str(user.get("_id"))}
+
+        self.create_access_log(user, object_name, AccessType.SEARCH)
+
+        if len(columns) > 0:
+            columns_dict = {column:1 for column in columns}
+        else:
+            columns_dict = None
+
+        result = self.db[object_name].find(query, columns_dict).limit(limit)
+
+        return result
+
     def load(self, user, object_name, id, columns):
         logging.debug("ObjectService::load::{0}".format(object_name))
 

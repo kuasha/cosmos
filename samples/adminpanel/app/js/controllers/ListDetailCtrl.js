@@ -48,6 +48,10 @@ controllers.controller('ListDetailCtrl', ['$scope', '$routeParams', '$templateCa
             );
         };
 
+        $scope.showListItemDetails = function (data, listConfiguration) {
+             $scope.showDetails('lg', data, listConfiguration);
+        };
+
         $scope.showDetails = function (size, data, listConfiguration) {
             if (listConfiguration.allowDetails) {
                 var modalInstance = $modal.open({
@@ -65,4 +69,4 @@ controllers.controller('ListDetailCtrl', ['$scope', '$routeParams', '$templateCa
         };
 
         $scope.getConfiguration();
-    }])
+    }]);

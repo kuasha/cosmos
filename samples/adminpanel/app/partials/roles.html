@@ -1,28 +1,30 @@
-<div ng-show="hasError" class="bg-warning">
-    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
-    <div><label>Error code:</label><span ng-bind="status" /></div>
-    <div ng-bind="status_data"></div>
-</div>
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div ng-show="hasError" class="bg-warning">
+        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+        <div><label>Error code:</label><span ng-bind="status" /></div>
+        <div ng-bind="status_data"></div>
+    </div>
 
-<h3>Roles</h3>
+    <h3>Roles</h3>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>SID</th>
-            <th>Name</th>
-            <th>&nbsp;</th>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>SID</th>
+                <th>Name</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="role in roles">
+            <td>{{role.sid}}</td><td>{{role.name}}</td>
+            <td>
+                <button class="btn btn-xs btn-warning glyphicon glyphicon-edit" ng-click="editRole($index);"></button>
+                <button class="btn btn-xs btn-danger glyphicon glyphicon-remove" ng-click="removeRole($index);"></button>
+            </td>
         </tr>
-    </thead>
-    <tbody>
-    <tr ng-repeat="role in roles">
-        <td>{{role.sid}}</td><td>{{role.name}}</td>
-        <td>
-            <button class="btn btn-xs btn-warning glyphicon glyphicon-edit" ng-click="editRole($index);"></button>
-            <button class="btn btn-xs btn-danger glyphicon glyphicon-remove" ng-click="removeRole($index);"></button>
-        </td>
-    </tr>
-    </tbody>
-</table>
+        </tbody>
+    </table>
 
-<button class="btn btn-primary" ng-click="addRole('lg')">Create role</button>
+    <button class="btn btn-primary" ng-click="addRole('lg')">Create role</button>
+</div>

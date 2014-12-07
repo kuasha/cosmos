@@ -134,6 +134,7 @@ class AppInstallHandler(requesthandler.RequestHandler):
         self.finish()
 
 #TODO: For performance reason this should be done as background process
+#TODO: This is an extremely big function -split up
 class AppPackageHandler(requesthandler.RequestHandler):
     @tornado.web.asynchronous
     @gen.coroutine
@@ -160,6 +161,37 @@ class AppPackageHandler(requesthandler.RequestHandler):
                 bootstrap_objects = []
 
                 object_settings = settings.get("objects")
+                if not object_settings:
+                    object_settings = []
+
+                object_map = settings.get("objectmap")
+
+                if object_map:
+                    listconfigobject = object_map.get("listconfigobject")
+
+                    if listconfigobject:
+                        object_settings.append(listconfigobject)
+
+                    singleitemconfigobject = object_map.get("singleitemconfigobject")
+                    if singleitemconfigobject:
+                        object_settings.append(singleitemconfigobject)
+
+                    pageconfigobject = object_map.get("pageconfigobject")
+                    if pageconfigobject:
+                        object_settings.append(pageconfigobject)
+
+                    widgetobject = object_map.get("widgetobject")
+                    if widgetobject:
+                        object_settings.append(widgetobject)
+
+                    formconfigobject = object_map.get("formconfigobject")
+                    if formconfigobject:
+                        object_settings.append(formconfigobject)
+
+                    menuconfigobject = object_map.get("menuconfigobject")
+                    if menuconfigobject:
+                        object_settings.append(menuconfigobject)
+
                 # Package object data
                 if object_settings:
                     for object_name in object_settings:

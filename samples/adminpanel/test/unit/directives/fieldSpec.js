@@ -77,7 +77,7 @@ describe('Unit testing field directive', function () {
         $scope.$digest();
 
         // Check that the compiled element contains the templated content
-        var expectedHtml = '<div class="navbar navbar-inverse navbar-fixed-top ng-scope" role="navigation"><div class="container"><div class="navbar-header">   <a class="navbar-brand ng-binding" href="/#/a/">Beendu</a></div><div class="navbar-collapse collapse"><ul class="nav navbar-nav">   <!-- ngRepeat: field in item.fields --><li ng-repeat="field in item.fields" class="ng-scope">       <a href="/test/" class="ng-binding ng-scope"></a>   </li><!-- end ngRepeat: field in item.fields --></ul></div></div></div>';
+        var expectedHtml = ' <a class="navbar-brand ng-binding" href="/#/a/">Beendu</a> ';
 
         expect(element.html()).toContain(expectedHtml);
     });
@@ -106,11 +106,7 @@ describe('Unit testing field directive', function () {
         $httpBackend.flush();
 
         // Check that the compiled element contains the templated content
-        var expectedHtml = '<div class="navbar navbar-inverse navbar-fixed-top ng-scope" role="navigation"><div class="container"><div class="navbar-header">' +
-            '   <a class="navbar-brand ng-binding" href="/#/a/">Beendu</a></div><div class="navbar-collapse collapse"><ul class="nav navbar-nav">' +
-            '   <!-- ngRepeat: field in item.fields --><li ng-repeat="field in item.fields" class="ng-scope">       <!-- ngInclude: \'monohori.cartlink\' -->' +
-            '<div ng-include="\'monohori.cartlink\'" class="navbar-search pull-right ng-scope"></div>' +
-            '   </li><!-- end ngRepeat: field in item.fields --></ul></div></div></div>';
+        var expectedHtml = '<a class="navbar-brand ng-binding" href="/#/a/">Beendu</a>' ;
 
         expect(element.html()).toContain(expectedHtml);
     });
@@ -187,7 +183,7 @@ describe('Unit testing field directive', function () {
         var element = $compile('<div><field item="cssrefItem" val="name"></field></div>')($scope);
 
         $scope.$digest();
-        var expectedElementValue = '<!-- cssref put into header  -->';
+        var expectedElementValue = '<!-- cssref has been placed into header  -->';
         expect(element.html()).toContain(expectedElementValue);
 
         var headElement = angular.element(document.getElementsByTagName('head')[0]);

@@ -48,7 +48,7 @@ class BootLoader():
             assert isinstance(observer, dict)
             func = observer["function"]
             object_name = observer["object_name"]
-            access = observer["access"],
+            access = observer["access"]
             observer_type = observer.get("type", OBSERVER_PRE_PROCESSOR)
             assert isinstance(access, collections.Iterable)
 

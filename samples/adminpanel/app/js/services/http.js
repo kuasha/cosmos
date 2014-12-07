@@ -20,6 +20,22 @@ services.factory('CosmosService', ['$http', function ($http) {
                     }
                 });
         },
+        search: function (uri, params, callback, error_callback) {
+            $http.get(uri, params).success(function (data) {
+                var returned_data = data;
+                if (data && data._cosmos_service_array_result_) {
+                    returned_data = JSON.parse(data._d);
+                }
+                if (callback) {
+                    callback(returned_data);
+                }
+            })
+                .error(function (data, status) {
+                    if (error_callback) {
+                        error_callback(data, status);
+                    }
+                });
+        },
         post: function (uri, data, callback, error_callback) {
             $http.post(uri, data).success(function (data) {
                 var returned_data = data;

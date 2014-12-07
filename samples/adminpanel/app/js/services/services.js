@@ -21,7 +21,7 @@ services = angular.module('cosmosUI.services', [])
     }])
     .factory('globalhashtable', ['$http', 'localStorageService', function ($http, localStorageService) {
         return{
-            collections: localStorageService.get('globalhashtable'),
+            collections: localStorageService.get('globalhashtable') || {},
             getAll: function () {
                 return this.collections;
             },

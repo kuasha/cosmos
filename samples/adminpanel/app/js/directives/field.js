@@ -10,8 +10,8 @@ directives.directive('field', function ($compile) {
             val: '='
         },
 
-        controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable', 'cosmos.settings',
-            function ($scope, $location, $routeParams, message, CosmosService, namedcolection, calculator, hashtable, settings) {
+        controller: ['$scope', '$location', '$routeParams', '$modal', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable', 'cosmos.settings',
+            function ($scope, $location, $routeParams, $modal, message, CosmosService, namedcolection, calculator, hashtable, settings) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
@@ -93,11 +93,11 @@ directives.directive('field', function ($compile) {
                 $scope.updateOptions = function (field) {
                     var lookup;
                     if ($scope.item.options.saveValueOnly) {
-                        $scope.val = undefined;
+                        //$scope.val = undefined;
                         lookup = $scope.getLookup(field, $scope.ref);
                     }
                     else {
-                        $scope.val.data = undefined;
+                        //$scope.val.data = undefined;
                         lookup = $scope.getLookup(field, $scope.val.ref || $scope.ref);
                     }
 
@@ -116,6 +116,9 @@ directives.directive('field', function ($compile) {
                         );
                     }
                 };
+
+                // TODO: get*ConfigurationByUrl and get*Configuration functions should be combined
+                // We should have configuration variable for all instead of specific name for config
 
                 //START MenuRef methods
                 $scope.getMenuConfigurationByUrl = function (url) {
@@ -149,12 +152,13 @@ directives.directive('field', function ($compile) {
 
                 //List ref
 
-                $scope.getListDataBy = function (columns, objectName) {
+                $scope.getListDataBy = function (columns, objectName, filter) {
                     var columnsCsv = '';
                     angular.forEach(columns, function (column, index) {
                         columnsCsv += column.name + ",";
                     });
-                    var url = '/service/' + objectName + '/?columns=' + columnsCsv;
+
+                    var url = '/service/' + objectName + '/?columns=' + columnsCsv + '&filter='+ filter;
 
                     CosmosService.get(url, function (data) {
                             $scope.data = data;
@@ -168,8 +172,9 @@ directives.directive('field', function ($compile) {
                 $scope.getListDataFromConfig = function (listConfiguration) {
                     var columns = listConfiguration.columns;
                     var objectName = listConfiguration.objectName;
+                    var filter = listConfiguration.filter;
 
-                    $scope.getListDataBy(columns, objectName);
+                    $scope.getListDataBy(columns, objectName,filter);
                 };
 
                 $scope.getListConfigurationByUrl = function (url) {
@@ -198,7 +203,99 @@ directives.directive('field', function ($compile) {
                     );
                 };
 
+                $scope.editListItem = function (data, listConfiguration) {
+                    if (listConfiguration.editable && listConfiguration.itemeditor_id) {
+                        var modalInstance = $modal.open({
+                            templateUrl: 'partials/formview.html',
+                            controller: "FormViewModalCtrl",
+                            size: 'lg',
+                            backdrop: 'static',
+                            //windowClass:'modal-huge', //TODO: set window bigger than default of lg window
+                            resolve: {
+                                model: function () {
+                                    return data;
+                                },
+                                formId: function(){
+                                    return listConfiguration.itemeditor_id;
+                                }
+                            }
+                        });
+                    }
+                };
+
+                $scope.showListItemDetails = function (data, listConfiguration) {
+                    if (listConfiguration.allowDetails) {
+                        var modalInstance = $modal.open({
+                            templateUrl: 'partials/show_json.html',
+                            controller: "ShowJsonDataCtrl",
+                            size: 'lg',
+                            backdrop: 'static',
+                            resolve: {
+                                model: function () {
+                                    return data;
+                                }
+                            }
+                        });
+                    }
+                };
+
                 //END List methods
+
+               //START Chart methods
+
+                //Chart ref
+
+                $scope.getChartDataBy = function (columns, objectName) {
+                    //TODO: this function is duplicate to getListDataBy
+                    var columnsCsv = '';
+                    angular.forEach(columns, function (column, index) {
+                        columnsCsv += column.name + ",";
+                    });
+                    var url = '/service/' + objectName + '/?columns=' + columnsCsv;
+
+                    CosmosService.get(url, function (data) {
+                            $scope.data = data;
+                        },
+                        function (data, status) {
+                            //TODO: $scope.processError(data, status);
+                        }
+                    );
+                };
+
+                $scope.getChartDataFromConfig = function (chartConfiguration) {
+                    var columns = chartConfiguration.columns;
+                    var objectName = chartConfiguration.objectName;
+
+                    $scope.getChartDataBy(columns, objectName);
+                };
+
+                $scope.getChartConfigurationByUrl = function (url) {
+                    CosmosService.get(url, function (data) {
+                            $scope.data = {};
+                            $scope.chartConfiguration = data;
+                            $scope.getChartDataFromConfig($scope.chartConfiguration);
+                        },
+                        function (data, status) {
+                            //TODO: $scope.processError(data, status);
+                        }
+                    );
+                };
+
+                $scope.getChartConfiguration = function () {
+                    $scope.appPath = $routeParams.appPath;
+
+                    settings.getAppSettings($scope.appPath, "chartconfigobject", function (objectName) {
+                            var url = '/service/' + objectName + '/' + $scope.item.value.chartId + '/';
+                            $scope.getChartConfigurationByUrl(url);
+                        },
+                        function (status, data) {
+                            var url = '/service/cosmos.chartconfigurations/' + $scope.item.value.chartId + '/';
+                            $scope.getChartConfigurationByUrl(url);
+                        }
+                    );
+                };
+
+                //END Chart methods
 
                 // START FormRef methods
                 $scope.getFormConfigurationByUrl = function (url) {
@@ -233,6 +330,7 @@ directives.directive('field', function ($compile) {
                     if (dataId) {
                         var url = form.action + '/' + dataId + '/';
                         CosmosService.get(url, function (data) {
+                                jQuery.extend(data, $scope.data);
                                 $scope.data = data;
                             },
                             function (data, status) {
@@ -245,7 +343,7 @@ directives.directive('field', function ($compile) {
                 $scope.processFormResult = function (form, result) {
                     if (form && form.onsuccess) {
                         if (form.onsuccess.type === "url") {
-                            var _id = ($scope.item.dataId || JSON.parse(result));
+                            var _id = ($scope.val || JSON.parse(result));
                             window.location.href = form.onsuccess.value.replace("{{_id}}", _id);
                         }
                         else if (form.onsuccess.type === "message") {
@@ -261,7 +359,7 @@ directives.directive('field', function ($compile) {
                 $scope.onFormSubmit = function () {
                     if ($scope.form.action) {
                         if ($scope.form.action) {
-                            if (!$scope.item.dataId) {
+                            if (!$scope.val) {
                                 CosmosService.post($scope.form.action, $scope.data, function (data) {
                                         $scope.processFormResult($scope.form, data);
                                     },
@@ -271,7 +369,7 @@ directives.directive('field', function ($compile) {
                                 );
                             }
                             else {
-                                var url = $scope.form.action + '/' + $scope.item.dataId + '/';
+                                var url = $scope.form.action + '/' + $scope.val + '/';
                                 CosmosService.put(url, $scope.data, function (data) {
                                         $scope.processFormResult($scope.form, data);
                                     },
@@ -320,33 +418,29 @@ directives.directive('field', function ($compile) {
 
                         case "twocolumn":
                             template = '' +
-                                '<div class="container-fluid">' +
                                 '   <div class="row">' +
-                                '       <div class="{{item.leftcolumn.cssclass}}">' +
-                                '           <field item="item.leftcolumn"></field>' +
+                                '       <div ng-repeat="field in item.leftcolumn" class="col-md-6">' +
+                                '           <field item="field"></field>' +
                                 '       </div>' +
-                                '       <div class="{{item.rightcolumn.cssclass}}">' +
-                                '           <field item="item.rightcolumn"></field>' +
+                                '       <div ng-repeat="field in item.rightcolumn" class="col-md-6">' +
+                                '           <field item="field"></field>' +
                                 '       </div>' +
-                                '   </div>' +
-                                '</div>';
+                                '   </div>';
                             break;
 
                         case "threecolumn":
                             template = '' +
-                                '<div class="container-fluid">' +
                                 '   <div class="row">' +
-                                '       <div class="{{item.leftcolumn.cssclass}}">' +
-                                '           <field item="item.leftcolumn"></field>' +
+                                '       <div ng-repeat="field in item.leftcolumn" class="col-xs-4">' +
+                                '           <field item="field"></field>' +
                                 '       </div>' +
-                                '       <div class="{{item.middlecolumn.cssclass}}">' +
-                                '           <field item="item.middlecolumn"></field>' +
+                                '       <div ng-repeat="field in item.midcolumn" class="col-xs-4">' +
+                                '           <field item="field"></field>' +
                                 '       </div>' +
-                                '       <div class="{{item.rightcolumn.cssclass}}">' +
-                                '           <field item="item.rightcolumn"></field>' +
+                                '       <div ng-repeat="field in item.rightcolumn" class="col-xs-4">' +
+                                '           <field item="field"></field>' +
                                 '       </div>' +
-                                '   </div>' +
-                                '</div>';
+                                '   </div>';
                             break;
 
                         case "menu":
@@ -359,21 +453,26 @@ directives.directive('field', function ($compile) {
                                     '</ul>';
                             }
                             else {
-                                template = '' +
-                                    '<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">' +
-                                    '<div class="container">' +
-                                    '<div class="navbar-header">' +
-                                    '   <a class="navbar-brand" href="{{item.brandhref}}">{{item.brandtitle}}</a>' +
-                                    '</div>' +
-                                    '<div class="navbar-collapse collapse">' +
-                                    '<ul class="nav navbar-nav">' +
-                                    '   <li ng-repeat="field in item.fields">' +
-                                    '       <field item="field"></field>' +
-                                    '   </li>' +
-                                    '</ul>' +
-                                    '</div>' +
-                                    '</div>' +
-                                    '</div>';
+                                template = '   <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation"> \
+                                                  <div class="container"> \
+                                                    <div class="navbar-header"> \
+                                                      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar"> \
+                                                        <span class="sr-only">{{item.brandtitle}}</span> \
+                                                        <span class="icon-bar"></span> \
+                                                        <span class="icon-bar"></span> \
+                                                        <span class="icon-bar"></span> \
+                                                      </button> \
+                                                      <a class="navbar-brand" href="{{item.brandhref}}">{{item.brandtitle}}</a> \
+                                                    </div> \
+                                                    <div id="navbar" class="navbar-collapse collapse"> \
+                                                      <ul class="nav navbar-nav"> \
+                                                        <li ng-repeat="field in item.fields"> \
+                                                               <field item="field"></field> \
+                                                        </li> \
+                                                      </ul> \
+                                                    </div> \
+                                                  </div> \
+                                                </nav>';
                             }
                             break;
 
@@ -396,6 +495,10 @@ directives.directive('field', function ($compile) {
 
                         case "widgethost":
                             template = '<div ng-include="\'' + item.value + '\'" class="' + item.cssclass + '"></div>';
+                            break;
+
+                        case "inlinewidget":
+                            template = item.value.widgettext || item.value;
                             break;
 
                         //Form fields
@@ -495,8 +598,21 @@ directives.directive('field', function ($compile) {
                             template = '<link data-ng-href="{{item.href}}" rel="stylesheet" />';
                             break;
 
+                        case "jsref":
+                            template = '<script data-ng-src="item.src" />';
+                            break;
+
                         case "listref":
                             template = '<div ng-if="listConfiguration !== undefined"><div ng-include="listConfiguration.widgetName" /></div></div>';
+                            break;
+
+                        case "chartref":
+                            template = '' +
+                                '<div ng-if="chartConfiguration !== undefined">' +
+                                '   <div ng-class="chartConfiguration.chartHolderClass">' +
+                                '       <div id="chart'+item.value.chartId+'" ng-class="chartConfiguration.chartClass"></div>' +
+                                '   </div>' +
+                                '</div>';
                             break;
 
                         case "form":
@@ -543,6 +659,29 @@ directives.directive('field', function ($compile) {
                             }
                             break;
 
+                        case "condition":
+                            template = '' +
+                                '<div> \
+                                    <label class="control-label">{{field.title}}</label> \
+                                    <ul> \
+                                        <li ng-if="'+item.expression+'"> \
+                                            <ul> \
+                                                <li ng-repeat="field in item.fields"> \
+                                                    <field item="field" val="val[field.name]"></field> \
+                                                </li> \
+                                            </ul> \
+                                        </li> \
+                                        <li ng-if="!('+item.expression+')"> \
+                                            <ul> \
+                                                <li ng-repeat="field in item.elsefields"> \
+                                                    <field item="field" val="val[field.name]"></field> \
+                                                </li> \
+                                            </ul> \
+                                        </li> \
+                                    </ul> \
+                                </div>';
+                            break;
+
                         case "itemview":
                             template = '<div ng-include="\'' + item.value.widget + '\'" class="' + item.cssclass + '"></div>';
                             break;
@@ -573,7 +712,7 @@ directives.directive('field', function ($compile) {
                 }
             }
 
-            if (scope.item.type === "composite" || scope.item.type === "form") {
+            if (scope.item.type === "composite" || scope.item.type === "form" || scope.item.type === "condition") {
                 if (!scope.val) {
                     scope.val = {};
                 }
@@ -597,10 +736,27 @@ directives.directive('field', function ($compile) {
                 scope.getListConfiguration();
             }
 
+            if (scope.item.type === "chartref") {
+                scope.$watch('data', function () {
+                    if(scope.chartConfiguration && scope.data){
+                        var containerId = '#chart'+scope.item.value.chartId;
+                        if(scope.chartConfiguration.chartType === "bar") {
+                            drawBarChart(containerId, scope.chartConfiguration.config, scope.data);
+                        }
+                        else if(scope.chartConfiguration.chartType === "line") {
+                            drawLineChart(containerId, scope.chartConfiguration.config, scope.data);
+                        }
+                        else if(scope.chartConfiguration.chartType === "pie") {
+                            drawPieChart(containerId, scope.chartConfiguration.config, scope.data);
+                        }
+                    }
+                });
+                scope.getChartConfiguration();
+            }
+
             if (scope.item.type === "formref") {
                 scope.getFormConfiguration();
             }
-
 
             if (scope.item.type === "cssref") {
                 var headElement = angular.element(document.getElementsByTagName('head')[0]);
@@ -609,7 +765,17 @@ directives.directive('field', function ($compile) {
                 $compile(newElement)(scope);
                 headElement.append(newElement);
 
-                template = "<!-- cssref put into header  -->";
+                template = "<!-- cssref has been placed into header  -->";
+            }
+
+            if (scope.item.type === "jsref") {
+                var headElement = angular.element(document.getElementsByTagName('head')[0]);
+
+                var newElement = angular.element(template);
+                $compile(newElement)(scope);
+                headElement.append(newElement);
+
+                template = "<!-- jsref has been placed into header  -->";
             }
 
             if (scope.item.type === "menuref") {
