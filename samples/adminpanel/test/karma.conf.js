@@ -20,6 +20,7 @@ module.exports = function(config){
       'app/bower_components/angular-ui-ace/ui-ace.js',
       'app/bower_components/angular-json-human/dist/angular-json-human.js',
       'app/bower_components/angular-local-storage/dist/angular-local-storage.min.js',
+      'app/bower_components/angular-ui-select/dist/select.min.js',
 
       'app/js/app.js',
       'app/js/controllers/controllers.js',
