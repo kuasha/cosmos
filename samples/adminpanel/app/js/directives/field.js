@@ -152,12 +152,13 @@ directives.directive('field', function ($compile) {
 
                 //List ref
 
-                $scope.getListDataBy = function (columns, objectName) {
+                $scope.getListDataBy = function (columns, objectName, filter) {
                     var columnsCsv = '';
                     angular.forEach(columns, function (column, index) {
                         columnsCsv += column.name + ",";
                     });
-                    var url = '/service/' + objectName + '/?columns=' + columnsCsv;
+
+                    var url = '/service/' + objectName + '/?columns=' + columnsCsv + '&filter='+ filter;
 
                     CosmosService.get(url, function (data) {
                             $scope.data = data;
@@ -171,8 +172,9 @@ directives.directive('field', function ($compile) {
                 $scope.getListDataFromConfig = function (listConfiguration) {
                     var columns = listConfiguration.columns;
                     var objectName = listConfiguration.objectName;
+                    var filter = listConfiguration.filter;
 
-                    $scope.getListDataBy(columns, objectName);
+                    $scope.getListDataBy(columns, objectName,filter);
                 };
 
                 $scope.getListConfigurationByUrl = function (url) {

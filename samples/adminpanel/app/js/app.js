@@ -7,6 +7,7 @@ var cosmosUI = angular.module('cosmosUI', [
     'ui.bootstrap',
     'ui.sortable',
     'ui.ace',
+    'ui.select',
     'yaru22.jsonHuman',
     'LocalStorageModule',
     'cosmosUI.filters',

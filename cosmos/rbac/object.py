@@ -82,7 +82,8 @@ WELL_KNOWN_ROLES = [
                         "INSERT",
                         "READ",
                         "WRITE",
-                        "DELETE"
+                        "DELETE",
+                        "SEARCH"
                     ],
                     "object_name": "*",
                     "property_name": "*",
@@ -100,7 +101,8 @@ WELL_KNOWN_ROLES = [
                         "INSERT",
                         "READ",
                         "WRITE",
-                        "DELETE"
+                        "DELETE",
+                        "SEARCH"
                     ],
                     "object_name": "*",
                     "property_name": "*",
@@ -111,7 +113,8 @@ WELL_KNOWN_ROLES = [
                         "INSERT",
                         "READ",
                         "WRITE",
-                        "DELETE"
+                        "DELETE",
+                        "SEARCH"
                     ],
                     "object_name": COSMOS_USERS_OBJECT_NAME,
                     "type": "object.RoleItem",
@@ -122,7 +125,8 @@ WELL_KNOWN_ROLES = [
                         "INSERT",
                         "READ",
                         "WRITE",
-                        "DELETE"
+                        "DELETE",
+                        "SEARCH"
                     ],
                     "object_name": COSMOS_USERS_IDENTITY_OBJECT_NAME,
                     "type": "object.RoleItem",
@@ -134,7 +138,8 @@ WELL_KNOWN_ROLES = [
                         "INSERT",
                         "READ",
                         "WRITE",
-                        "DELETE"
+                        "DELETE",
+                        "SEARCH"
                     ],
                     "object_name": COSMOS_ROLE_OBJECT_NAME,
                     "property_name": "*",
@@ -145,7 +150,8 @@ WELL_KNOWN_ROLES = [
                         "INSERT",
                         "READ",
                         "WRITE",
-                        "DELETE"
+                        "DELETE",
+                        "SEARCH"
                     ],
                     "object_name": COSMOS_ROLE_GROUP_OBJECT_NAME,
                     "property_name": "*",
@@ -160,7 +166,8 @@ WELL_KNOWN_ROLES = [
             role_items = [
                 RoleItem(**{
                     "access": [
-                        "READ"
+                        "READ",
+                        "SEARCH"
                     ],
                     "object_name": "cosmos.widgets",
                     "property_name": "*",
@@ -175,7 +182,8 @@ WELL_KNOWN_ROLES = [
             role_items = [
                 RoleItem(**{
                     "access": [
-                        "READ"
+                        "READ",
+                        "SEARCH"
                     ],
                     "object_name": "cosmos.widgets",
                     "property_name": "*",

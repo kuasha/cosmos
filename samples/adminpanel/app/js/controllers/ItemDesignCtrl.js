@@ -50,6 +50,11 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                         "title": "Object name"
                     },
                     {
+                        "type": "input",
+                        "name": "filter",
+                        "title": "Filter"
+                    },
+                    {
                         "type": "lookup",
                         "options": {
                             "saveValueOnly": true,

@@ -263,4 +263,86 @@ var directives = angular.module('cosmosUI.directives', []).
         }
     })
 
+    .directive('objectpicker', function ($compile) {
+        return {
+            restrict: 'E',
+            scope: {
+                endpoint: '=?',
+                items: '=?',
+                template: '=',
+                detailtemplate:'=',
+                placeholder: '='
+            },
+            require: "ngModel",
+
+            controller: ['$scope', '$timeout', 'CosmosService',
+                function ($scope, $timeout, CosmosService) {
+                    $scope.refreshData = function (q) {
+                        if($scope.endpoint) {
+                            var params = {q: q};
+                            CosmosService.search($scope.endpoint, {params: params},
+                                function (data) {
+                                    $scope.items = data;
+                                }
+                            );
+                        }
+                    };
+
+                    $scope.getTemplate = function () {
+                        var refresh = "";
+
+                        if ($scope.endpoint && $scope.endpoint.length > 0) {
+                             refresh= 'refresh="refreshData($select.search)" refresh-delay="1000"';
+                        }
+                        var template = '\
+                              <ui-select ng-model="selectedData.selected"\
+                                         theme="bootstrap" \
+                                         ng-disabled="disabled" \
+                                         reset-search-input="false" \
+                                         style="width: 300px;"> \
+                                <ui-select-match placeholder="' + $scope.placeholder + '">' + $scope.template + '</ui-select-match> \
+                                <ui-select-choices repeat="data in items track by $index" \
+                                         '+refresh+' >' +
+                                $scope.detailtemplate +
+                                '</ui-select-choices> \
+                              </ui-select>';
+
+                        return template;
+                    };
+
+                    $scope.startWatch = function(ngModel){
+
+                        $scope.$watch("selectedData.selected", function(newVal, oldVal){
+                            if(newVal || oldVal) {
+                                $timeout( function() {
+                                    ngModel.$setViewValue(newVal);
+                                    $scope.$apply();
+                                });
+                            }
+                        });
+                    }
+                }],
+
+            link: function (scope, element, attributes, ngModel) {
+                console.log("Creating objectpicker element");
+                scope.element = element;
+
+
+                if(!scope.items){
+                    scope.items = [];
+                }
+
+                scope.selectedData = {};
+
+                var template = scope.getTemplate();
+                var newElement = angular.element(template);
+                $compile(newElement)(scope);
+                scope.element.replaceWith(newElement);
+
+                scope.startWatch(ngModel);
+
+            }
+        }
+    })
+
 ;

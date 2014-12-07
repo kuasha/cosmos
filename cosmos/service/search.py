@@ -39,21 +39,22 @@ class SearchHandler(requesthandler.RequestHandler):
         else:
             columns = []
 
+        result_list = []
+
         if q:
             if query:
                 query['$text'] = {'$search': q}
             else:
                 query = {'$text': {'$search': q}}
 
-        obj_serv = self.settings['object_service']
+            obj_serv = self.settings['object_service']
 
-        cursor = obj_serv.text_search(self.current_user, object_name, query, columns)
+            cursor = obj_serv.text_search(self.current_user, object_name, query, columns)
 
-        #TODO: use to_list to create list
-        result_list = []
-        while(yield cursor.fetch_next):
-            qry_result=cursor.next_object()
-            result_list.append(qry_result)
+            #TODO: use to_list to create list
+            while(yield cursor.fetch_next):
+                qry_result=cursor.next_object()
+                result_list.append(qry_result)
 
         data = {"_d": MongoObjectJSONEncoder().encode(result_list), "_cosmos_service_array_result_": True}
 
