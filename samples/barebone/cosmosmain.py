@@ -91,7 +91,7 @@ def get_options(port):
     options.db = init_database(options)
     return options
 
-if __name__ == "__main__":
+def main():
     current_directory = os.getcwd()
 
     if len(sys.argv) < 2:
@@ -128,7 +128,8 @@ if __name__ == "__main__":
     tornado.ioloop.IOLoop.instance().start()
 
 
-
+if __name__ == "__main__":
+    main()
 
 
 
