@@ -50,9 +50,20 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                         "title": "Object name"
                     },
                     {
+                        "type": "checkbox",
+                        "name": "allowClientFilter",
+                        "title": "Allow search on client"
+                    },
+                    {
                         "type": "input",
                         "name": "filter",
                         "title": "Filter"
+                    },
+                    {
+                        "type":"checkbox",
+                        "name":"useQueryFilterParam",
+                        "options":{},
+                        "title": "Accept query parameter as filter"
                     },
                     {
                         "type": "lookup",

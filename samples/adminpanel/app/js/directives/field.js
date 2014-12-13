@@ -158,7 +158,8 @@ directives.directive('field', function ($compile) {
                         columnsCsv += column.name + ",";
                     });
 
-                    var url = '/service/' + objectName + '/?columns=' + columnsCsv + '&filter='+ filter;
+                    var filterParam = (filter)?'&filter='+ JSON.stringify(filter):'';
+                    var url = '/service/' + objectName + '/?columns=' + columnsCsv + filterParam;
 
                     CosmosService.get(url, function (data) {
                             $scope.data = data;
@@ -172,7 +173,14 @@ directives.directive('field', function ($compile) {
                 $scope.getListDataFromConfig = function (listConfiguration) {
                     var columns = listConfiguration.columns;
                     var objectName = listConfiguration.objectName;
-                    var filter = listConfiguration.filter;
+                    var listFilter = JSON.parse(listConfiguration.filter || "{}");
+                    var queryFilter = listConfiguration.useQueryFilterParam ? JSON.parse($routeParams.filter || "{}") : {};
+
+                    var filter = angular.extend({}, listFilter, queryFilter);
+
+                    if(Object.keys(filter).length < 1){
+                        filter = null;
+                    }
 
                     $scope.getListDataBy(columns, objectName,filter);
                 };
