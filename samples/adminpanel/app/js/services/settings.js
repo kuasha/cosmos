@@ -12,7 +12,7 @@ var getAppSettingsByAppImpl = function (application, settingsName) {
     }
 };
 
-services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', function (CosmosService, cachedloader) {
+services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "cosmos.configNames", function (CosmosService, cachedloader, configNames) {
     return{
         getAppSettings: function (appPath, settingsName, successCallback, errorCallback) {
 
@@ -66,6 +66,24 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', fun
                     }
                 }
             );
+        },
+
+        getConfigObjectName : function(configName){
+            if(configName === configNames.MENU){
+                return "menuconfigobject";
+            }
+
+            if(configName === configNames.LIST) {
+                return  "listconfigobject"
+            }
+
+            if(configName === configNames.CHART){
+                return "chartconfigobject";
+            }
+
+            if(configName === configNames.FORM){
+                return "formconfigobject";
+            }
         },
 
         getAppSettingsByApp : function (application, settingsName) {

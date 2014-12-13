@@ -10,12 +10,16 @@ directives.directive('field', function ($compile) {
             val: '='
         },
 
-        controller: ['$scope', '$location', '$routeParams', '$modal', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable', 'cosmos.settings',
-            function ($scope, $location, $routeParams, $modal, message, CosmosService, namedcolection, calculator, hashtable, settings) {
+        controller: ['$scope', '$location', '$routeParams', '$modal', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable', 'cosmos.settings', 'cosmos.configNames',
+            function ($scope, $location, $routeParams, $modal, message, CosmosService, namedcolection, calculator, hashtable, settings, configNames) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
                 $scope.hashtable = hashtable;
+
+                $scope.processError = function(data, status){
+
+                };
 
                 $scope.receiveServiceDataAs = function (data, args) {
                     if (!args) {
@@ -120,28 +124,58 @@ directives.directive('field', function ($compile) {
                 // TODO: get*ConfigurationByUrl and get*Configuration functions should be combined
                 // We should have configuration variable for all instead of specific name for config
 
-                //START MenuRef methods
-                $scope.getMenuConfigurationByUrl = function (url) {
+                $scope.getData = function (columns, objectName, dataId, filter, modelName) {
+                    var columnsCsv = '';
+                    angular.forEach(columns, function (column, index) {
+                        columnsCsv += column.name + ",";
+                    });
+
+                    var filterQuery = filter ? "&filter="+filter : '';
+                    var url = '/service/' + objectName +(dataId?('/'+dataId):'')+'/?columns=' + columnsCsv + filterQuery;
+
                     CosmosService.get(url, function (data) {
-                            $scope.data = {};
-                            $scope.menuConfiguration = data;
+                            $scope[modelName] = data;
                         },
-                        function (data, status) {
-                            //TODO: $scope.processError(data, status);
+                        $scope.processError
+                    );
+                };
+
+                $scope.getConfiguration = function (configName, itemId, onSuccess, onError) {
+                    $scope.appPath = $routeParams.appPath;
+
+                    var configObjectName = settings.getConfigObjectName(configName);
+
+                    settings.getAppSettings($scope.appPath, configObjectName, function (objectName) {
+                            var url = '/service/' + objectName + '/' + itemId + '/';
+                            CosmosService.get(url, function (data) {
+                                    if(onSuccess) {
+                                        onSuccess(data);
+                                    }
+                                },
+                                function (data, status) {
+                                    if(onError) {
+                                        onError(data, status);
+                                    }
+                                }
+                            );
+                        },
+                        function (status, data) {
+                            if(onError) {
+                                onError(data, status)
+                            }
                         }
                     );
                 };
 
+                //START MenuRef methods
                 $scope.getMenuConfiguration = function () {
-                    $scope.appPath = $routeParams.appPath;
-
-                    settings.getAppSettings($scope.appPath, "menuconfigobject", function (objectName) {
-                            var url = '/service/' + objectName + '/' + $scope.item.value.menuId + '/';
-                            $scope.getMenuConfigurationByUrl(url);
+                    $scope.getConfiguration(configNames.MENU, $scope.item.value.menuId,
+                        function(data){
+                            $scope.data = {};
+                            $scope.menuConfiguration = data;
                         },
-                        function (status, data) {
-                            var url = '/service/cosmos.menuconfigurations/' + $scope.item.value.menuId + '/';
-                            $scope.getMenuConfigurationByUrl(url);
+                        function(status, data){
+                            $scope.processError(data, status);
                         }
                     );
                 };
@@ -149,8 +183,6 @@ directives.directive('field', function ($compile) {
                 //END MenuRef methods
 
                 //START List methods
-
-                //List ref
 
                 $scope.getListDataBy = function (columns, objectName, filter) {
                     var columnsCsv = '';
@@ -164,9 +196,7 @@ directives.directive('field', function ($compile) {
                     CosmosService.get(url, function (data) {
                             $scope.data = data;
                         },
-                        function (data, status) {
-                            //TODO: $scope.processError(data, status);
-                        }
+                        $scope.processError
                     );
                 };
 
@@ -185,29 +215,14 @@ directives.directive('field', function ($compile) {
                     $scope.getListDataBy(columns, objectName,filter);
                 };
 
-                $scope.getListConfigurationByUrl = function (url) {
-                    CosmosService.get(url, function (data) {
+                $scope.getListConfiguration = function () {
+                    $scope.getConfiguration(configNames.LIST, $scope.item.value.listId,
+                        function(data){
                             $scope.data = {};
                             $scope.listConfiguration = data;
                             $scope.getListDataFromConfig($scope.listConfiguration);
                         },
-                        function (data, status) {
-                            //TODO: $scope.processError(data, status);
-                        }
-                    );
-                };
-
-                $scope.getListConfiguration = function () {
-                    $scope.appPath = $routeParams.appPath;
-
-                    settings.getAppSettings($scope.appPath, "listconfigobject", function (objectName) {
-                            var url = '/service/' + objectName + '/' + $scope.item.value.listId + '/';
-                            $scope.getListConfigurationByUrl(url);
-                        },
-                        function (status, data) {
-                            var url = '/service/cosmos.listconfigurations/' + $scope.item.value.listId + '/';
-                            $scope.getListConfigurationByUrl(url);
-                        }
+                        $scope.processError
                     );
                 };
 
@@ -264,9 +279,7 @@ directives.directive('field', function ($compile) {
                     CosmosService.get(url, function (data) {
                             $scope.data = data;
                         },
-                        function (data, status) {
-                            //TODO: $scope.processError(data, status);
-                        }
+                        $scope.processError
                     );
                 };
 
@@ -277,60 +290,31 @@ directives.directive('field', function ($compile) {
                     $scope.getChartDataBy(columns, objectName);
                 };
 
-                $scope.getChartConfigurationByUrl = function (url) {
-                    CosmosService.get(url, function (data) {
+                $scope.getChartConfiguration = function () {
+                    $scope.getConfiguration(configNames.CHART, $scope.item.value.chartId,
+                        function(data){
                             $scope.data = {};
                             $scope.chartConfiguration = data;
                             $scope.getChartDataFromConfig($scope.chartConfiguration);
                         },
-                        function (data, status) {
-                            //TODO: $scope.processError(data, status);
-                        }
-                    );
-                };
-
-                $scope.getChartConfiguration = function () {
-                    $scope.appPath = $routeParams.appPath;
-
-                    settings.getAppSettings($scope.appPath, "chartconfigobject", function (objectName) {
-                            var url = '/service/' + objectName + '/' + $scope.item.value.chartId + '/';
-                            $scope.getChartConfigurationByUrl(url);
-                        },
-                        function (status, data) {
-                            var url = '/service/cosmos.chartconfigurations/' + $scope.item.value.chartId + '/';
-                            $scope.getChartConfigurationByUrl(url);
-                        }
+                        $scope.processError
                     );
                 };
 
                 //END Chart methods
 
                 // START FormRef methods
-                $scope.getFormConfigurationByUrl = function (url) {
-                    CosmosService.get(url, function (data) {
+
+                $scope.getFormConfiguration = function () {
+                    $scope.getConfiguration(configNames.FORM, $scope.item.value.formId,
+                        function(data){
                             $scope.data = {};
                             $scope.form = data;
                             if ($scope.val) {
                                 $scope.getFormData($scope.form, $scope.val);
                             }
                         },
-                        function (data, status) {
-                            //TODO: $scope.processError(data, status);
-                        }
-                    );
-                };
-
-                $scope.getFormConfiguration = function () {
-                    $scope.appPath = $routeParams.appPath;
-
-                    settings.getAppSettings($scope.appPath, "formconfigobject", function (objectName) {
-                            var url = '/service/' + objectName + '/' + $scope.item.value.formId + '/';
-                            $scope.getFormConfigurationByUrl(url);
-                        },
-                        function (status, data) {
-                            var url = '/service/cosmos.forms/' + $scope.item.value.formId + '/';
-                            $scope.getFormConfigurationByUrl(url);
-                        }
+                        $scope.processError
                     );
                 };
 
@@ -799,3 +783,4 @@ directives.directive('field', function ($compile) {
         }
     };
 });
+
