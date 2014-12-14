@@ -350,28 +350,28 @@ directives.directive('field', function ($compile) {
 
                 $scope.onFormSubmit = function () {
                     if ($scope.form.action) {
-                        if ($scope.form.action) {
-                            if (!$scope.val) {
-                                CosmosService.post($scope.form.action, $scope.data, function (data) {
-                                        $scope.processFormResult($scope.form, data);
-                                    },
-                                    function (data, status) {
-                                        //TODO: $scope.processError(data, status);
-                                    }
-                                );
-                            }
-                            else {
-                                var url = $scope.form.action + '/' + $scope.val + '/';
-                                CosmosService.put(url, $scope.data, function (data) {
-                                        $scope.processFormResult($scope.form, data);
-                                    },
-                                    function (data, status) {
-                                        //TODO: $scope.processError(data, status);
-                                    }
-                                );
-                            }
+
+                        if (!$scope.val) {
+                            CosmosService.post($scope.form.action, $scope.data, function (data) {
+                                    $scope.processFormResult($scope.form, data);
+                                },
+                                function (data, status) {
+                                    $scope.processError(data, status);
+                                }
+                            );
+                        }
+                        else {
+                            var url = $scope.form.action + '/' + $scope.val + '/';
+                            CosmosService.put(url, $scope.data, function (data) {
+                                    $scope.processFormResult($scope.form, data);
+                                },
+                                function (data, status) {
+                                    $scope.processError(data, status);
+                                }
+                            );
                         }
                     }
+
                 };
                 // END FormRef methods
 
@@ -496,7 +496,14 @@ directives.directive('field', function ($compile) {
                         //Form fields
                         case "input":
                         case "text":
-                            template = '<span><label>{{item.title}}</label><input type="{{item.htmltype || \'text\'}}" ng-model="val"/></span>';
+                            var minlengthTag = item.minlength ? ' ng-minlength="item.minlength" ':'';
+                            var maxlengthTag = item.maxlength ? ' ng-maxlength="item.maxlength" ':'';
+                            var requiredTag = item.required ? ' required ':'';
+                            var patternTag = item.pattern ? ' ng-pattern="item.pattern "':'';
+                            var tags = minlengthTag + maxlengthTag + patternTag + requiredTag;
+
+                            template = '<label>{{item.title}}<span ng-if="item.required">&nbsp;*&nbsp;</span></label>' +
+                                '<input type="{{item.htmltype || \'text\'}}" ng-model="val"'+tags+'  />';
                             break;
 
                         case "static":
@@ -573,7 +580,7 @@ directives.directive('field', function ($compile) {
                         case "formref":
                             template = '' +
                                 '<div ng-show="submitDone">{{form.onsuccess.value}}</div>' +
-                                '<form ng-hide="submitDone">' +
+                                '<form name="form'+item.value.formId+'" ng-hide="submitDone" novalidate>' +
                                 '    <div>' +
                                 '        <h1>{{form.title}}</h1>' +
                                 '    </div>' +
@@ -582,7 +589,7 @@ directives.directive('field', function ($compile) {
                                 '            <field item="field" val="data[field.name]"></field>' +
                                 '        </li>' +
                                 '    </ul>' +
-                                '    <button class="btn btn-primary" ng-click="onFormSubmit()">Submit</button>' +
+                                '    <button ng-disabled="!(form'+item.value.formId+'.$valid)" class="btn btn-primary" ng-click="onFormSubmit()">Submit</button>' +
                                 '</form>';
                             break;
 
@@ -608,6 +615,18 @@ directives.directive('field', function ($compile) {
                             break;
 
                         case "form":
+                            template = '' +
+                                '<div>' +
+                                '   <label ng-if="item.showTitle" >{{item.title}}</label>' +
+                                '</div>' +
+                                '<ul>' +
+                                '   <li ng-repeat="field in item.fields">' +
+                                '       <field item="field" val="val[field.name]"></field>' +
+                                '   </li>' +
+                                '</ul>'+
+                                '';
+                            break;
+
                         case "composite":
                             template = '' +
                                 '<div>' +
@@ -754,8 +773,8 @@ directives.directive('field', function ($compile) {
                 var headElement = angular.element(document.getElementsByTagName('head')[0]);
 
                 var newElement = angular.element(template);
-                $compile(newElement)(scope);
                 headElement.append(newElement);
+                $compile(newElement)(scope);
 
                 template = "<!-- cssref has been placed into header  -->";
             }
@@ -764,8 +783,8 @@ directives.directive('field', function ($compile) {
                 var headElement = angular.element(document.getElementsByTagName('head')[0]);
 
                 var newElement = angular.element(template);
-                $compile(newElement)(scope);
                 headElement.append(newElement);
+                $compile(newElement)(scope);
 
                 template = "<!-- jsref has been placed into header  -->";
             }
@@ -778,8 +797,8 @@ directives.directive('field', function ($compile) {
             console.log("Field template" + template);
 
             var newElement = angular.element(template);
-            $compile(newElement)(scope);
             element.replaceWith(newElement);
+            $compile(newElement)(scope);
         }
     };
 });

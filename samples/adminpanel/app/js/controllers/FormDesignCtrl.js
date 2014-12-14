@@ -32,6 +32,10 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                 "fields": [
                     {"type": "text", "title": "Title", "name": "title"},
                     {"type": "text", "title": "Name", "name": "name"},
+                    {"type": "checkbox", "title": "Required", "name": "required"},
+                    {"type": "text", "title": "Min Length", "name": "minlength"},
+                    {"type": "text", "title": "Max Length", "name": "maxlength"},
+                    {"type": "text", "title": "Pattern", "name": "pattern"},
                     {
                         "title": "Type",
                         "type": "select",
