@@ -248,6 +248,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     {
                         "title": "Id",
                         "type": "input",
+                        "required": true,
                         "name": "id",
                         "htmltype": "text"
                     },
@@ -255,17 +256,20 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                         "title": "Name",
                         "type": "input",
                         "name": "name",
+                        "required": true,
                         "htmltype": "text"
                     },
                     {
                         "title": "Tite",
                         "type": "input",
+                        "required": true,
                         "name": "title",
                         "htmltype": "text"
                     },
                     {
                         "title": "Path",
                         "type": "input",
+                        "required": true,
                         "name": "path",
                         "htmltype": "text"
                     },
@@ -387,36 +391,42 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                     {
                                         "title": "List config object",
                                         "type": "input",
+                                        "required": true,
                                         "name": "listconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
                                         "title": "Form config object",
                                         "type": "input",
+                                        "required": true,
                                         "name": "formconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
                                         "title": "Menu config object",
                                         "type": "input",
+                                        "required": true,
                                         "name": "menuconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
                                         "title": "Page config object",
                                         "type": "input",
+                                        "required": true,
                                         "name": "pageconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
                                         "title": "Chart config object",
                                         "type": "input",
+                                        "required": true,
                                         "name": "chartconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
                                         "title": "Single item config object",
                                         "type": "input",
+                                        "required": true,
                                         "name": "singleitemconfigobject",
                                         "htmltype": "text"
                                     }
@@ -498,6 +508,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
         };
 
         $scope.getItemConfigName = function(itemType){
+            //TODO: Use settings function
             if(itemType === "widget"){
                 return "widgetobject";
             }
@@ -578,6 +589,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             $scope.list = {"columns":[]};
             $scope.menu = {"fields":[]};
             $scope.app = {"settings": { "source_code": [],"objects": [],"objectmap": {}, "file_objects": []}};
+            $scope.singleitemview = {"columns":[]};
 
             if($scope.itemType === "app"){
                     var itemConfigName = $scope.getItemConfigName($scope.itemType);
