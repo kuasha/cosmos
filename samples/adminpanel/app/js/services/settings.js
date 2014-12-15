@@ -130,6 +130,25 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
                     errorCallback(data, status);
                 }
             );
+        },
+
+        getGlobalSettings: function(onSuccess, onError){
+            var cacheName = "Settings._Cosmos_Global_Settings_";
+            var url = '/service/cosmos.globalsettings/';
+            cachedloader.get(cacheName, url,
+                function (gs) {
+                    if(gs && gs.length==1) {
+
+                        onSuccess(gs[0]);
+                    }
+                    else{
+                        onError(404, "Global settings not found or more than one found. Count = " + gs.length)
+                    }
+                },
+                function (data, status) {
+                    onError(data, status);
+                }
+            );
         }
     }
 }]);

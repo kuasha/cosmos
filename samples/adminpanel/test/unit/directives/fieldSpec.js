@@ -151,26 +151,22 @@ describe('Unit testing field directive', function () {
 
         $scope.$digest();
 
-        var expectedValue ='<label class="ng-binding ng-scope"><!-- ngIf: item.required --></label><input type="text" ng-model="val" class="ng-pristine ng-untouched ng-valid ng-scope">' +
-            '<label class="ng-binding ng-scope"><!-- ngIf: item.required --></label><input type="text" ng-model="val" class="ng-pristine ng-untouched ng-valid ng-scope">' +
-            '<span class="ng-scope"><label class="ng-binding"></label><input type="text" ng-model="val" readonly="readonly" class="ng-pristine ng-untouched ng-valid"></span>' +
-            '<span class="ng-scope"><label class="ng-binding"></label><textarea ng-model="val" class="ng-pristine ng-untouched ng-valid"></textarea></span>' +
-            '<input type="checkbox" ng-model="val" class="ng-pristine ng-untouched ng-valid ng-scope"> <label class="control-label ng-binding ng-scope"></label>' +
-            '<span class="ng-scope"><label class="ng-binding"></label><div ui-ace="" ng-model="val" class="ng-pristine ng-untouched ng-valid ace_editor ace-tm">' +
+        var expectedValue ='<label class="ng-binding ng-scope"><!-- ngIf: item.required --></label><input class="form-control ng-pristine ng-untouched ng-valid ng-scope" type="text" ng-model="val">' +
+            '<label class="ng-binding ng-scope"><!-- ngIf: item.required --></label><input class="form-control ng-pristine ng-untouched ng-valid ng-scope" type="text" ng-model="val">' +
+            '<span class="ng-scope"><label class="ng-binding"></label><input type="text" ng-model="val" readonly="readonly" class="ng-pristine ng-untouched ng-valid"></span><span class="ng-scope">' +
+            '<label class="ng-binding"></label><textarea ng-model="val" class="ng-pristine ng-untouched ng-valid"></textarea></span><input type="checkbox" ng-model="val" class="ng-pristine ng-untouched ng-valid ng-scope"> ' +
+            '<label class="control-label ng-binding ng-scope"></label><span class="ng-scope"><label class="ng-binding"></label><div ui-ace="" ng-model="val" class="ng-pristine ng-untouched ng-valid ace_editor ace-tm">' +
             '<textarea class="ace_text-input" spellcheck="false" style="opacity: 0; "></textarea><div class="ace_gutter"><div class="ace_layer ace_gutter-layer ace_folding-enabled"></div>' +
-            '<div class="ace_gutter-active-line"></div></div><div class="ace_scroller"><div class="ace_content"><div class="ace_layer ace_print-margin-layer">' +
-            '<div class="ace_print-margin" style="left: 4px; visibility: visible; "></div></div><div class="ace_layer ace_marker-layer"></div>' +
-            '<div class="ace_layer ace_text-layer" style="padding-top: 0px; padding-right: 4px; padding-bottom: 0px; padding-left: 4px; "></div><div class="ace_layer ace_marker-layer"></div>' +
-            '<div class="ace_layer ace_cursor-layer ace_hidden-cursors"><div class="ace_cursor"></div></div></div></div>' +
-            '<div class="ace_scrollbar ace_scrollbar-v" style="display: none; width: 21px; "><div class="ace_scrollbar-inner" style="width: 21px; "></div></div>' +
-            '<div class="ace_scrollbar ace_scrollbar-h" style="display: none; height: 21px; "><div class="ace_scrollbar-inner" style="height: 21px; "></div></div>' +
-            '<div style="height: auto; width: auto; top: -100px; left: -100px; visibility: hidden; position: fixed; white-space: pre; font: inherit; overflow-x: hidden; overflow-y: hidden; ">' +
-            '<div style="height: auto; width: auto; top: -100px; left: -100px; visibility: hidden; position: fixed; white-space: pre; font: inherit; overflow-x: visible; overflow-y: visible; ">' +
-            '</div><div style="height: auto; width: auto; top: -100px; left: -100px; visibility: hidden; position: fixed; white-space: pre; font: inherit; overflow-x: visible; overflow-y: visible; ">' +
-            'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</div></div></div></span><label class="control-label ng-binding ng-scope"></label>' +
-            '<select ng-model="val" ng-options="choice.value as choice.title for choice in item.options.choices" class="ng-pristine ng-untouched ng-valid ng-scope">' +
-            '<option value="?" selected="selected"></option><option value="0"></option></select><label class="control-label ng-binding ng-scope"></label>' +
-            '<!-- ngRepeat: choice in item.options.choices --><img ng-src="testimagelink" class="ng-scope" src="testimagelink">' ;
+            '<div class="ace_gutter-active-line"></div></div><div class="ace_scroller"><div class="ace_content"><div class="ace_layer ace_print-margin-layer"><div class="ace_print-margin" style="left: 4px; ' +
+            'visibility: visible; "></div></div><div class="ace_layer ace_marker-layer"></div><div class="ace_layer ace_text-layer" style="padding-top: 0px; padding-right: 4px; padding-bottom: 0px; padding-left: 4px; "></div>' +
+            '<div class="ace_layer ace_marker-layer"></div><div class="ace_layer ace_cursor-layer ace_hidden-cursors"><div class="ace_cursor"></div></div></div></div><div class="ace_scrollbar ace_scrollbar-v" style="display: ' +
+            'none; width: 21px; "><div class="ace_scrollbar-inner" style="width: 21px; "></div></div><div class="ace_scrollbar ace_scrollbar-h" style="display: none; height: 21px; "><div class="ace_scrollbar-inner" ' +
+            'style="height: 21px; "></div></div><div style="height: auto; width: auto; top: -100px; left: -100px; visibility: hidden; position: fixed; white-space: pre; font: inherit; overflow-x: hidden; overflow-y: hidden; ">' +
+            '<div style="height: auto; width: auto; top: -100px; left: -100px; visibility: hidden; position: fixed; white-space: pre; font: inherit; overflow-x: visible; overflow-y: visible; "></div><div style="height: auto; ' +
+            'width: auto; top: -100px; left: -100px; visibility: hidden; position: fixed; white-space: pre; font: inherit; overflow-x: visible; overflow-y: visible; ">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' +
+            'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</div></div></div></span><label class="control-label ng-binding ng-scope"></label><select ng-model="val" ng-options="choice.value as choice.label for ' +
+            'choice in item.options.choices" class="ng-pristine ng-untouched ng-valid ng-scope"><option value="?" selected="selected"></option><option value="0"></option></select><label class="control-label ng-binding ng-scope">' +
+            '</label><!-- ngRepeat: choice in item.options.choices --><img ng-src="testimagelink" class="ng-scope" src="testimagelink">' ;
 
         expect(element.html()).toContain(expectedValue);
     });

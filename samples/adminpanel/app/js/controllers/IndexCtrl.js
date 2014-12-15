@@ -3,8 +3,9 @@
  */
 
 
-controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'message', 'cosmos.cachedloader',
-    function ($scope, $routeParams, $location, CosmosService, message, cachedloader) {
+controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'message',
+    'cosmos.cachedloader','cosmos.utils',
+    function ($scope, $routeParams, $location, CosmosService, message, cachedloader, utils) {
 
         $scope.pageRefs = [];
 
@@ -23,13 +24,7 @@ controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'Cos
 
                 CosmosService.get(url, function (returnedData) {
                         if (!returnedData || returnedData.length != 1) {
-                            //var msg = "Exactly one global settings is expected for path = "
-                            //    + $scope.appPath + ". Found = " + ((!returnedData) ? 0 : returnedData.length);
-
-                            //message.push({"message": msg, "title": "Invalid configuration", "data": ""});
-                            //$location.path('/message');
-
-                            $location.path('/install/');
+                            $location.path('/appstudio/');
                             return;
                         }
 
@@ -53,10 +48,7 @@ controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'Cos
                 url = '/service/cosmos.applications/?filter={"path":"' + $scope.appPath + '"}';
             }
             else {
-                //var msg = "Default application not found.";
-                //message.push({"message": msg, "title": "Invalid configuration", "data": ""});
-                //$location.path('/message');
-                $location.path('/install/');
+                $location.path('/applist/');
                 return;
             }
 
@@ -77,7 +69,7 @@ controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'Cos
                         $location.path('/a/'+$scope.appSettings.path+'/');
                     }
                     else {
-                        $scope.applySettings($scope.appSettings.settings);
+                        $scope.applySettings($scope.appSettings);
                     }
                 },
                 function (data, status) {
@@ -86,10 +78,25 @@ controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'Cos
             );
         };
 
-        $scope.applySettings = function (settings) {
-            $scope.pageRefs = [
-                {"type": "pageref", "name": "Index", "pageId": settings.indexPageId}
-            ];
+        $scope.applySettings = function (app) {
+            if(!app){
+                $scope.processError(404, "Application not found at the path");
+
+            }
+            else {
+                if (app.settings && app.settings.indexPageId) {
+                    $scope.pageRefs = [
+                        {"type": "pageref", "name": "Index", "pageId": app.settings.indexPageId}
+                    ];
+                }
+                else {
+                    utils.getAllPages(app, function (pages) {
+                            $scope.pages = pages;
+                        },
+                        $scope.processError
+                    );
+                }
+            }
         };
 
         $scope.getConfiguration();

@@ -46,6 +46,9 @@ config(['$routeProvider', function($routeProvider) {
 
     $routeProvider.when('/a/:appPath/view/:configId/:itemId/', {templateUrl: 'partials/singleitemview.html', controller: 'SingleItemViewCtrl'});
 
+    $routeProvider.when('/applist/', {templateUrl: 'partials/applist.html', controller: 'AppListCtrl'});
+
+
     $routeProvider.otherwise({redirectTo: '/a/'});
 }]);
 

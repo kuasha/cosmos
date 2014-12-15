@@ -45,13 +45,17 @@
                         {{capp.title}}
                     </td>
                     <td>
+                        <button ng-hide="capp.id === globalSettings.defaultappid"  ng-click="setAsDefault(capp)" class="btn btn-success btn-sm">Set default</button>
+                        <span ng-show="capp.id === globalSettings.defaultappid">Default</span>
+                    </td>
+                    <td>
                         <a ng-href="#/appstudio/app/cosmosapp/{{capp._id}}" class="btn btn-primary btn-sm">Settings</a>
                     </td>
                     <td>
-                        <a ng-href="/application/package/{{capp.id}}" class="btn btn-warning btn-sm">Export App</a>
+                        <a ng-href="/application/package/{{capp.id}}" class="btn btn-info btn-sm">Export App</a>
                     </td>
                     <td>
-                        <a href="/#/a/{{capp.path}}/" class="btn btn-info btn-sm">Browse App</a>
+                        <a href="/#/a/{{capp.path}}/" class="btn btn-primary btn-sm">Browse App</a>
                     </td>
                     <td>
                         <button ng-click="openApp(capp)" class="btn btn-success btn-sm">Open App</button>
@@ -83,6 +87,12 @@
                             <td>
                                 <a ng-href="#/a/{{selectedApplication.path}}/page/{{page._id}}">[View {{page.title}}]</a>
                             </td>
+
+                            <td>
+                                <button ng-hide="page._id === selectedApplication.settings.indexPageId"  ng-click="setPageAsDefault(page)" class="btn btn-success btn-xs">Set default</button>
+                                <span ng-show="page._id === selectedApplication.settings.indexPageId">Default</span>
+                            </td>
+
                         </tr>
                     </table>
                     <a ng-href="#/appstudio/page/{{selectedApplication.path}}/" class="btn btn-primary">Create page</a>

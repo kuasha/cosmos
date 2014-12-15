@@ -22,4 +22,31 @@ var controllers = angular.module('cosmosUI.controllers', [])
         $scope.configId = $routeParams.configId;
         $scope.itemId = $routeParams.itemId;
     }])
+
+    .controller('AppListCtrl', ['$scope', '$routeParams','CosmosService','cosmos.cachedloader', 'cosmos.settings',
+        function ($scope, $routeParams, CosmosService, cachedloader, settings) {
+            $scope.apps = [];
+
+            $scope.processError = function (data, status) {
+                $scope.hasError = true;
+                $scope.status = status;
+                $scope.status_data = JSON.stringify(data);
+            };
+
+            $scope.init=function() {
+                settings.getApplications(function (applications) {
+                        if (!applications || applications.length==0) {
+                            $location.path('/appstudio/');
+                        }
+                        else {
+                            $scope.apps = applications;
+                        }
+                    },
+                    $scope.processError
+                );
+            }
+    }])
+
+
+
 ;

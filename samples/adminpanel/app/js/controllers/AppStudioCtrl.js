@@ -3,17 +3,27 @@
  */
 
 
-controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService','cosmos.settings', 'globalhashtable',
-    function ($scope, $routeParams, $templateCache, $modal, CosmosService, settings, globalhashtable) {
+controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
+    'cosmos.settings', 'globalhashtable', 'cosmos.utils',
+    function ($scope, $routeParams, $templateCache, $modal, CosmosService, settings, globalhashtable, utils) {
 
         $scope.selectedApplication = undefined;
         $scope.appPath = $routeParams.appPath;
 
         $scope.hashtable = globalhashtable;
+        $scope.globalSettings = {};
 
         $scope.cosmosCurrentApplicationRef = "_Cosmos_Current_Application_";
 
         $scope.applicationChanged = function(){
+        };
+
+        $scope.getGlobalSettings = function(){
+            settings.getGlobalSettings(function (globalSettings) {
+                    $scope.globalSettings = globalSettings;
+                },
+                $scope.processError
+            );
         };
 
         $scope.getApplications = function(){
@@ -88,6 +98,27 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
             $scope.loadAppItems($scope.selectedApplication);
         };
 
+        $scope.setAsDefault = function(app){
+            if(app && app.id){
+                utils.setAppAsDefault(app, function(){
+                    $scope.globalSettings.defaultappid = app.id;
+                });
+            }
+        };
+
+        $scope.setPageAsDefault = function(page){
+            var app = $scope.selectedApplication;
+
+            if(app && app._id && page && page._id){
+                utils.setPageAsDefault(app, page,
+                    function(){
+                        $scope.selectedApplication.settings.indexPageId = page._id;
+                    },
+                    $scope.processItem
+                );
+            }
+        };
+
         $scope.openApp = function(app){
             if(app) {
                 $scope.selectedApplication = app;
@@ -128,6 +159,7 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
         };
 
         $scope.init = function(){
+            $scope.getGlobalSettings();
             $scope.getApplications();
             $scope.selectedApplication = $scope.getOpenedApp();
             $scope.applicationChanged();
