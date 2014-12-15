@@ -5,18 +5,16 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="#/lists/">Lists</a></li>
-                    <li><a href="#/users">Users</a></li>
-                    <li><a href="#/roles">Roles</a></li>
+                    <li><a href="/#/appstudio/">App Studio</a></li>
+                    <li ng-show="loggedIn()"><a href="#/users">Users</a></li>
+                    <li ng-show="loggedIn()"><a href="#/roles">Roles</a></li>
                     <li ng-show="loggedIn()"> <a href="/logout/">Logout [{{userName}}]</a> </li>
-                    <li ng-show="!loggedIn()"><a href="/login.html">Login</a></li>
+                    <li ng-show="!loggedIn()"><a href="/#/login/?redirect=/terminal/">Login</a></li>
                 </ul>
             </div>
         </div>
     </div>
     <div class="container theme-showcase" role="main">
-
         <error-banner></error-banner>
 
         <h3>Operations</h3>
