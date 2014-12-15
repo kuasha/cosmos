@@ -16,7 +16,7 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
 
         $scope.onsuccess_types = [
             {'name': 'message', 'title': 'Message'},
-            {'name': 'url', 'title': 'Redirect'}
+            {'name': 'url', 'label': 'Redirect'}
         ];
 
         $scope.init = function(){
@@ -54,94 +54,95 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             "page":
             {
                 "fields": [
-                    {"type": "input", "htmltype":"checkbox", "name":"loginRequired", "title": "Login required"},
-                    {"type": "input", "name":"title", "title": "Title"}
+                    {"type": "input", "name":"title", "label": "Title"},
+                    {"type": "checkbox", "name":"loginRequired", "label": "Login required"}
+
                 ]
             },
             "menuref": {
                 "fields": [
-                    {"type": "composite", "title": "Settings", "name": "value", fields:[
-                        {"type": "text", "title": "Menu Id", "name": "menuId"}
+                    {"type": "composite", "label": "Settings", "name": "value", fields:[
+                        {"type": "text", "label": "Menu Id", "name": "menuId"}
                     ]}
                 ]
             },
             "formref": {
                 "fields": [
-                    {"type": "composite", "title": "Settings", "name": "value", fields:[
-                        {"type": "text", "title": "Form Id", "name": "formId"}
+                    {"type": "composite", "label": "Settings", "name": "value", fields:[
+                        {"type": "text", "label": "Form Id", "name": "formId"}
                     ]}
                 ]
             },
             "listref": {
                 "fields": [
-                    {"type": "composite", "title": "Settings", "name": "value", fields:[
-                        {"type": "text", "title": "List Id", "name": "listId"}
+                    {"type": "composite", "label": "Settings", "name": "value", fields:[
+                        {"type": "text", "label": "List Id", "name": "listId"}
                     ]}
                 ]
             },
             "chartref": {
                 "fields": [
-                    {"type": "composite", "title": "Settings", "name": "value", fields:[
-                        {"type": "text", "title": "Chart Id", "name": "chartId"}
+                    {"type": "composite", "label": "Settings", "name": "value", fields:[
+                        {"type": "text", "label": "Chart Id", "name": "chartId"}
                     ]}
                 ]
             },
             "cssref": {
                 "fields": [
-                    {"type": "text", "title": "href", "name": "href"}
+                    {"type": "text", "label": "href", "name": "href"}
                 ]
             },
             "jsref": {
                 "fields": [
-                    {"type": "text", "title": "src", "name": "src"}
+                    {"type": "text", "label": "src", "name": "src"}
                 ]
             },
             "widgethost": {
                 "fields": [
-                        {"type": "text", "title": "Widget Name", "name": "value"}
+                        {"type": "text", "label": "Widget Name", "name": "value"}
                 ]
             },
             "condition":{
-                "title": "Condition options", "type":"condition", "name":"condition", "fields":[
-                    {"type": "text", "title": "Title", "name": "title"},
-                    {"type": "text", "title": "Name", "name": "name"},
-                    {"type": "text", "title": "Expression", "name": "expression"}
+                "label": "Condition options", "type":"condition", "name":"condition", "fields":[
+                    {"type": "text", "label": "Label", "name": "label"},
+                    {"type": "text", "label": "Name", "name": "name"},
+                    {"type": "text", "label": "Expression", "name": "expression"}
                 ]
             },
             "htmlblock":{
                 "fields": [
-                    { title: 'Type', name:"blocktype", type: 'select', options: { choices: [
-                        {'value': 'h1', 'title': 'h1'},
-                        {'value': 'h2', 'title': 'h2'},
-                        {'value': 'h3', 'title': 'h3'},
-                        {'value': 'h4', 'title': 'h4'},
-                        {'value': 'h5', 'title': 'h5'},
-                        {'value': 'p', 'title': 'p'}
+                    { label: 'Type', name:"blocktype", type: 'select', options: { choices: [
+                        {'value': 'h1', 'label': 'h1'},
+                        {'value': 'h2', 'label': 'h2'},
+                        {'value': 'h3', 'label': 'h3'},
+                        {'value': 'h4', 'label': 'h4'},
+                        {'value': 'h5', 'label': 'h5'},
+                        {'value': 'p', 'label': 'p'}
                     ]}},
 
-                    {"type": "codeeditor", "title": "Html", "name": "value"}
+                    {"type": "codeeditor", "label": "Html", "name": "value"}
                 ]
             },
             "default": {
                 "fields": [
-                    {"type": "text", "title": "Title", "name": "title"},
-                    {"type": "text", "title": "Name", "name": "name"}
+                    {"type": "text", "label": "Label", "name": "label"},
+                    {"type": "text", "label": "Name", "name": "name"}
                 ]
             }
         };
 
         $scope.toolsList = [
-            {title: 'Menu', type: "menuref"},
-            {title: 'Form', type: "formref", options: {"value": ""}},
-            {title: 'Page', type: "pageref", options: {}},
-            {title: 'List', type: "listref", options: {}},
-            {title: 'Html', type: "htmlblock", options: {}},
-            {title: '2 Columns', type: "twocolumn"},
-            {title: '3 Columns', type: "threecolumn"},
-            {title: 'Chart', type: "chartref"},
-            {title: "Widget", type: "widgethost"},
-            {title: "CSS File", type: "cssref"},
-            {title: "JS File", type: "jsref"}
+            {label: 'Menu', type: "menuref"},
+            {label: 'Form', type: "formref", options: {"value": ""}},
+            {label: 'Page', type: "pageref", options: {}},
+            {label: 'List', type: "listref", options: {}},
+            {label: 'Html', type: "htmlblock", options: {}},
+            {label: '2 Columns', type: "twocolumn"},
+            {label: '3 Columns', type: "threecolumn"},
+            {label: 'Chart', type: "chartref"},
+            {label: "Widget", type: "widgethost"},
+            {label: "CSS File", type: "cssref"},
+            {label: "JS File", type: "jsref"}
         ];
 
         $scope.components = jQuery.extend(true, [], $scope.toolsList);
@@ -171,6 +172,9 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
         $scope.processPage = function (page) {
             if (!page.onsuccess) {
                 page.onsuccess = {};
+            }
+            if(!page.type){
+                page.type = "page";
             }
             $scope.page = page;
         };

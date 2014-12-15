@@ -15,17 +15,6 @@
 </div>
 <div class="container theme-showcase" role="main" ng-init="init()">
     <error-banner></error-banner>
-    <!--
-    <div ng-hide="isAppOpened()">
-        <select ng-change="applicationChanged()"
-                ng-model="selectedApplication"
-                ng-model="myColor"
-                ng-options="app.title for app in applications">
-        </select>
-
-        <button ng-hide="isAppOpened()" ng-click="openApp()">Open App</button>
-    </div>
-    -->
 
     <div>
         <label ng-bind="getCurrentApplicationTitle()"></label>
@@ -56,15 +45,17 @@
                         {{capp.title}}
                     </td>
                     <td>
-                        <a ng-href="#/appstudio/app/cosmosapp/{{capp._id}}" class="btn btn-primary">Settings</a>
+                        <a ng-href="#/appstudio/app/cosmosapp/{{capp._id}}" class="btn btn-primary btn-sm">Settings</a>
                     </td>
                     <td>
-                        <a ng-href="/application/package/{{capp.id}}" class="btn btn-warning">Export App</a>
+                        <a ng-href="/application/package/{{capp.id}}" class="btn btn-warning btn-sm">Export App</a>
                     </td>
                     <td>
-                        <button ng-click="openApp(capp)" class="btn btn-success">Open App</button>
+                        <a href="/#/a/{{capp.path}}/" class="btn btn-info btn-sm">Browse App</a>
                     </td>
-
+                    <td>
+                        <button ng-click="openApp(capp)" class="btn btn-success btn-sm">Open App</button>
+                    </td>
                 </tr>
             </table>
         </div>

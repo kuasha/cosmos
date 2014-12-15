@@ -53,28 +53,28 @@
 
 <script type="text/ng-template" id="input-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label>{{field.title}}<span ng-if="field.required">&nbsp;*</span></label>
+        <label>{{field.label}}<span ng-if="field.required">&nbsp;*</span></label>
         <input ng-class="field.className" type="{{field.htmltype || 'text'}}" name="{{field.model}}" readonly="readonly" disabled="disabled"/>
     </div>
 </script>
 
 <script type="text/ng-template" id="static-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label>{{field.title}}</label>
+        <label>{{field.label}}</label>
         <input ng-class="field.className" type="text" name="{{field.model}}" ng-model="field.options.value"/>
     </div>
 </script>
 
 <script type="text/ng-template" id="textarea-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label>{{field.title}}</label>
+        <label>{{field.label}}</label>
         <textarea class="editor" ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled"></textarea>
     </div>
 </script>
 
 <script type="text/ng-template" id="codeeditor-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label>{{field.title}}</label>
+        <label>{{field.label}}</label>
         <div ui-ace class="editor" ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled"></div>
     </div>
 </script>
@@ -82,35 +82,35 @@
 <script type="text/ng-template" id="checkbox-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <input type="checkbox" ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled">
-        <label class="control-label">{{field.title}}</label>
+        <label class="control-label">{{field.label}}</label>
     </div>
 </script>
 
 <script type="text/ng-template" id="radiogroup-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label class="control-label">{{field.title}}</label>
+        <label class="control-label">{{field.label}}</label>
 
         <div class="composite" ng-repeat="choice in field.options.choices">
             <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="choice.value"
                    readonly="readonly" disabled="disabled">
-            <label class="control-label">{{choice.title}}</label>
+            <label class="control-label">{{choice.label}}</label>
         </div>
     </div>
 </script>
 
 <script type="text/ng-template" id="select-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label class="control-label">{{field.title}}</label>
+        <label class="control-label">{{field.label}}</label>
         <select ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled">
             <option ng-if="field.nullable === true" ng-value=""> --- Select ---</option>
-            <option ng-value="option.value" ng-repeat="choice in field.options.choices">{{choice.title}}</option>
+            <option ng-value="option.value" ng-repeat="choice in field.options.choices">{{choice.label}}</option>
         </select>
     </div>
 </script>
 
 <script type="text/ng-template" id="lookup-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label class="control-label">{{field.title}}</label>
+        <label class="control-label">{{field.label}}</label>
         <select readonly="readonly" disabled="disabled">
         </select>
         <select ng-hide="field.options.saveValueOnly" readonly="readonly" disabled="disabled">
@@ -120,7 +120,7 @@
 
 <script type="text/ng-template" id="composite-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label class="control-label">{{field.title}}</label>
+        <label class="control-label">{{field.label}}</label>
         <ul ng-if="field.type === 'composite' || field.type === 'form'" class="apps-container" ui-sortable="sortableOptions"
             ng-model="field.fields">
             <li class="innerCont" ng-repeat="field in field.fields">
@@ -133,7 +133,7 @@
 
 <script type="text/ng-template" id="condition-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label class="control-label">{{field.title}}</label>
+        <label class="control-label">{{field.label}}</label>
         <ul>
             <li>
                 <label class="control-label">IF</label>
@@ -165,7 +165,7 @@
 
 <script type="text/ng-template" id="array-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label class="control-label">{{field.title}} [ ]</label>
+        <label class="control-label">{{field.label}} [ ]</label>
         <ul class="apps-container" ui-sortable="sortableOptions" ng-model="field.fields">
             <li class="innerCont" ng-repeat="field in field.fields">
                 <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
@@ -185,7 +185,7 @@
     <div>
         <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
             <li ng-repeat="comp in components">
-                 {{comp.title}}
+                 {{comp.label}}
             </li>
         </ul>
     </div>
@@ -201,7 +201,7 @@
         <div>
             <div>
                 <label>Type</label>
-                <select ng-model="selectedItem.onsuccess.type" ng-options="otype.name as otype.title for otype in onsuccess_types"></select>
+                <select ng-model="selectedItem.onsuccess.type" ng-options="otype.name as otype.label for otype in onsuccess_types"></select>
             </div>
             <div>
                 <label>Value</label>
@@ -238,7 +238,7 @@
         <div class="col-sm-2">
             <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
                 <li ng-repeat="comp in components">
-                    {{comp.title}}
+                    {{comp.label}}
                 </li>
             </ul>
         </div>

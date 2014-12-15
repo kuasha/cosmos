@@ -73,7 +73,12 @@ controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'Cos
                     }
 
                     $scope.appSettings = returnedData[0];
-                    $scope.applySettings($scope.appSettings.settings);
+                    if(!$scope.appPath){
+                        $location.path('/a/'+$scope.appSettings.path+'/');
+                    }
+                    else {
+                        $scope.applySettings($scope.appSettings.settings);
+                    }
                 },
                 function (data, status) {
                     $scope.processError(data, status);

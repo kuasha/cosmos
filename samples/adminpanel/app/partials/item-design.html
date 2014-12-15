@@ -1,9 +1,10 @@
 <style>
 input.ng-invalid
 {
-    border:1px solid #f00;
+    border:1px solid #C00;
 }
 </style>
+
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
         <div class="navbar-header">
@@ -19,11 +20,12 @@ input.ng-invalid
         </div>
     </div>
 </div>
+
 <div ng-init="init()" class="container theme-showcase" role="main">
     <label>/{{itemType}}/{{appPath}}/{{itemId}}</label>
     <hr />
 
-    <form name="itemconfigform" ng-if = "ready">
+    <form name="itemconfigform" class="form-horizontal" ng-if = "ready">
         <div ng-if="itemType === 'widget'">
             <field type="form" item="widgetEditorForm" val="widget"></field>
         </div>
@@ -45,7 +47,7 @@ input.ng-invalid
 
         <div>
             <br />
-            <button ng-disabled="!(itemconfigform.$valid)" ng-click="saveItem()" class="btn btn-primary">Save</button>
+            <button ng-disabled="!(itemconfigform.$valid)" ng-click="saveItem()" class="btn btn-primary">Save Application</button>
         </div>
     </form>
 </div>

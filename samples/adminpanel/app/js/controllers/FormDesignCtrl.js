@@ -30,40 +30,42 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
         $scope.optionFormByType = {
             "input": {
                 "fields": [
-                    {"type": "text", "title": "Title", "name": "title"},
-                    {"type": "text", "title": "Name", "name": "name"},
-                    {"type": "checkbox", "title": "Required", "name": "required"},
-                    {"type": "text", "title": "Min Length", "name": "minlength"},
-                    {"type": "text", "title": "Max Length", "name": "maxlength"},
-                    {"type": "text", "title": "Pattern", "name": "pattern"},
+                    {"type": "text", "label": "Label", "name": "label"},
+                    {"type": "text", "label": "Name", "name": "name"},
+                    {"type": "checkbox", "label": "Required", "name": "required"},
+                    {"type": "text", "label": "Min Length", "name": "minlength"},
+                    {"type": "text", "label": "Max Length", "name": "maxlength"},
+                    {"type": "text", "label": "Pattern", "name": "pattern"},
+                    {"type": "text", "label": "Placeholder", "name": "placeholder"},
+                    {"type": "text", "label": "Tooltip", "name": "title"},
                     {
-                        "title": "Type",
+                        "label": "Type",
                         "type": "select",
                         "options": {
                             "choices": [
-                                {"value": "text", "title": "Text"},
-                                {"value": "password", "title": "Password"},
-                                {"value": "button", "title": "Button" },
-                                {"value": "checkbox", "title": "Check box" },
-                                {"value": "color", "title": "Color" },
-                                {"value": "date", "title": "Date" },
-                                {"value": "datetime", "title": "Date time" },
-                                {"value": "datetime-local", "title": "Local datetime" },
-                                {"value": "email", "title": "Email" },
-                                {"value": "file", "title": "File" },
-                                {"value": "hidden", "title": "Hidden" },
-                                {"value": "image", "title": "Image" },
-                                {"value": "month", "title": "Month" },
-                                {"value": "number", "title": "Number" },
-                                {"value": "radio", "title": "Radio" },
-                                {"value": "range", "title": "Range" },
-                                {"value": "reset", "title": "Reset" },
-                                {"value": "search", "title": "Search" },
-                                {"value": "submit", "title": "Submit" },
-                                {"value": "tel", "title": "Telephone" },
-                                {"value": "time", "title": "Time" },
-                                {"value": "url", "title": "URL" },
-                                {"value": "week", "title": "Week" }
+                                {"value": "text", "label": "Text"},
+                                {"value": "password", "label": "Password"},
+                                {"value": "button", "label": "Button" },
+                                {"value": "checkbox", "label": "Check box" },
+                                {"value": "color", "label": "Color" },
+                                {"value": "date", "label": "Date" },
+                                {"value": "datetime", "label": "Date time" },
+                                {"value": "datetime-local", "label": "Local datetime" },
+                                {"value": "email", "label": "Email" },
+                                {"value": "file", "label": "File" },
+                                {"value": "hidden", "label": "Hidden" },
+                                {"value": "image", "label": "Image" },
+                                {"value": "month", "label": "Month" },
+                                {"value": "number", "label": "Number" },
+                                {"value": "radio", "label": "Radio" },
+                                {"value": "range", "label": "Range" },
+                                {"value": "reset", "label": "Reset" },
+                                {"value": "search", "label": "Search" },
+                                {"value": "submit", "label": "Submit" },
+                                {"value": "tel", "label": "Telephone" },
+                                {"value": "time", "label": "Time" },
+                                {"value": "url", "label": "URL" },
+                                {"value": "week", "label": "Week" }
                             ]
                         },
                         "name": "htmltype",
@@ -73,123 +75,123 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             },
             "form": {
                 "fields": [
-                    {"type": "text", "title": "Title", "name": "title"},
-                    {"type": "text", "title": "Name", "name": "name"},
-                    {"type": "text", "title": "Action", "name": "action"},
+                    {"type": "text", "label": "Title", "name": "title"},
+                    {"type": "text", "label": "Name", "name": "name"},
+                    {"type": "text", "label": "Action", "name": "action"},
                     {
-                        "type": "composite", "title": "On success", "name": "onsuccess",
+                        "type": "composite", "label": "On success", "name": "onsuccess",
                         "fields": [
                             {
-                                "title": "Type",
+                                "label": "Type",
                                 "type": "select",
                                 "options": {
                                     "choices": [
                                         {
                                             "value": "message",
-                                            "title": "Message"
+                                            "label": "Message"
                                         },
                                         {
                                             "value": "inlinemessage",
-                                            "title": "Embeded message"
+                                            "label": "Embeded message"
                                         },
                                         {
                                             "value": "url",
-                                            "title": "Redirect"
+                                            "label": "Redirect"
                                         }
                                     ]
                                 },
                                 "name": "type",
                                 "nullable": false
                             },
-                            {"type": "text", "title": "Value", "name": "value"}
+                            {"type": "text", "label": "Value", "name": "value"}
                         ]
                     }
                 ]
             },
-            "select": {"title": "Select Options", "type": "composite", "fields": [
-                {"type": "text", "title": "Title", "name": "title"},
-                {"type": "text", "title": "Name", "name": "name"},
-                {"title": "Options", "type": "composite", "options": {}, "fields": [
-                    {"title": "Choices", "type": "array", "options": {}, "fields": [
-                        {"title": "Title", "type": "text", "name": "title"},
-                        {"title": "Value", "type": "text", "name": "value"}
+            "select": {"label": "Select Options", "type": "composite", "fields": [
+                {"type": "text", "label": "Label", "name": "label"},
+                {"type": "text", "label": "Name", "name": "name"},
+                {"label": "Options", "type": "composite", "options": {}, "fields": [
+                    {"label": "Choices", "type": "array", "options": {}, "fields": [
+                        {"label": "Label", "type": "text", "name": "label"},
+                        {"label": "Value", "type": "text", "name": "value"}
                     ], "name": "choices"}
                 ], "name": "options"}
             ]
             },
-            "array": {"title": "Select Options", "type": "composite", "fields": [
-                {"type": "text", "title": "Title", "name": "title"},
-                {"type": "text", "title": "Name", "name": "name"},
-                {"title": "Options", "type": "composite", "options": {}, "fields": [
-                    {"title": "Value only", "type": "checkbox", "name": "primitive"}
+            "array": {"label": "Select Options", "type": "composite", "fields": [
+                {"type": "text", "label": "Label", "name": "label"},
+                {"type": "text", "label": "Name", "name": "name"},
+                {"label": "Options", "type": "composite", "options": {}, "fields": [
+                    {"label": "Value only", "type": "checkbox", "name": "primitive"}
                 ], "name": "options"}
             ]
             },
 
-            "lookup": {"title": "Select Options", "type": "composite", "fields": [
-                {"type": "text", "title": "Title", "name": "title"},
-                {"type": "text", "title": "Name", "name": "name"},
-                {"title": "Options", "type": "composite", "options": {}, "fields": [
-                    {"title": "Value only", "type": "checkbox", "name": "saveValueOnly"},
-                    {"title": "Hide reference", "type": "checkbox", "name": "hideRefType"},
+            "lookup": {"label": "Select Options", "type": "composite", "fields": [
+                {"type": "text", "label": "Label", "name": "label"},
+                {"type": "text", "label": "Name", "name": "name"},
+                {"label": "Options", "type": "composite", "options": {}, "fields": [
+                    {"label": "Value only", "type": "checkbox", "name": "saveValueOnly"},
+                    {"label": "Hide reference", "type": "checkbox", "name": "hideRefType"},
 
-                    {"title": "References", "type": "array", "name": "lookups", "fields": [
-                        {"title": "Data endpoint", "type": "text", "name": "url"},
-                        {"title": "Reference title", "type": "text", "name": "lookupname"},
-                        {"title": "Reference name", "type": "text", "name": "ref"},
-                        {"title": "Value field", "type": "text", "name": "value"},
-                        {"title": "Title field", "type": "text", "name": "title"}
+                    {"label": "References", "type": "array", "name": "lookups", "fields": [
+                        {"label": "Data endpoint", "type": "text", "name": "url"},
+                        {"label": "Reference label", "type": "text", "name": "lookupname"},
+                        {"label": "Reference name", "type": "text", "name": "ref"},
+                        {"label": "Value field", "type": "text", "name": "value"},
+                        {"label": "Label field", "type": "text", "name": "label"}
                     ]
                     }
 
                 ], "name": "options"}
             ]
             },
-            "radiogroup": {"title": "Select Options", "type": "form", "fields": [
-                {"type": "text", "title": "Title", "name": "title"},
-                {"type": "text", "title": "Name", "name": "name"},
-                {"title": "Options", "type": "composite", "options": {}, "fields": [
-                    {"title": "Choices", "type": "array", "options": {}, "fields": [
-                        {"title": "Title", "type": "text", "name": "title"},
-                        {"title": "Value", "type": "text", "name": "value"}
+            "radiogroup": {"label": "Select Options", "type": "form", "fields": [
+                {"type": "text", "label": "Label", "name": "label"},
+                {"type": "text", "label": "Name", "name": "name"},
+                {"label": "Options", "type": "composite", "options": {}, "fields": [
+                    {"label": "Choices", "type": "array", "options": {}, "fields": [
+                        {"label": "Label", "type": "text", "name": "label"},
+                        {"label": "Value", "type": "text", "name": "value"}
                     ], "name": "choices"}
                 ], "name": "options"}
             ]
             },
 
             "condition": {
-                "title": "Condition options", "type": "condition", "name": "condition", "fields": [
-                    {"type": "text", "title": "Title", "name": "title"},
-                    {"type": "text", "title": "Name", "name": "name"},
-                    {"type": "text", "title": "Expression", "name": "expression"}
+                "label": "Condition options", "type": "condition", "name": "condition", "fields": [
+                    {"type": "text", "label": "Label", "name": "label"},
+                    {"type": "text", "label": "Name", "name": "name"},
+                    {"type": "text", "label": "Expression", "name": "expression"}
                 ]
             },
             "default": {
                 "fields": [
-                    {"type": "text", "title": "Title", "name": "title"},
-                    {"type": "text", "title": "Name", "name": "name"}
+                    {"type": "text", "label": "Label", "name": "label"},
+                    {"type": "text", "label": "Name", "name": "name"}
                 ]
             }
         };
 
         $scope.toolsList = [
-            {title: 'Input', type: "input"},
-            {title: 'Static', type: "static", options: {"value": ""}},
-            {title: 'Text Area', type: "textarea", options: {}},
-            {title: 'Code editor', type: "codeeditor", options: {}},
-            { title: 'Select', type: 'select', options: {choices: [
-                {'value': 'option1', 'title': 'option1'},
-                {'value': 'option2', 'title': 'option2'}
+            {label: 'Input', type: "input"},
+            {label: 'Static', type: "static", options: {"value": ""}},
+            {label: 'Text Area', type: "textarea", options: {}},
+            {label: 'Code editor', type: "codeeditor", options: {}},
+            { label: 'Select', type: 'select', options: {choices: [
+                {'value': 'option1', 'label': 'option1'},
+                {'value': 'option2', 'label': 'option2'}
             ]}},
-            { title: 'Checkbox', type: 'checkbox', options: {}},
-            { title: 'Options', type: 'radiogroup', options: { choices: [
-                {'value': 'option1', 'title': 'option1'},
-                {'value': 'option2', 'title': 'option2'}
+            { label: 'Checkbox', type: 'checkbox', options: {}},
+            { label: 'Options', type: 'radiogroup', options: { choices: [
+                {'value': 'option1', 'label': 'option1'},
+                {'value': 'option2', 'label': 'option2'}
             ]}},
-            {title: 'Group', type: "composite", options: {}, fields: []},
-            {title: 'Array', type: "array", options: {}, fields: []},
-            {title: 'Lookup', type: "lookup", options: {}, fields: []},
-            {"title": "Condition", "type": "condition", fields: [], elsefields: []}
+            {label: 'Group', type: "composite", options: {}, fields: []},
+            {label: 'Array', type: "array", options: {}, fields: []},
+            {label: 'Lookup', type: "lookup", options: {}, fields: []},
+            {"label": "Condition", "type": "condition", fields: [], elsefields: []}
         ];
 
         $scope.components = jQuery.extend(true, [], $scope.toolsList);

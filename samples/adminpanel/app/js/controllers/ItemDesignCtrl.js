@@ -13,10 +13,10 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     {
                         "type": "input",
                         "name": "name",
-                        "title": "Name"
+                        "label": "Name"
                     },
                     {
-                        "title": "Template",
+                        "label": "Template",
                         "type": "codeeditor",
                         "name": "template"
                     }
@@ -42,28 +42,28 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     {
                         "type": "input",
                         "name": "title",
-                        "title": "Title"
+                        "label": "Title"
                     },
                     {
                         "type": "input",
                         "name": "objectName",
-                        "title": "Object name"
+                        "label": "Object name"
                     },
                     {
                         "type": "checkbox",
                         "name": "allowClientFilter",
-                        "title": "Allow search on client"
+                        "label": "Allow search on client"
                     },
                     {
                         "type": "input",
                         "name": "filter",
-                        "title": "Filter"
+                        "label": "Filter"
                     },
                     {
                         "type":"checkbox",
                         "name":"useQueryFilterParam",
                         "options":{},
-                        "title": "Accept query parameter as filter"
+                        "label": "Accept query parameter as filter"
                     },
                     {
                         "type": "lookup",
@@ -75,25 +75,25 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                     "ref": "widget",
                                     "lookupname": "Template",
                                     "value": "name",
-                                    "title": "name"
+                                    "label": "name"
                                 }
                             ],
                             "hideRefType": true
                         },
                         "name": "widgetName",
-                        "title": "List Widget"
+                        "label": "List Widget"
                     },
                     {
                         "fields": [
                             {
                                 "type": "input",
                                 "name": "title",
-                                "title": "Title"
+                                "label": "Title"
                             },
                             {
                                 "type": "input",
                                 "name": "name",
-                                "title": "Name"
+                                "label": "Name"
                             },
                             {
                                 "type": "lookup",
@@ -105,25 +105,25 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                             "ref": "widget",
                                             "lookupname": "Template",
                                             "value": "name",
-                                            "title": "name"
+                                            "label": "name"
                                         }
                                     ],
                                     "hideRefType": true
                                 },
                                 "name": "widget",
-                                "title": "Widget"
+                                "label": "Widget"
                             },
                             {
                                 "type": "checkbox",
                                 "options": {},
                                 "name": "showInList",
-                                "title": "Show in list"
+                                "label": "Show in list"
                             }
                         ],
                         "type": "array",
                         "options": {},
                         "name": "columns",
-                        "title": "Columns"
+                        "label": "Columns"
                     }
                 ]
             };
@@ -133,13 +133,13 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 "title": "Menu editor",
                 "fields": [
                     {
-                        "title": "Brand title",
+                        "label": "Brand title",
                         "type": "input",
                         "name": "brandtitle",
                         "htmltype": "text"
                     },
                     {
-                        "title": "Brand link",
+                        "label": "Brand link",
                         "type": "input",
                         "name": "brandhref",
                         "htmltype": "text"
@@ -147,17 +147,17 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     {
                         "fields": [
                             {
-                                "title": "Type",
+                                "label": "Type",
                                 "type": "select",
                                 "options": {
                                     "choices": [
                                         {
                                             "value": "menuitem",
-                                            "title": "Link"
+                                            "label": "Link"
                                         },
                                         {
                                             "value": "inlinewidget",
-                                            "title": "Inline widget"
+                                            "label": "Inline widget"
                                         }
                                     ]
                                 },
@@ -165,16 +165,16 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                             },
                             {
                                 "name": "value",
-                                "title": "Set value",
+                                "label": "Set value",
                                 "fields": [
                                     {
-                                        "title": "Title",
+                                        "label": "Title",
                                         "type": "input",
                                         "name": "title",
                                         "htmltype": "text"
                                     },
                                     {
-                                        "title": "Link",
+                                        "label": "Link",
                                         "type": "input",
                                         "name": "href",
                                         "htmltype": "text"
@@ -182,7 +182,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                 ],
                                 "elsefields": [
                                     {
-                                        "title": "Widget text",
+                                        "label": "Widget text",
                                         "type": "codeeditor",
                                         "name": "widgettext",
                                         "htmltype": "text"
@@ -192,13 +192,13 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                 "expression": "$parent.d.type === 'menuitem'"
                             },
                             {
-                                "title": "CSS Class",
+                                "label": "CSS Class",
                                 "type": "input",
                                 "name": "cssclass",
                                 "htmltype": "text"
                             }
                         ],
-                        "title": "Menu items",
+                        "label": "Menu items",
                         "type": "array",
                         "options": {},
                         "name": "fields"
@@ -213,13 +213,13 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 "type": "form",
                 "fields": [
                     {
-                        "title": "Page Id",
+                        "label": "Page Id",
                         "type": "input",
                         "name": "pageId",
                         "htmltype": "text"
                     },
                     {
-                        "title": "Object name",
+                        "label": "Object name",
                         "type": "input",
                         "name": "objectName",
                         "htmltype": "text"
@@ -227,13 +227,13 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     {
                         "fields": [
                             {
-                                "title": "Name",
+                                "label": "Name",
                                 "type": "input",
                                 "name": "name",
                                 "htmltype": "text"
                             }
                         ],
-                        "title": "Columns",
+                        "label": "Columns",
                         "type": "array",
                         "options": {},
                         "name": "columns"
@@ -246,65 +246,65 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 "title": "Application",
                 "fields": [
                     {
-                        "title": "Id",
+                        "label": "Id",
                         "type": "input",
                         "required": true,
                         "name": "id",
                         "htmltype": "text"
                     },
                     {
-                        "title": "Name",
+                        "label": "Name",
                         "type": "input",
                         "name": "name",
                         "required": true,
                         "htmltype": "text"
                     },
                     {
-                        "title": "Tite",
+                        "label": "Tite",
                         "type": "input",
                         "required": true,
                         "name": "title",
                         "htmltype": "text"
                     },
                     {
-                        "title": "Path",
+                        "label": "Path",
                         "type": "input",
                         "required": true,
                         "name": "path",
                         "htmltype": "text"
                     },
                     {
-                        "title": "Version",
+                        "label": "Version",
                         "type": "input",
                         "name": "version",
                         "htmltype": "text"
                     },
                     {
-                        "title": "Contact email",
+                        "label": "Contact email",
                         "type": "input",
                         "name": "contact",
                         "htmltype": "email"
                     },
                     {
-                        "title": "Author",
+                        "label": "Author",
                         "type": "input",
                         "name": "author",
                         "htmltype": "text"
                     },
                     {
-                        "title": "Website",
+                        "label": "Website",
                         "type": "input",
                         "name": "website",
                         "htmltype": "text"
                     },
                     {
-                        "title": "Copyright",
+                        "label": "Copyright",
                         "type": "input",
                         "name": "copyright",
                         "htmltype": "text"
                     },
                     {
-                        "title": "License",
+                        "label": "License",
                         "type": "input",
                         "name": "license",
                         "htmltype": "text"
@@ -314,7 +314,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                             /*
                             {
                                 "fields": [],
-                                "title": "Index page",
+                                "label": "Index page",
                                 "type": "lookup",
                                 "options": {
                                     "saveValueOnly": true,
@@ -324,7 +324,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                             "ref": "Id",
                                             "lookupname": "Index page",
                                             "value": "_id",
-                                            "title": "title"
+                                            "label": "label"
                                         }
                                     ],
                                     "hideRefType": true
@@ -334,20 +334,20 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                             */
                             {
                                 "fields": [],
-                                "title": "Index page Id",
+                                "label": "Index page Id",
                                 "type": "input",
                                 "name": "indexPageId"
                             },
                             {
                                 "fields": [
                                     {
-                                        "title": "Object name",
+                                        "label": "Object name",
                                         "type": "input",
                                         "name": "objectName",
                                         "htmltype": "text"
                                     }
                                 ],
-                                "title": "Objects",
+                                "label": "Objects",
                                 "type": "array",
                                 "options": {
                                     "primitive": true
@@ -357,13 +357,13 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                             {
                                 "fields": [
                                     {
-                                        "title": "File object name",
+                                        "label": "File object name",
                                         "type": "input",
                                         "name": "fileObjectName",
                                         "htmltype": "text"
                                     }
                                 ],
-                                "title": "File objects",
+                                "label": "File objects",
                                 "type": "array",
                                 "options": {
                                     "primitive": true
@@ -373,13 +373,13 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                             {
                                 "fields": [
                                     {
-                                        "title": "File name",
+                                        "label": "File name",
                                         "type": "input",
                                         "name": "File name",
                                         "htmltype": "text"
                                     }
                                 ],
-                                "title": "Source files",
+                                "label": "Source files",
                                 "type": "array",
                                 "options": {
                                     "primitive": true
@@ -389,55 +389,55 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                             {
                                 "fields": [
                                     {
-                                        "title": "List config object",
+                                        "label": "List config object",
                                         "type": "input",
                                         "required": true,
                                         "name": "listconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
-                                        "title": "Form config object",
+                                        "label": "Form config object",
                                         "type": "input",
                                         "required": true,
                                         "name": "formconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
-                                        "title": "Menu config object",
+                                        "label": "Menu config object",
                                         "type": "input",
                                         "required": true,
                                         "name": "menuconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
-                                        "title": "Page config object",
+                                        "label": "Page config object",
                                         "type": "input",
                                         "required": true,
                                         "name": "pageconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
-                                        "title": "Chart config object",
+                                        "label": "Chart config object",
                                         "type": "input",
                                         "required": true,
                                         "name": "chartconfigobject",
                                         "htmltype": "text"
                                     },
                                     {
-                                        "title": "Single item config object",
+                                        "label": "Single item config object",
                                         "type": "input",
                                         "required": true,
                                         "name": "singleitemconfigobject",
                                         "htmltype": "text"
                                     }
                                 ],
-                                "title": "Object map",
+                                "label": "Object map",
                                 "type": "composite",
                                 "options": {},
                                 "name": "objectmap"
                             }
                         ],
-                        "title": "Settings",
+                        "label": "Settings",
                         "type": "composite",
                         "options": {},
                         "name": "settings"

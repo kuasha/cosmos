@@ -470,7 +470,7 @@ directives.directive('field', function ($compile) {
 
                         case "menuitem":
                             template = '' +
-                                '   <a href="{{item.value.href}}">{{item.value.title}}</a>';
+                                '   <a href="{{item.value.href}}">{{item.value.label}}</a>';
                             break;
 
                         case "menuref":
@@ -500,74 +500,76 @@ directives.directive('field', function ($compile) {
                             var maxlengthTag = item.maxlength ? ' ng-maxlength="item.maxlength" ':'';
                             var requiredTag = item.required ? ' required ':'';
                             var patternTag = item.pattern ? ' ng-pattern="item.pattern "':'';
-                            var tags = minlengthTag + maxlengthTag + patternTag + requiredTag;
+                            var placeholderAttr = item.placeholder ? (' placeholder="'+item.placeholder+'" '):'';
+                            var titleAttr = item.title? ' title="'+item.title+'" ':'';
+                            var tags = minlengthTag + maxlengthTag + patternTag + requiredTag + placeholderAttr + titleAttr;
 
-                            template = '<label>{{item.title}}<span ng-if="item.required">&nbsp;*&nbsp;</span></label>' +
-                                '<input type="{{item.htmltype || \'text\'}}" ng-model="val"'+tags+'  />';
+                            template = '<label>{{item.label}}<span ng-if="item.required">&nbsp;*&nbsp;</span></label>' +
+                                '<input class="form-control" type="{{item.htmltype || \'text\'}}" ng-model="val"'+tags+'  />';
                             break;
 
                         case "static":
-                            template = '<span><label>{{item.title}}</label><input type="text" ng-model="val" readonly="readonly"/></span>';
+                            template = '<span><label>{{item.label}}</label><input type="text" ng-model="val" readonly="readonly"/></span>';
                             break;
 
                         case "textarea":
-                            template = '<span><label>{{item.title}}</label><textarea ng-model="val" /></span>';
+                            template = '<span><label>{{item.label}}</label><textarea ng-model="val" /></span>';
                             break;
 
                         case "codeeditor":
-                            template = '<span><label>{{item.title}}</label><div ui-ace ng-model="val"></div></span>';
+                            template = '<span><label>{{item.label}}</label><div ui-ace ng-model="val"></div></span>';
                             break;
 
                         case "checkbox":
-                            template = '<input type="checkbox" ng-model="val"> <label class="control-label">{{item.title}}</label>';
+                            template = '<input type="checkbox" ng-model="val"> <label class="control-label">{{item.label}}</label>';
                             break;
 
                         case "select":
                             template = '' +
-                                '<label class="control-label">{{item.title}}</label>' +
-                                '<select ng-model="val" ng-options="choice.value as choice.title for choice in item.options.choices">' +
+                                '<label class="control-label">{{item.label}}</label>' +
+                                '<select ng-model="val" ng-options="choice.value as choice.label for choice in item.options.choices">' +
                                 '   <option ng-if="item.nullable === true"> --- Select ---</option>' +
                                 '</select>';
                             break;
 
                         case "radiogroup":
                             template = '' +
-                                '<label class="control-label">{{item.title}}</label>' +
+                                '<label class="control-label">{{item.label}}</label>' +
                                 '<div class="composite" ng-repeat="choice in item.options.choices">' +
                                 '   <input type="radio" ng-value="choice.value" ng-model="$parent.val">' +
-                                '   <label class="control-label">{{choice.title}}</label>' +
+                                '   <label class="control-label">{{choice.label}}</label>' +
                                 '</div>';
                             break;
 
                         case "lookup":
                             if (item.options.saveValueOnly) {
                                 template = '' +
-                                    '<label class="control-label">{{item.title}}</label>' +
-                                    '<select ng-if="!item.options.hideRefType" ng-model="ref" ' +
+                                    '<label class="control-label">{{item.label}}</label>' +
+                                    '<select class="form-control" ng-if="!item.options.hideRefType" ng-model="ref" ' +
                                     'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"' +
                                     'ng-change="updateOptions(item)">' +
                                     '   <option ng-value="null">---</option>' +
                                     '</select>' +
 
-                                    '<select ng-model="val">' +
+                                    '<select class="form-control" ng-model="val">' +
                                     '    <option ng-value="option[getLookup(item, ref).value]"' +
                                     '    ng-selected="option[getLookup(item, ref).value] === val"' +
-                                    '        ng-repeat="option in optionData">{{option[getLookup(item, ref).title]}}</option>' +
+                                    '        ng-repeat="option in optionData">{{option[getLookup(item, ref).label]}}</option>' +
                                     '</select>';
                             }
                             else {
                                 template = '' +
-                                    '<label class="control-label">{{item.title}}</label>' +
-                                    '<select ng-model="val.ref" ' +
+                                    '<label class="control-label">{{item.label}}</label>' +
+                                    '<select class="form-control" ng-model="val.ref" ' +
                                     'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"' +
                                     'ng-change="updateOptions(item)">' +
                                     '   <option ng-value="null">---</option>' +
                                     '</select>' +
 
-                                    '<select ng-model="val.data">' +
+                                    '<select class="form-control" ng-model="val.data">' +
                                     '    <option ng-value="option[getLookup(item, val.ref).value]"' +
                                     '    ng-selected="option[getLookup(item, val.ref).value] === val.data"' +
-                                    '        ng-repeat="option in optionData">{{option[getLookup(item, val.ref).title]}}</option>' +
+                                    '        ng-repeat="option in optionData">{{option[getLookup(item, val.ref).label]}}</option>' +
                                     '</select>';
                             }
                             break;
@@ -580,7 +582,7 @@ directives.directive('field', function ($compile) {
                         case "formref":
                             template = '' +
                                 '<div ng-show="submitDone">{{form.onsuccess.value}}</div>' +
-                                '<form name="form'+item.value.formId+'" ng-hide="submitDone" novalidate>' +
+                                '<form role="form" class="form-horizontal" name="form'+item.value.formId+'" ng-hide="submitDone" novalidate>' +
                                 '    <div>' +
                                 '        <h1>{{form.title}}</h1>' +
                                 '    </div>' +
@@ -630,7 +632,7 @@ directives.directive('field', function ($compile) {
                         case "composite":
                             template = '' +
                                 '<div>' +
-                                '   <label>{{item.title}}</label>' +
+                                '   <label>{{item.label}}</label>' +
                                 '</div>' +
                                 '<ul>' +
                                 '   <li ng-repeat="field in item.fields">' +
@@ -643,21 +645,21 @@ directives.directive('field', function ($compile) {
                             if (item.options && item.options.primitive) {
                                 template =
                                     '<div>' +
-                                    '   <label>{{item.title}}</label>' +
-                                    '   <button ng-click="add_primitive_item(-1)">+</button>' +
+                                    '   <label>{{item.label}}</label>' +
+                                    '   <button label="add" class="glyphicon glyphicon-plus" ng-click="add_primitive_item(-1)"></button>' +
                                     '</div>' +
                                     '<ul>' +
                                     '   <li ng-repeat="v in val track by $index">' +
                                     '       <field val="val[$index]" item="item.fields[0]"></field>' +
-                                    '       <button ng-click="removeItem($index)">-</button>' +
-                                    '       <button ng-click="add_primitive_item($index)">+</button>' +
+                                    '       <button title="remove" class="glyphicon glyphicon-minus" ng-click="removeItem($index)"></button>' +
+                                    '       <button label="add" class="glyphicon glyphicon-plus"" ng-click="add_primitive_item($index)"></button>' +
                                     '   </li>' +
                                     '</ul>';
                             }
                             else {
                                 template =
                                     '<div>' +
-                                    '   <label>{{item.title}}</label>' +
+                                    '   <label>{{item.label}}</label>' +
                                     '   <button ng-click="add_item(-1)">+</button>' +
                                     '</div>' +
                                     '<ul>' +
@@ -673,7 +675,7 @@ directives.directive('field', function ($compile) {
                         case "condition":
                             template = '' +
                                 '<div> \
-                                    <label class="control-label">{{field.title}}</label> \
+                                    <label class="control-label">{{field.label}}</label> \
                                     <ul> \
                                         <li ng-if="'+item.expression+'"> \
                                             <ul> \
@@ -699,7 +701,7 @@ directives.directive('field', function ($compile) {
 
 
                         default:
-                            template = null; //'<span><label>{{item.title}}</label>{{val}}</span>';
+                            template = null; //'<span><label>{{item.label}}</label>{{val}}</span>';
                             break;
                     }
                     return template;

@@ -18,7 +18,8 @@ Test coverage
 =============
 
 Currently there are 50+ test cases for backend / services and 30+ test cases for frontend. It covers about 80% of server 
-side code and 40% of front end code. Tests covers all basic functionality. Target is to get to 90% or more coverage.  
+side code and 40% of front end code. Tests covers all basic functionality. Target is to get to 90% or more coverage before 
+0.2.0 (release).  
 
 
 Prepare Mongodb

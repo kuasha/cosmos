@@ -183,7 +183,7 @@
 
 <script type="text/ng-template" id="condition-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label class="control-label">{{field.title}}</label>
+        <label class="control-label">{{field.label}}</label>
         <ul>
             <li>
                 <label class="control-label">IF</label>
@@ -215,7 +215,7 @@
 
 <script type="text/ng-template" id="array-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <label class="control-label">{{field.title}} [ ]</label>
+        <label class="control-label">{{field.label}} [ ]</label>
         <ul class="apps-container" ui-sortable="sortableOptions" ng-model="field.fields">
             <li class="innerCont" ng-repeat="field in field.fields">
                 <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
@@ -235,7 +235,7 @@
     <div>
         <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
             <li ng-repeat="comp in components">
-                 {{comp.title}}
+                 {{comp.label}}
             </li>
         </ul>
     </div>
@@ -251,7 +251,7 @@
         <div>
             <div>
                 <label>Type</label>
-                <select ng-model="selectedItem.onsuccess.type" ng-options="otype.name as otype.title for otype in onsuccess_types"></select>
+                <select ng-model="selectedItem.onsuccess.type" ng-options="otype.name as otype.label for otype in onsuccess_types"></select>
             </div>
             <div>
                 <label>Value</label>
@@ -288,7 +288,7 @@
         <div class="col-sm-2">
                 <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
                     <li ng-repeat="comp in components">
-                        {{comp.title}}
+                        {{comp.label}}
                     </li>
                 </ul>
         </div>
