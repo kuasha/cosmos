@@ -8,7 +8,6 @@ controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'Cos
     function ($scope, $routeParams, $location, CosmosService, message, cachedloader, utils) {
 
         $scope.pageRefs = [];
-
         $scope.appPath = $routeParams.appPath;
 
         $scope.processError = function (data, status) {

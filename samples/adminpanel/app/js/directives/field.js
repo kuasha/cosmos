@@ -603,6 +603,7 @@ directives.directive('field', function ($compile) {
                             template = '<script data-ng-src="item.src" />';
                             break;
 
+                        case "list":
                         case "listref":
                             template = '<div ng-if="listConfiguration !== undefined"><div ng-include="listConfiguration.widgetName" /></div></div>';
                             break;
@@ -743,6 +744,12 @@ directives.directive('field', function ($compile) {
                     scope.ref = scope.item.options.lookups[0].ref;
                     scope.updateOptions(scope.item);
                 }
+            }
+
+            if (scope.item.type === "list") {
+                scope.data = {};
+                scope.listConfiguration = scope.item.config;
+                scope.getListDataFromConfig(scope.listConfiguration);
             }
 
             if (scope.item.type === "listref") {

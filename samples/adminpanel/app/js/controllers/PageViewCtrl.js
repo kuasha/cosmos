@@ -7,6 +7,7 @@ controllers.controller('PageViewCtrl', ['$scope', '$routeParams', '$location', '
     function ($scope, $routeParams, $location, CosmosService, settings) {
         $scope.pageId = $routeParams.pageId;
         $scope.appPath = $routeParams.appPath;
+        $scope.routeParams = $routeParams;
 
         $scope.getConfigurationByUrl = function (url) {
             CosmosService.get(url, function (data) {

@@ -10,10 +10,12 @@ import importlib
 import sys
 import os
 import signal
+import imp
 import motor
+from pymongo import MongoClient
 
 from cosmos.admin.commands import CommandHandler
-from cosmos.common.constants import COSMOS_APPLICATION_ENDPOINT_LIST_OBJECT_NAME
+from cosmos.common.constants import *
 import cosmos.datamonitor.monitor
 from cosmos.rbac.service import RbacService
 import settings
@@ -40,6 +42,7 @@ def init_database(options):
 
     return db
 
+
 def cleanup():
     monitor.continue_monitor = False
 
@@ -48,22 +51,64 @@ def int_signal_handler(signal, frame):
     cleanup()
     sys.exit(0)
 
+
 # This function will be called in the context of monitor worker thread, NOT from the thread __main__ below is running.
 def end_monitor_callback(reason=None):
     pass
+
 
 def start_monitor(options):
     monitor.continue_monitor = True
     monitor.start_object_change_monitor(options.db_processor_endpoint, options.db_uri, end_monitor_callback)
 
+
 def start_service(options):
     cosmos.service.servicemain.start_web_service(options)
 
-def load_app_endpoints(db_uri, db_name):
-    from pymongo import MongoClient
-    client = MongoClient(db_uri)
-    db = client[db_name]
 
+def load_python_module(fullname, code):
+    py_module = imp.new_module(fullname)
+    exec code in py_module.__dict__
+    return py_module
+
+
+#TODO: add signing mechanism to avoid loading untrusted code
+def load_source_module(source_module):
+    module_name = source_module.get("fullname")
+    try:
+        print "Loading source module " + module_name +"\n"
+        print "--------------------------------------\n"
+
+        source_code = source_module.get("code")
+        if(source_code):
+            print source_code
+            load_python_module(module_name, source_code)
+    except Exception as ex:
+        print "Could not load source module " + module_name +": " + str(ex)
+
+    print "--------------------------------------\n"
+
+
+def load_source_modules(db):
+    collection_name = COSMOS_SOURCE_MODULES_OBJECT_NAME
+    source_modules = []
+
+    cursor = db[collection_name].find()
+    for source_module in cursor:
+        try:
+            source_modules.append(source_module)
+        except Exception as ex:
+            print "Unable to load app request handler." + str(ex)
+
+    return source_modules
+
+
+def get_sync_db(db_uri, db_name):
+    client = MongoClient(db_uri)
+    return client[db_name]
+
+
+def load_app_endpoints(db):
     collection_name = COSMOS_APPLICATION_ENDPOINT_LIST_OBJECT_NAME
     app_enfpoints = []
 
@@ -79,7 +124,8 @@ def load_app_endpoints(db_uri, db_name):
 
     return app_enfpoints
 
-def get_options(port):
+
+def get_options(sync_db, port):
     source_root = os.path.dirname(os.path.realpath(__file__))
     options = Options(**dict(
         db_uri=settings.DATABASE_URI,
@@ -111,8 +157,7 @@ def get_options(port):
 
     options.db = init_database(options)
 
-    app_enfpoints = load_app_endpoints(options.db_uri, options.db_name)
-
+    app_enfpoints = load_app_endpoints(sync_db)
     options.endpoints = app_enfpoints + endpoints.END_POINTS
 
     return options
@@ -130,8 +175,14 @@ def main():
         port = int(sys.argv[2].strip())
 
     if command == "start-service":
+        sync_db = get_sync_db(settings.DATABASE_URI, settings.DB_NAME)
 
-        options = get_options(port)
+        print "Loading source modules"
+        source_modules = load_source_modules(sync_db)
+        for source_module in source_modules:
+            load_source_module(source_module)
+
+        options = get_options(sync_db, port)
         if options.start_web_service:
             start_service(options)
         if options.start_db_monitor:

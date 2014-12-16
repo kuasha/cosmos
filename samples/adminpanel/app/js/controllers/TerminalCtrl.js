@@ -2,7 +2,7 @@
  * Created by maruf on 10/28/14.
  */
 
-controllers.controller('HomeCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
+controllers.controller('HomeCtrl', ['$scope', '$modal', '$routeParams', 'CosmosService', function ($scope, $modal, $routeParams, CosmosService) {
     $scope.service = "/service/";
     $scope.columns = "";
     $scope.filter = "";

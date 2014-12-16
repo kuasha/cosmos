@@ -170,6 +170,31 @@
                     <a ng-href="#/appstudio/menu/{{selectedApplication.path}}/" class="btn btn-primary">Create menu</a>
                 </div>
             </tab>
+            <tab heading="Source Code">
+                <div id="sourcecode">
+                    <table class="table">
+                        <tr>
+                            <td>Control</td>
+                            <td>View</td>
+                        </tr>
+                        <tr ng-repeat="page in selectedApplication.pages">
+                            <td>
+                                <a ng-href="#/appstudio/page/{{selectedApplication.path}}/{{page._id}}">[Edit {{page.title}}]</a>
+                            </td>
+                            <td>
+                                <a ng-href="#/a/{{selectedApplication.path}}/page/{{page._id}}">[View {{page.title}}]</a>
+                            </td>
+
+                            <td>
+                                <button ng-hide="page._id === selectedApplication.settings.indexPageId"  ng-click="setPageAsDefault(page)" class="btn btn-success btn-xs">Set default</button>
+                                <span ng-show="page._id === selectedApplication.settings.indexPageId">Default</span>
+                            </td>
+
+                        </tr>
+                    </table>
+                    <a ng-href="#/appstudio/page/{{selectedApplication.path}}/" class="btn btn-primary">Create page</a>
+                </div>
+            </tab>
         </tabset>
     </div>
 </div>
