@@ -11,15 +11,12 @@ import io
 import datetime
 from tornado import gen
 import tornado.web
+from cosmos.common.constants import *
 from cosmos.service import requesthandler
 from cosmos.service.utils import MongoObjectJSONEncoder
 
-
-OBJECT_DATA_FILE_NAME = "object_data.json"
-APPLICATION_FILE_NAME = 'application.json'
-CURRENT_ARCHIVE_VERSION = "0.01.000.00"
-APPLICATION_OBJECT_NAME = "cosmos.applications"
 zip_file_root = "sources"
+
 
 class AppInstallHandler(requesthandler.RequestHandler):
 
@@ -40,7 +37,7 @@ class AppInstallHandler(requesthandler.RequestHandler):
         for data in object_data:
             object_service.save(user, object_name, data)
 
-        if object_name == APPLICATION_OBJECT_NAME and len(object_data) == 1:
+        if object_name == COSMOS_APPLICATION_OBJECT_NAME and len(object_data) == 1:
             first_app = object_data[0]
             self.setup_global_settings(first_app)
 
@@ -110,7 +107,7 @@ class AppInstallHandler(requesthandler.RequestHandler):
 
         app_zip_file = zipfile.ZipFile(io.BytesIO(application_file))
 
-        object_data_file = app_zip_file.open(OBJECT_DATA_FILE_NAME)
+        object_data_file = app_zip_file.open(COSMOS_OBJECT_DATA_FILE_NAME)
         object_data = object_data_file.read()
 
         object_data_json = json.loads(object_data)
@@ -122,11 +119,11 @@ class AppInstallHandler(requesthandler.RequestHandler):
             value = setting["value"]
             self.import_setting(object_service, app_zip_file, setting_name, value)
 
-        application_data_file = app_zip_file.open(APPLICATION_FILE_NAME)
+        application_data_file = app_zip_file.open(COSMOS_APPLICATION_FILE_NAME)
         application_data = application_data_file.read()
         application_data_json = json.loads(application_data)
 
-        self.import_bootstrap_objects(object_service, APPLICATION_OBJECT_NAME, [application_data_json])
+        self.import_bootstrap_objects(object_service, COSMOS_APPLICATION_OBJECT_NAME, [application_data_json])
 
         data = {"installed": True}
 
@@ -154,7 +151,7 @@ class AppPackageHandler(requesthandler.RequestHandler):
         mf = io.BytesIO()
         with zipfile.ZipFile(mf, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
 
-            zf.writestr(APPLICATION_FILE_NAME, MongoObjectJSONEncoder().encode(application))
+            zf.writestr(COSMOS_APPLICATION_FILE_NAME, MongoObjectJSONEncoder().encode(application))
 
             settings = application.get("settings")
             if settings:
@@ -163,6 +160,9 @@ class AppPackageHandler(requesthandler.RequestHandler):
                 object_settings = settings.get("objects")
                 if not object_settings:
                     object_settings = []
+
+                object_settings.append(COSMOS_APPLICATION_ENDPOINT_LIST_OBJECT_NAME)
+                object_settings.append(COSMOS_WIDGETS_OBJECT_NAME)
 
                 object_map = settings.get("objectmap")
 
@@ -196,7 +196,8 @@ class AppPackageHandler(requesthandler.RequestHandler):
                 if object_settings:
                     for object_name in object_settings:
                         object_service = self.settings['object_service']
-                        object_data_cursor = object_service.find(self.current_user, object_name, {}, [])
+                        query = self.get_query(object_name, application_id)
+                        object_data_cursor = object_service.find(self.current_user, object_name, query, [])
 
                         result_list = []
                         while(yield object_data_cursor.fetch_next):
@@ -246,7 +247,7 @@ class AppPackageHandler(requesthandler.RequestHandler):
 
                 application_cab = MongoObjectJSONEncoder().encode({
                     "exporttime": str(datetime.datetime.utcnow()),
-                    "archive_version": CURRENT_ARCHIVE_VERSION,
+                    "archive_version": COSMOS_CURRENT_ARCHIVE_VERSION,
                     "settings": [
                         {"name": "bootstrap_objects", "value": bootstrap_objects},
                         {"name": "file_objects", "value": file_objects_data},
@@ -254,7 +255,7 @@ class AppPackageHandler(requesthandler.RequestHandler):
                     ]
                 })
 
-                zf.writestr(OBJECT_DATA_FILE_NAME, application_cab)
+                zf.writestr(COSMOS_OBJECT_DATA_FILE_NAME, application_cab)
 
         self.set_header("Content-Type", "application/zip")
         self.set_header("content-disposition", "attachment; filename='" + application_id + ".xapp'")
@@ -263,3 +264,10 @@ class AppPackageHandler(requesthandler.RequestHandler):
     def validate_source_file_name(self, source_file_name):
         # TODO: Make sure path does not contain .. or similar things or start with root ( / or drive letter)
         pass
+
+    def get_query(self, object_name, application_id):
+        if object_name and object_name.startswith("cosmos."):
+            return {"application_id": application_id}
+
+        return {}
+

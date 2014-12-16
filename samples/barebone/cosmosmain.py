@@ -5,12 +5,15 @@
  License :: OSI Approved :: MIT License
 """
 
+import importlib
+
 import sys
 import os
 import signal
 import motor
 
 from cosmos.admin.commands import CommandHandler
+from cosmos.common.constants import COSMOS_APPLICATION_ENDPOINT_LIST_OBJECT_NAME
 import cosmos.datamonitor.monitor
 from cosmos.rbac.service import RbacService
 import settings
@@ -45,7 +48,6 @@ def int_signal_handler(signal, frame):
     cleanup()
     sys.exit(0)
 
-
 # This function will be called in the context of monitor worker thread, NOT from the thread __main__ below is running.
 def end_monitor_callback(reason=None):
     pass
@@ -57,10 +59,29 @@ def start_monitor(options):
 def start_service(options):
     cosmos.service.servicemain.start_web_service(options)
 
+def load_app_endpoints(db_uri, db_name):
+    from pymongo import MongoClient
+    client = MongoClient(db_uri)
+    db = client[db_name]
+
+    collection_name = COSMOS_APPLICATION_ENDPOINT_LIST_OBJECT_NAME
+    app_enfpoints = []
+
+    cursor = db[collection_name].find()
+    for endpoint_def in cursor:
+        try:
+            print "Loading " + endpoint_def["handler_module"] + "." +endpoint_def["handler_name"]
+            app_module = importlib.import_module(endpoint_def["handler_module"])
+            handler_func = getattr(app_module, endpoint_def["handler_name"])
+            app_enfpoints.append((str(endpoint_def["uri_pattern"]), handler_func))
+        except Exception as ex:
+            print "Unable to load app request handler." + str(ex)
+
+    return app_enfpoints
+
 def get_options(port):
     source_root = os.path.dirname(os.path.realpath(__file__))
     options = Options(**dict(
-        endpoints=endpoints.END_POINTS,
         db_uri=settings.DATABASE_URI,
         db_name=settings.DB_NAME,
         log_db_uri=settings.LOG_DATABASE_URI,
@@ -89,6 +110,11 @@ def get_options(port):
     ))
 
     options.db = init_database(options)
+
+    app_enfpoints = load_app_endpoints(options.db_uri, options.db_name)
+
+    options.endpoints = app_enfpoints + endpoints.END_POINTS
+
     return options
 
 def main():

@@ -852,6 +852,13 @@ class ServiceAPITests(LoggedTestCase):
     def test_search_operation_works(self):
         pass
 
+    @skip("Test not implemented")
+    def test_application_package_works(self):
+        pass
+
+    @skip("Test not implemented")
+    def test_application_import_works(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
