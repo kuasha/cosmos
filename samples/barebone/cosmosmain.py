@@ -70,6 +70,7 @@ def start_service(options):
 def load_python_module(fullname, code):
     py_module = imp.new_module(fullname)
     exec code in py_module.__dict__
+    sys.modules[fullname] = py_module
     return py_module
 
 def get_grid_file_content(db, file_id):
@@ -130,12 +131,43 @@ def load_app_endpoints(db):
         try:
             print "Loading " + endpoint_def["handler_module"] + "." +endpoint_def["handler_name"]
             app_module = importlib.import_module(endpoint_def["handler_module"])
+            globals().update(app_module.__dict__)
             handler_func = getattr(app_module, endpoint_def["handler_name"])
             app_enfpoints.append((str(endpoint_def["uri_pattern"]), handler_func))
         except Exception as ex:
             print "Unable to load app request handler." + str(ex)
 
     return app_enfpoints
+
+
+def load_interceptors(db):
+    collection_name = COSMOS_INTERCEPTOR_OBJECT_NAME
+    interceptors = []
+
+    cursor = db[collection_name].find()
+    for interceptor_def in cursor:
+        try:
+            print "Loading interceptor" + interceptor_def["interceptor_module"] + "." + interceptor_def["interceptor_name"]
+
+            app_module = importlib.import_module(interceptor_def["interceptor_module"])
+            interceptor_func = getattr(app_module, interceptor_def["interceptor_name"])
+
+            access = interceptor_def["access"]
+            interceptor_type = interceptor_def["interceptor_type"]
+            object_name = interceptor_def["object_name"]
+
+            interceptors.append(
+                {
+                    "object_name": object_name,
+                    "function": interceptor_func,
+                    "access": access,
+                    "type": interceptor_type
+                }
+            )
+        except Exception as ex:
+            print "Unable to load interceptor." + str(ex)
+
+    return interceptors
 
 
 def get_options(sync_db, port):
@@ -185,6 +217,11 @@ def prepare(port):
             load_source_module(sync_db, source_module)
 
         options = get_options(sync_db, port)
+
+        db_observers = load_interceptors(sync_db)
+
+        options.observers = db_observers + settings.observers
+
         return options
 
 def main():
@@ -225,13 +262,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-

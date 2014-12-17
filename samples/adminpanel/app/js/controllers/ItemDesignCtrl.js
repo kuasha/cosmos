@@ -433,6 +433,97 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 "type": "form"
             };
 
+            $scope.interceptorEditorForm = {
+                "title":"Edit interceptor",
+                "name":"interceptorEditor",
+                "type":"form",
+                "fields":[
+                    {
+                        "label": "Object name",
+                        "type": "input",
+                        "name": "object_name",
+                        "required":true,
+                        "htmltype": "text"
+                    },
+                    {
+                        "label": "Module name",
+                        "type": "input",
+                        "name": "interceptor_module",
+                        "required":true,
+                        "htmltype": "text"
+                    },
+                    {
+                        "label": "Function name",
+                        "type": "input",
+                        "name": "interceptor_name",
+                        "required":true,
+                        "htmltype": "text"
+                    },
+                    {
+                        "label":"Interceptor type",
+                        "type":"radiogroup",
+                        "options":{
+                            "choices":[
+                                {"value":0,"label":"Pre-processor"},
+                                {"value":1,"label":"Post-processor"}
+                            ]
+                        },
+                        "name":"interceptor_type"
+                    },
+                    {
+                        "label": "For access type",
+                        "type": "array",
+                        "name": "access",
+                        "options":{"primitive": true},
+                        "fields":[
+                            {
+                                "label": "Access type",
+                                "type": "select",
+                                "options": {
+                                    "choices": [
+                                        {"value": "INSERT", "label": "Insert"},
+                                        {"value": "READ", "label": "Read"},
+                                        {"value": "WRITE", "label": "Write"},
+                                        {"value": "DELETE", "label": "Delete"},
+                                        {"value": "SEARCH", "label": "Search"},
+                                    ]
+                                },
+                                "name": "access_name"
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            $scope.appendpointEditorForm = {
+                "title":"Edit endpoint",
+                "name":"appendpointEditor",
+                "type":"form",
+                "fields":[
+                    {
+                        "label": "URI Pattern",
+                        "type": "input",
+                        "name": "uri_pattern",
+                        "required":true,
+                        "htmltype": "text"
+                    },
+                    {
+                        "label": "Handler name",
+                        "type": "input",
+                        "name": "handler_module",
+                        "required":true,
+                        "htmltype": "text"
+                    },
+                    {
+                        "label": "Handler name",
+                        "type": "input",
+                        "name": "handler_name",
+                        "required":true,
+                        "htmltype": "text"
+                   }
+                ]
+            };
+
             $scope.appEditorForm = {
                 "name": "application",
                 "title": "Application",
@@ -702,7 +793,8 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
 
                 settings.getAppSettings($scope.appPath, itemConfigName, function (objectName) {
                         var url = '/service/' + objectName + '/' + $scope.itemId+"/";
-                        if($scope.itemType === "widget"){
+                        if($scope.itemType === "widget" || $scope.itemType === "interceptor"
+                            || $scope.itemType === "sourcefiles" || $scope.itemType === "appendpoint"){
                             url = url + '?filter={"app_id":"'+$scope.app._id+'"}';
                         }
                         $scope.getItemByUrl(itemType, url);
@@ -741,6 +833,14 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             if(itemType === "sourcefiles"){
                 return "sourcecolname";
             }
+
+            if(itemType === "interceptor"){
+                return "interceptorconigobject";
+            }
+
+            if(itemType === "appendpoint"){
+                return "appendpointconigobject";
+            }
         };
 
         $scope.saveItemWithUrl = function(url){
@@ -758,9 +858,11 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 );
             }
             else {
-                if($scope.itemType === "widget"){
-                    $scope["widget"]["app_id"]=$scope.app._id;
+                if($scope.itemType === "widget" || $scope.itemType === "interceptor"
+                    || $scope.itemType === "sourcefiles" || $scope.itemType === "appendpoint"){
+                    $scope[$scope.itemType]["app_id"]=$scope.app._id;
                 }
+
                 CosmosService.post(url, $scope[$scope.itemType], function (data) {
                         $scope.result = data;
                         $scope.itemId = JSON.parse(data);
@@ -835,6 +937,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             $scope.singleitemview = {"columns":[]};
             $scope.sourcefiles = {"type":"gridfile"};
             $scope.chart = { "margin":{}, "columns":[]};
+            $scope.interceptor = {};
 
             if($scope.itemType === "app"){
                     var itemConfigName = $scope.getItemConfigName($scope.itemType);

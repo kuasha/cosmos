@@ -46,6 +46,24 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
                 }
             }
 
+            if(settingsName === "interceptorconigobject"){
+                if(successCallback){
+                    successCallback("cosmos.interceptors");
+                    return;
+                }
+                return "cosmos.interceptors";
+            }
+
+
+            if(settingsName === "appendpointconigobject"){
+                if(successCallback){
+                    successCallback("cosmos.appendpoints");
+                    return;
+                }
+
+                return "cosmos.appendpoints";
+            }
+
             var appCache = "Application." + appPath;
             var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
 
@@ -98,6 +116,14 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
             if(configName === configNames.SOURCEFILES){
                 return "sourcecolname";
             }
+
+            if(configName === "interceptor"){
+                return "interceptorconigobject";
+            }
+
+            if(configName === "appendpoint"){
+                return "appendpointconigobject";
+            }
         },
 
         getAppSettingsByApp : function (application, settingsName) {
@@ -111,6 +137,14 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
 
             if(settingsName === "sourcecolname"){
                 return "cosmos.sourcemodules";
+            }
+
+            if(settingsName === "interceptorconigobject"){
+                return "cosmos.interceptors";
+            }
+
+            if(settingsName === "appendpointconigobject"){
+                return "cosmos.appendpoints";
             }
 
             return getAppSettingsByAppImpl(application, settingsName);

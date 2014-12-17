@@ -69,7 +69,8 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
 
                 settings.getAppSettings(appPath, itemConfigName, function (objectName) {
                         var url = '/service/' + objectName + '/';
-                        if(itemConfigName === "widgetobject" || itemConfigName === "sourcefiles"){
+                        if(itemConfigName === "widgetobject" || itemConfigName === "sourcefiles"
+                            || itemConfigName === "interceptorconigobject" || itemConfigName === "appendpointconigobject" ){
                             url = url + '?filter={"app_id":"'+app._id+'"}';
                         }
                         $scope.getItemsByUrl(itemType, url);
@@ -94,6 +95,9 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
             $scope.getItems("menus", "menuconfigobject" ,app);
             $scope.getItems("singleitemviews", "singleitemconfigobject", app);
             $scope.getItems("sourcefiles", "sourcecolname", app);
+            $scope.getItems("interceptors", "interceptorconigobject", app);
+            $scope.getItems("appendpoints", "appendpointconigobject", app);
+
         };
 
         $scope.loadAppItemsForSelectedApp = function(){

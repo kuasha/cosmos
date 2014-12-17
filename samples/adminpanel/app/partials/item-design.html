@@ -57,6 +57,14 @@ input.ng-invalid
             <field ng-if="sourcefiles.type==='embedded'" item='{"type":"codeeditor", "label":"Source code", "name":"code"}' val="sourcefiles.code"></field>
         </div>
 
+        <div ng-if="itemType === 'interceptor'">
+            <field type="form" item="interceptorEditorForm" val="interceptor"></field>
+        </div>
+
+        <div ng-if="itemType === 'appendpoint'">
+            <field type="form" item="appendpointEditorForm" val="appendpoint"></field>
+        </div>
+
         <div>
             <br />
             <button ng-disabled="!(itemconfigform.$valid)" ng-click="saveItem()" class="btn btn-primary">Save {{itemType}}</button>

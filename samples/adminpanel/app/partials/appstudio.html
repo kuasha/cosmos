@@ -191,6 +191,40 @@
                     <a ng-href="#/appstudio/sourcefiles/{{selectedApplication.path}}/" class="btn btn-primary">New source</a>
                 </div>
             </tab>
+            <tab heading="Interceptors">
+                <div id="interceptors">
+                    <table class="table">
+                        <tr ng-repeat="interceptor in selectedApplication.interceptors">
+                            <td>
+                                <a ng-href="#/appstudio/interceptor/{{selectedApplication.path}}/{{interceptor._id}}">{{interceptor.object_name}}</a>
+                            </td>
+                            <td>
+                                {{interceptor.access}}
+                            </td>
+                            <td>{{interceptor.interceptor_name}}</td>
+                            <td><a class="btn btn-sm btn-info" ng-href="#/appstudio/interceptor/{{selectedApplication.path}}/{{interceptor._id}}">Edit</a></td>
+                        </tr>
+                    </table>
+                    <a ng-href="#/appstudio/interceptor/{{selectedApplication.path}}/" class="btn btn-primary">New interceptor</a>
+                </div>
+            </tab>
+            <tab heading="Endpoints">
+                <div id="endpoints">
+                    <table class="table">
+                        <tr ng-repeat="endpoint in selectedApplication.appendpoints">
+                            <td>
+                                <a ng-href="#/appstudio/appendpoint/{{selectedApplication.path}}/{{endpoint._id}}">{{endpoint.uri_pattern}}</a>
+                            </td>
+                            <td>
+                                {{endpoint.handler_module}}.{{endpoint.handler_name}}
+                            </td>
+                            <td>{{interceptor.interceptor_name}}</td>
+                            <td><a class="btn btn-sm btn-info" ng-href="#/appstudio/appendpoint/{{selectedApplication.path}}/{{endpoint._id}}">Edit</a></td>
+                        </tr>
+                    </table>
+                    <a ng-href="#/appstudio/appendpoint/{{selectedApplication.path}}/" class="btn btn-primary">New endpoint</a>
+                </div>
+            </tab>
         </tabset>
     </div>
 </div>
