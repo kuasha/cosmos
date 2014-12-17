@@ -36,7 +36,7 @@ class ServiceAPITests(LoggedTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.options = cosmosmain.get_options(8080)
+        cls.options = cosmosmain.prepare(8080)
 
         cls.thread = Thread(target=cls.service_thread, args=(cls.options,))
         cls.thread.start()

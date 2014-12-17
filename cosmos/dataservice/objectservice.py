@@ -205,11 +205,18 @@ class ObjectService():
 
         properties = ['body', 'content_type', 'filename', 'collection_name', 'createtime', 'owner']
 
-        self.check_access(user, collection_name, properties, AccessType.INSERT, True)
+        if file_id:
+            self.check_access(user, collection_name, properties, AccessType.UPDATE, True)
+        else:
+            self.check_access(user, collection_name, properties, AccessType.INSERT, True)
 
-        self.create_access_log(user, collection_name, AccessType.INSERT)
+        if file_id:
+            self.create_access_log(user, collection_name, AccessType.UPDATE)
+        else:
+            self.create_access_log(user, collection_name, AccessType.INSERT)
 
         return save_file_in_gridfs(self.db, user, collection_name, file_object, properties, file_id)
+
 
     def load_file(self, user, collection_name, file_id):
         logging.debug("ObjectService::load_file::{0}".format(collection_name))
@@ -356,6 +363,9 @@ class ObjectService():
 def save_file_in_gridfs(db, user, collection_name, file_object, properties, file_id=None):
     fs = motor.MotorGridFS(db)
     if file_id:
+        #TODO: Verify: As of today mongodb does not allow replacing file- so delete and create
+        #TODO: non atomic operation
+        yield delete_gridfs_file(db, file_id)
         oid = ObjectId(str(file_id))
         gridin = yield fs.new_file(_id=oid)
     else:

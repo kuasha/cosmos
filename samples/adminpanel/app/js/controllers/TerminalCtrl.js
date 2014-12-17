@@ -95,5 +95,8 @@ controllers.controller('HomeCtrl', ['$scope', '$modal', '$routeParams', 'CosmosS
             }
         );
     };
+
+    $scope.test = function(){
+    };
 }])
 ;

@@ -513,11 +513,13 @@ directives.directive('field', function ($compile) {
                             break;
 
                         case "textarea":
-                            template = '<span><label>{{item.label}}</label><textarea ng-model="val" /></span>';
+                            template = '<span><label>{{item.label}}<span ng-if="item.required">&nbsp;*&nbsp;</span></label>' +
+                                '<textarea '+(item.required?'required':'')+' ng-model="val" /></span>';
                             break;
 
                         case "codeeditor":
-                            template = '<span><label>{{item.label}}</label><div ui-ace ng-model="val"></div></span>';
+                            template = '<span><label>{{item.label}}<span ng-if="item.required">&nbsp;*&nbsp;</span></label>' +
+                                '<div '+(item.required?'required':'')+' ui-ace ng-model="val"></div></span>';
                             break;
 
                         case "checkbox":

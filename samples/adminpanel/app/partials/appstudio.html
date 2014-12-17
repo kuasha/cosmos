@@ -123,12 +123,16 @@
                 </div>
             </tab>
             <tab heading="Charts">
-                <div ng-if="false" id="charts">
+                <div id="charts">
                     <table class="table">
                         <tr ng-repeat="chart in selectedApplication.charts">
                             <td>
-                                <a ng-href="#/appstudio/chart/{{selectedApplication.path}}/{{chart._id}}">[{{chart.title}}]</a>
+                                {{chart.title}}
                             </td>
+                            <td>
+                                {{chart.chartType}}
+                            </td>
+                            <td><a class="btn btn-sm btn-info" ng-href="#/appstudio/chart/{{selectedApplication.path}}/{{chart._id}}">Edit</a></td>
                         </tr>
                     </table>
                     <a ng-href="#/appstudio/chart/{{selectedApplication.path}}/" class="btn btn-primary">Create Chart</a>
@@ -173,26 +177,18 @@
             <tab heading="Source Code">
                 <div id="sourcecode">
                     <table class="table">
-                        <tr>
-                            <td>Control</td>
-                            <td>View</td>
-                        </tr>
-                        <tr ng-repeat="page in selectedApplication.pages">
+                        <tr ng-repeat="sourcefile in selectedApplication.sourcefiles">
                             <td>
-                                <a ng-href="#/appstudio/page/{{selectedApplication.path}}/{{page._id}}">[Edit {{page.title}}]</a>
+                                <a ng-href="#/appstudio/sourcefiles/{{selectedApplication.path}}/{{sourcefile._id}}">{{sourcefile.filename}}</a>
                             </td>
                             <td>
-                                <a ng-href="#/a/{{selectedApplication.path}}/page/{{page._id}}">[View {{page.title}}]</a>
+                                {{sourcefile.fullname}}
                             </td>
-
-                            <td>
-                                <button ng-hide="page._id === selectedApplication.settings.indexPageId"  ng-click="setPageAsDefault(page)" class="btn btn-success btn-xs">Set default</button>
-                                <span ng-show="page._id === selectedApplication.settings.indexPageId">Default</span>
-                            </td>
-
+                            <td>{{sourcefile.type}}</td>
+                            <td><a class="btn btn-sm btn-info" ng-href="#/appstudio/sourcefiles/{{selectedApplication.path}}/{{sourcefile._id}}">Edit</a></td>
                         </tr>
                     </table>
-                    <a ng-href="#/appstudio/page/{{selectedApplication.path}}/" class="btn btn-primary">Create page</a>
+                    <a ng-href="#/appstudio/sourcefiles/{{selectedApplication.path}}/" class="btn btn-primary">New source</a>
                 </div>
             </tab>
         </tabset>

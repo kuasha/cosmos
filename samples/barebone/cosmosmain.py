@@ -13,6 +13,7 @@ import signal
 import imp
 import motor
 from pymongo import MongoClient
+import gridfs
 
 from cosmos.admin.commands import CommandHandler
 from cosmos.common.constants import *
@@ -71,15 +72,27 @@ def load_python_module(fullname, code):
     exec code in py_module.__dict__
     return py_module
 
+def get_grid_file_content(db, file_id):
+    fs = gridfs.GridFS(db)
+    _id = ObjectId(file_id)
+    return fs.get(_id).read()
 
 #TODO: add signing mechanism to avoid loading untrusted code
-def load_source_module(source_module):
+def load_source_module(db, source_module):
     module_name = source_module.get("fullname")
+    module_type = source_module.get("type")
     try:
-        print "Loading source module " + module_name +"\n"
+        print "Loading source module " + module_name + " " + module_type + "\n"
         print "--------------------------------------\n"
+        source_code = None
 
-        source_code = source_module.get("code")
+        if module_type == COSMOS_SOURCE_MODULES_TYPE_EMBEDDED:
+            source_code = source_module.get("code")
+
+        if module_type == COSMOS_SOURCE_MODULES_TYPE_GRIDFILE:
+            file_id = source_module.get("file_id")
+            source_code = get_grid_file_content(db, file_id)
+
         if(source_code):
             print source_code
             load_python_module(module_name, source_code)
@@ -162,6 +175,18 @@ def get_options(sync_db, port):
 
     return options
 
+
+def prepare(port):
+        sync_db = get_sync_db(settings.DATABASE_URI, settings.DB_NAME)
+
+        print "Loading source modules"
+        source_modules = load_source_modules(sync_db)
+        for source_module in source_modules:
+            load_source_module(sync_db, source_module)
+
+        options = get_options(sync_db, port)
+        return options
+
 def main():
     current_directory = os.getcwd()
 
@@ -175,14 +200,7 @@ def main():
         port = int(sys.argv[2].strip())
 
     if command == "start-service":
-        sync_db = get_sync_db(settings.DATABASE_URI, settings.DB_NAME)
-
-        print "Loading source modules"
-        source_modules = load_source_modules(sync_db)
-        for source_module in source_modules:
-            load_source_module(source_module)
-
-        options = get_options(sync_db, port)
+        options = prepare(port)
         if options.start_web_service:
             start_service(options)
         if options.start_db_monitor:

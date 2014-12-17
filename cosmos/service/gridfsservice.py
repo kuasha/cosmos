@@ -111,6 +111,51 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
 
     @tornado.web.asynchronous
     @gen.coroutine
+    def put(self, object_path):
+        params = object_path.split('/')
+        params = filter(len, params)
+        object_name = params[0]
+
+        if not object_name or len(object_name) < 1:
+            raise tornado.web.HTTPError(404, "Not found")
+
+        object_full_name = object_name
+
+        file_id = None
+        if len(params) == 2:
+            file_id = params[1]
+        else:
+            raise tornado.web.HTTPError(400, "File id required")
+
+
+        if not file_id or len(file_id)<1:
+            raise tornado.web.HTTPError(400, "File id required")
+
+        obj_serv = self.settings['object_service']
+
+        preprocessor_list = obj_serv.get_operation_preprocessor(object_full_name, AccessType.UPDATE)
+        for preprocessor in preprocessor_list:
+            yield preprocessor(object_full_name, None, AccessType.UPDATE)
+
+        files = self.request.files["uploadedfile"]
+
+        if (not files) or len(files) != 1:
+            raise tornado.web.HTTPError(400, "Exactly one file should be uploaded to update a file.")
+
+        uploaded_file = files[0]
+
+        promise = obj_serv.save_file(self.current_user, object_full_name, uploaded_file, file_id)
+        result = yield promise
+
+        post_processor_list = obj_serv.get_operation_postprocessor(object_full_name, AccessType.UPDATE)
+        for post_processor in post_processor_list:
+            yield post_processor(obj_serv, object_full_name, None, AccessType.UPDATE)
+
+        self.write(MongoObjectJSONEncoder().encode(result))
+        self.finish()
+
+    @tornado.web.asynchronous
+    @gen.coroutine
     def delete(self, object_path):
         params = object_path.split('/')
         params = filter(len, params)

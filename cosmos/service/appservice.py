@@ -89,15 +89,15 @@ class AppInstallHandler(requesthandler.RequestHandler):
 
         gs_to_save = {"defaultappid": app_id}
 
-        gs_object_cursor = object_service.find(self.current_user, "cosmos.globalsettings", {}, ["defaultappid"])
+        gs_object_cursor = object_service.find(self.current_user, COSMOS_GLOBAL_SETTINGS_OBJECT_NAME, {}, ["defaultappid"])
 
         if gs_object_cursor and (yield gs_object_cursor.fetch_next):
             gs_object = gs_object_cursor.next_object()
             if not gs_object["defaultappid"]:
                 gs_to_save['modifytime'] = str(datetime.datetime.now())
-                yield object_service.update(self.current_user, "cosmos.globalsettings", str(gs_object["_id"]), gs_to_save)
+                yield object_service.update(self.current_user, COSMOS_GLOBAL_SETTINGS_OBJECT_NAME, str(gs_object["_id"]), gs_to_save)
         else:
-            object_service.save(self.current_user, "cosmos.globalsettings", gs_to_save)
+            object_service.save(self.current_user, COSMOS_GLOBAL_SETTINGS_OBJECT_NAME, gs_to_save)
 
 
     @tornado.web.asynchronous
@@ -141,7 +141,7 @@ class AppPackageHandler(requesthandler.RequestHandler):
 
         query = {"id": application_id}
 
-        app_cursor = object_service.find(self.current_user, "cosmos.applications", query, [])
+        app_cursor = object_service.find(self.current_user, COSMOS_APPLICATION_OBJECT_NAME, query, [])
 
         if (yield app_cursor.fetch_next):
             application = app_cursor.next_object()

@@ -82,6 +82,7 @@ services.factory('CosmosService', ['$http', function ($http) {
                     }
                 });
         },
+
         delete: function (uri, callback, error_callback) {
             $http.delete(uri).success(function (data) {
                 if (callback) {
@@ -93,6 +94,42 @@ services.factory('CosmosService', ['$http', function ($http) {
                         error_callback(data, status);
                     }
                 });
+        },
+
+        saveFile: function (collectionName, content, contentType, fileName, fileId, onSuccess, onError) {
+            var formData = new FormData();
+            var blob = new Blob([content], { type: contentType});
+
+            formData.append("uploadedfile", blob, fileName);
+
+            var request = new XMLHttpRequest();
+
+            var url =  "/gridfs/" + collectionName + "/" + (fileId? (fileId + "/"):'');
+
+            request.onload = function(event) {
+                if (request.status == 200) {
+                    if(onSuccess) {
+                        var returned_data = JSON.parse(request.response);
+                        if (returned_data && returned_data._cosmos_service_array_result_) {
+                            returned_data = JSON.parse(returned_data._d);
+                            if(returned_data && returned_data.length>0){
+                                returned_data = returned_data[0];
+                            }
+                        }
+                        onSuccess(returned_data)
+                    }
+                } else {
+                    if(onError) {
+                        onError(request.status, request.responseText);
+                    }
+                }
+              };
+
+            var requestMethod = fileId?"PUT":"POST";
+
+            request.open(requestMethod,url);
+            request.send(formData);
         }
-    };
+    }
+
 }]);

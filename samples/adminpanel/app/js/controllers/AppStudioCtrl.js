@@ -69,7 +69,7 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
 
                 settings.getAppSettings(appPath, itemConfigName, function (objectName) {
                         var url = '/service/' + objectName + '/';
-                        if(itemConfigName === "widgetobject"){
+                        if(itemConfigName === "widgetobject" || itemConfigName === "sourcefiles"){
                             url = url + '?filter={"app_id":"'+app._id+'"}';
                         }
                         $scope.getItemsByUrl(itemType, url);
@@ -89,9 +89,11 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
             $scope.getItems("pages", "pageconfigobject" ,app);
             $scope.getItems("forms", "formconfigobject" ,app);
             $scope.getItems("lists", "listconfigobject" ,app);
+            $scope.getItems("charts", "chartconfigobject" ,app);
             $scope.getItems("widgets", "widgetobject" ,app);
             $scope.getItems("menus", "menuconfigobject" ,app);
             $scope.getItems("singleitemviews", "singleitemconfigobject", app);
+            $scope.getItems("sourcefiles", "sourcecolname", app);
         };
 
         $scope.loadAppItemsForSelectedApp = function(){

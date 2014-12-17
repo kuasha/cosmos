@@ -241,6 +241,198 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 ]
             };
 
+            $scope.chartconfigEditorForm = {
+                "name": "chartConfigForm",
+                "title": "Chart Editor",
+                "fields": [
+                    {
+                        "type": "input",
+                        "name": "title",
+                        "label": "Title"
+                    },
+                    {
+                        "type": "input",
+                        "name": "objectName",
+                        "label": "Object name",
+                        "required":true
+                    },
+                    {
+                        "type": "input",
+                        "name": "filter",
+                        "label": "Filter"
+                    },
+                    {
+                        "type": "checkbox",
+                        "options": {},
+                        "name": "useQueryFilterParam",
+                        "label": "Accept query parameter as filter"
+                    },
+                    {
+                        "fields": [
+                            {
+                                "type": "input",
+                                "name": "name",
+                                "required":true,
+                                "label": "Name"
+                            }
+                        ],
+                        "type": "array",
+                        "options": {},
+                        "name": "columns",
+                        "label": "Columns"
+                    },
+                    {
+                        "label": "Chart type",
+                        "type": "select",
+                        "options": {
+                            "choices": [
+                                {
+                                    "value": "bar",
+                                    "label": "Bar"
+                                },
+                                {
+                                    "value": "line",
+                                    "label": "Line"
+                                },
+                                {
+                                    "value": "pie",
+                                    "label": "Pie"
+                                }
+                            ]
+                        },
+                        "name": "chartType",
+                        "required":true,
+                        "htmltype": "text"
+                    },
+                    {
+                        "name": "piecomponents",
+                        "fields": [
+                            {
+                                "type": "input",
+                                "name": "valueFieldName",
+                                "required":true,
+                                "label": "Value field name"
+                            },
+                            {
+                                "type": "input",
+                                "name": "groupFieldName",
+                                "required":true,
+                                "label": "Group field name"
+                            }
+                        ],
+                        "label": "Pie Chart components",
+                        "elsefields": [],
+                        "type": "condition",
+                        "expression": "$parent.$parent.val.chartType === 'pie'"
+                    },
+                    {
+                        "name": "barlinechartcomp",
+                        "fields": [
+                            {
+                                "label": "X Axis Field",
+                                "type": "input",
+                                "name": "xAxisField",
+                                "required":true,
+                                "htmltype": "text"
+                            },
+                            {
+                                "label": "Y Axis Field",
+                                "type": "input",
+                                "name": "yAxisField",
+                                "required":true,
+                                "htmltype": "text"
+                            },
+                            {
+                                "label": "Y Axis Title",
+                                "type": "input",
+                                "name": "yAxisTitle",
+                                "required":true,
+                                "htmltype": "text"
+                            }
+                        ],
+                        "label": "Bar/Line chart components",
+                        "elsefields": [],
+                        "type": "condition",
+                        "expression": "$parent.$parent.val.chartType === 'bar' || $parent.$parent.val.chartType === 'line'"
+                    },
+                    {
+                        "name": "barcomp",
+                        "fields": [
+                            {
+                                "label": "Tics",
+                                "type": "input",
+                                "name": "tics",
+                                "required":true,
+                                "htmltype": "text"
+                            },
+                            {
+                                "label": "Tics modifier",
+                                "type": "input",
+                                "name": "tics_modifier",
+                                "htmltype": "text"
+                            },
+                            {
+                                "label": "Bar separator width",
+                                "type": "input",
+                                "name": "barSeparatorWidth",
+                                "htmltype": "text"
+                            }
+                        ],
+                        "label": "Bar chart components",
+                        "elsefields": [],
+                        "type": "condition",
+                        "expression": "$parent.$parent.val.chartType === 'bar'"
+                    },
+                    {
+                        "label": "Chart width",
+                        "type": "input",
+                        "name": "width",
+                        "required":true,
+                        "htmltype": "text"
+                    },
+                    {
+                        "label": "Chart height",
+                        "type": "input",
+                        "name": "height",
+                        "required":true,
+                        "htmltype": "text"
+                    },
+                    {
+                        "fields": [
+                            {
+                                "label": "Top",
+                                "type": "input",
+                                "name": "top",
+                                "htmltype": "text"
+                            },
+                            {
+                                "label": "Left",
+                                "type": "input",
+                                "name": "left",
+                                "htmltype": "text"
+                            },
+                            {
+                                "label": "Right",
+                                "type": "input",
+                                "name": "right",
+                                "htmltype": "text"
+                            },
+                            {
+                                "label": "Bottom",
+                                "type": "input",
+                                "name": "bottom",
+                                "htmltype": "text"
+                            }
+                        ],
+                        "type": "composite",
+                        "name": "margin",
+                        "label": "Margin"
+                    }
+                ],
+                "onsuccess": {},
+                "type": "form"
+            };
+
             $scope.appEditorForm = {
                 "name": "application",
                 "title": "Application",
@@ -461,6 +653,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
         $scope.itemId = $routeParams.itemId;
 
         $scope.widget = {};
+        $scope.source = {};
 
         $scope.clearError = function(){
 
@@ -476,9 +669,26 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             //TODO: Implement
         };
 
+        $scope.processSourceFile = function(sourceModuleEntry){
+
+            if(sourceModuleEntry && sourceModuleEntry.type === "gridfile"){
+                var url = "/gridfs/cosmos.sourcefiles/"+sourceModuleEntry.file_id+"/";
+                CosmosService.get(url, function (data) {
+                        $scope.source.code = data;
+                    },
+                    function (data, status) {
+                        $scope.processError(data, status);
+                    }
+                );
+            }
+        };
+
         $scope.getItemByUrl = function(itemType, url) {
             CosmosService.get(url, function (data) {
                     $scope.processItem(itemType, data);
+                    if(itemType === "sourcefiles"){
+                        $scope.processSourceFile(data);
+                    }
                 },
                 function (data, status) {
                     $scope.processError(data, status);
@@ -518,12 +728,18 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             if(itemType === "menu"){
                 return "menuconfigobject";
             }
+            if(itemType === "chart"){
+                return "chartconfigobject";
+            }
             if(itemType === "singleitemview"){
                 return "singleitemconfigobject";
             }
 
             if(itemType === "app"){
                 return "appconfigobject";
+            }
+            if(itemType === "sourcefiles"){
+                return "sourcecolname";
             }
         };
 
@@ -556,7 +772,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             }
         };
 
-        $scope.saveItem = function () {
+        $scope.saveCoreItem = function() {
             var itemConfigName = $scope.getItemConfigName($scope.itemType);
 
             settings.getAppSettings($scope.appPath, itemConfigName, function (objectName) {
@@ -567,6 +783,33 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     $scope.processError(data, status);
                 }
             );
+        };
+
+        $scope.saveSourceFile = function(){
+            var sourceModule = $scope["sourcefiles"];
+            var code = $scope.source.code;
+            if(sourceModule && sourceModule.type === "gridfile" && sourceModule.type === "gridfile"){
+                CosmosService.saveFile("cosmos.sourcefiles", code, "cosmos/source", sourceModule.filename, sourceModule.file_id, function (data) {
+                        $scope.sourcefiles.file_id = data.file_id;
+                        $scope.saveCoreItem();
+                    },
+                    function (data, status) {
+                        $scope.processError(data, status);
+                    }
+                );
+            }
+            else{
+                $scope.saveCoreItem();
+            }
+        };
+
+        $scope.saveItem = function () {
+            if ($scope.itemType === "sourcefiles") {
+                $scope.saveSourceFile();
+            }
+            else {
+                $scope.saveCoreItem();
+            }
         };
 
         $scope.initApplication = function(){
@@ -590,6 +833,8 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             $scope.menu = {"fields":[]};
             $scope.app = {"settings": { "source_code": [],"objects": [],"objectmap": {}, "file_objects": []}};
             $scope.singleitemview = {"columns":[]};
+            $scope.sourcefiles = {"type":"gridfile"};
+            $scope.chart = { "margin":{}, "columns":[]};
 
             if($scope.itemType === "app"){
                     var itemConfigName = $scope.getItemConfigName($scope.itemType);

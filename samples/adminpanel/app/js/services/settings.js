@@ -36,6 +36,16 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
                 }
             }
 
+            if(settingsName === "sourcecolname"){
+                if(successCallback){
+                    successCallback("cosmos.sourcemodules");
+                    return;
+                }
+                else{
+                    return "cosmos.sourcemodules";
+                }
+            }
+
             var appCache = "Application." + appPath;
             var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
 
@@ -56,7 +66,7 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
                     }
                     else {
                         if(errorCallback) {
-                            errorCallback("Settings not found for the given path. Path = " + appPath + "Settings = "+ settingsName, 404);
+                            errorCallback("Settings not found for the given path. Path = " + appPath + " Settings name= "+ settingsName, 404);
                         }
                     }
                 },
@@ -84,6 +94,10 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
             if(configName === configNames.FORM){
                 return "formconfigobject";
             }
+
+            if(configName === configNames.SOURCEFILES){
+                return "sourcecolname";
+            }
         },
 
         getAppSettingsByApp : function (application, settingsName) {
@@ -93,6 +107,10 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
 
             if(settingsName === "widgetobject"){
                 return "cosmos.widgets";
+            }
+
+            if(settingsName === "sourcecolname"){
+                return "cosmos.sourcemodules";
             }
 
             return getAppSettingsByAppImpl(application, settingsName);

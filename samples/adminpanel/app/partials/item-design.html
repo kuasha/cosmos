@@ -33,6 +33,11 @@ input.ng-invalid
             <field type="form" item="listEditorForm" val="list"></field>
         </div>
 
+        <div ng-if="itemType === 'chart'">
+            <field type="form" item="chartconfigEditorForm" val="chart"></field>
+        </div>
+
+
         <div ng-if="itemType === 'menu'">
             <field type="form" item="menuEditorForm" val="menu"></field>
         </div>
@@ -43,6 +48,13 @@ input.ng-invalid
 
         <div ng-if="itemType === 'app'">
             <field type="form" item="appEditorForm" val="app"></field>
+        </div>
+
+        <div ng-if="itemType === 'sourcefiles'">
+            <field item='{"type":"input", "required":true, "label":"File name"}' val="sourcefiles.filename"></field>
+            <field item='{"type":"input", "required":true, "label":"Module name"}' val="sourcefiles.fullname"></field>
+            <field ng-if="sourcefiles.type==='gridfile'" item='{"type":"codeeditor", "required":true, "label":"Source code", "name":"code"}' val="source.code"></field>
+            <field ng-if="sourcefiles.type==='embedded'" item='{"type":"codeeditor", "label":"Source code", "name":"code"}' val="sourcefiles.code"></field>
         </div>
 
         <div>

@@ -11,6 +11,7 @@ services.constant(
         "CHART": "chart",
         "WIDGET": "widget",
         "APP": "app",
-        "SINGLE_OBJECT": "singleobject"
+        "SINGLE_OBJECT": "singleobject",
+        "SOURCEFILES": "sourcefiles"
     }
 );

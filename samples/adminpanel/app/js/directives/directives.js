@@ -223,8 +223,8 @@ var directives = angular.module('cosmosUI.directives', []).
                 scope.getConfiguration();
 
                 var newElement = angular.element(template);
-                $compile(newElement)(scope);
                 element.replaceWith(newElement);
+                $compile(newElement)(scope);
             }
         }
     })
@@ -245,8 +245,8 @@ var directives = angular.module('cosmosUI.directives', []).
                         CosmosService.get(url, function (data) {
                                 $scope.htmlBlock = data;
                                 var newElement = angular.element($scope.htmlBlock);
-                                $compile(newElement)($scope);
                                 $scope.element.replaceWith(newElement);
+                                $compile(newElement)($scope);
                             },
                             function (data, status) {
                                 //$scope.processError(data, status);
@@ -336,8 +336,8 @@ var directives = angular.module('cosmosUI.directives', []).
 
                 var template = scope.getTemplate();
                 var newElement = angular.element(template);
-                $compile(newElement)(scope);
                 scope.element.replaceWith(newElement);
+                $compile(newElement)(scope);
 
                 scope.startWatch(ngModel);
 
