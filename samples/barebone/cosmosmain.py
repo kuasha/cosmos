@@ -30,6 +30,7 @@ import cosmos.datamonitor.monitor as monitor
 monitor_worker = None
 db = None
 
+
 def init_database(options):
     client = motor.MotorClient(options.db_uri)
     db = client[options.db_name]
@@ -98,7 +99,7 @@ def load_source_module(db, source_module):
             print source_code
             load_python_module(module_name, source_code)
     except Exception as ex:
-        print "Could not load source module " + module_name +": " + str(ex)
+        print "Could not load source module " + str(module_name) +": " + str(ex)
 
     print "--------------------------------------\n"
 
@@ -185,7 +186,7 @@ def get_options(sync_db, port):
         web_service_port=port,
         login_url=settings.login_url,
         cookie_secret=settings.COOKIE_SECRET,
-        hmac_key = settings.HMAC_KEY,
+        hmac_key=settings.HMAC_KEY,
         xheaders=True,
         template_path=settings.TEMPLATE_PATH,
         debug=settings.DEBUG,

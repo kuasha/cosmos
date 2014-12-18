@@ -149,101 +149,53 @@ class AppPackageHandler(requesthandler.RequestHandler):
             raise tornado.web.HTTPError(404, "Application not found")
 
         mf = io.BytesIO()
+
         with zipfile.ZipFile(mf, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
 
             zf.writestr(COSMOS_APPLICATION_FILE_NAME, MongoObjectJSONEncoder().encode(application))
 
             settings = application.get("settings")
             if settings:
-                bootstrap_objects = []
-
                 object_settings = settings.get("objects")
-                if not object_settings:
-                    object_settings = []
-
-                object_settings.append(COSMOS_APPLICATION_ENDPOINT_LIST_OBJECT_NAME)
-                object_settings.append(COSMOS_WIDGETS_OBJECT_NAME)
-
                 object_map = settings.get("objectmap")
-
-                if object_map:
-                    listconfigobject = object_map.get("listconfigobject")
-
-                    if listconfigobject:
-                        object_settings.append(listconfigobject)
-
-                    singleitemconfigobject = object_map.get("singleitemconfigobject")
-                    if singleitemconfigobject:
-                        object_settings.append(singleitemconfigobject)
-
-                    pageconfigobject = object_map.get("pageconfigobject")
-                    if pageconfigobject:
-                        object_settings.append(pageconfigobject)
-
-                    widgetobject = object_map.get("widgetobject")
-                    if widgetobject:
-                        object_settings.append(widgetobject)
-
-                    formconfigobject = object_map.get("formconfigobject")
-                    if formconfigobject:
-                        object_settings.append(formconfigobject)
-
-                    menuconfigobject = object_map.get("menuconfigobject")
-                    if menuconfigobject:
-                        object_settings.append(menuconfigobject)
+                object_settings = self.make_object_settings(object_map, object_settings)
 
                 # Package object data
                 if object_settings:
-                    for object_name in object_settings:
-                        object_service = self.settings['object_service']
-                        query = self.get_query(object_name, application_id)
-                        object_data_cursor = object_service.find(self.current_user, object_name, query, [])
-
-                        result_list = []
-                        while(yield object_data_cursor.fetch_next):
-                            qry_result = object_data_cursor.next_object()
-                            qry_result["_id"] = str(qry_result["_id"])
-                            result_list.append(qry_result)
-
-                        dt = {"object": object_name, "data": result_list}
-                        bootstrap_objects.append(dt)
+                    bootstrap_objects = yield self.load_bootstrap_objects(application_id, object_settings)
+                else:
+                    bootstrap_objects = []
 
                 file_objects_data = []
 
-                # Package files
+                # Package grid files
                 file_settings = settings.get("file_objects")
-                if file_settings:
-                    for directory_object_name in file_settings:
-                        promise = object_service.list_file(self.current_user, directory_object_name)
-                        file_list = yield promise
+                if not file_settings:
+                    file_settings = []
 
-                        file_objects_data.append(file_list)
+                source_modules = None
+                for bootstrap_object in bootstrap_objects:
+                    if bootstrap_object["object"] == COSMOS_SOURCE_MODULES_OBJECT_NAME:
+                        source_modules = bootstrap_object["data"]
 
-                        for file_def in file_list:
-                            file_id = file_def["file_id"]
-                            collection_name = file_def["collection_name"]
-                            filename = file_def["filename"]
-                            promise = object_service.load_file(self.current_user, collection_name, file_id)
-                            result = yield promise
+                if source_modules:
+                    for source_module in source_modules:
+                        if "gridfile" == source_module.get("type"):
+                            file_id = source_module.get("file_id")
+                            file_name = source_module.get("filename")
+                            if file_id:
+                                yield self.load_grid_file(zf, object_service, {"file_id":file_id, "filename": file_name, "collection_name" : COSMOS_SOURCE_MODULES_OBJECT_NAME})
 
-                            file_path = collection_name+"/"+str(file_id)+"/"+filename
-                            zf.writestr(file_path, result.get("body"))
+                if file_settings and len(file_settings) > 0:
+                    file_objects_data = yield self.load_grid_file_objects(zf, object_service, file_settings)
 
-                # Package source files
+                # Package source files from disk
                 source_setttings = settings.get("source_code")
                 source_file_config = []
 
                 source_root = self.settings.get('source_root')
                 if source_setttings:
-                    for source_file_name in source_setttings:
-                        self.validate_source_file_name(source_file_name)
-
-                        source_file_path = os.path.join(source_root, source_file_name)
-                        zip_file_path = os.path.join(zip_file_root, source_file_name)
-                        source_file_config.append(source_file_name)
-                        with open(source_file_path, 'r') as content_file:
-                            content = content_file.read()
-                            zf.writestr(zip_file_path, content)
+                    source_file_config = self.load_disk_source_files(zf, source_root, source_setttings)
 
                 application_cab = MongoObjectJSONEncoder().encode({
                     "exporttime": str(datetime.datetime.utcnow()),
@@ -261,13 +213,117 @@ class AppPackageHandler(requesthandler.RequestHandler):
         self.set_header("content-disposition", "attachment; filename='" + application_id + ".xapp'")
         self.write(mf.getvalue())
 
+    def make_object_settings(self, object_map, object_settings):
+        if not object_settings:
+            object_settings = []
+
+        object_settings.append(COSMOS_WIDGETS_OBJECT_NAME)
+        object_settings.append(COSMOS_APPLICATION_ENDPOINT_LIST_OBJECT_NAME)
+        object_settings.append(COSMOS_INTERCEPTOR_OBJECT_NAME)
+        object_settings.append(COSMOS_SOURCE_MODULES_OBJECT_NAME)
+
+        if object_map:
+            listconfigobject = object_map.get("listconfigobject")
+
+            if listconfigobject:
+                object_settings.append(listconfigobject)
+
+            singleitemconfigobject = object_map.get("singleitemconfigobject")
+            if singleitemconfigobject:
+                object_settings.append(singleitemconfigobject)
+
+            pageconfigobject = object_map.get("pageconfigobject")
+            if pageconfigobject:
+                object_settings.append(pageconfigobject)
+
+            chartconfigobject = object_map.get("chartconfigobject")
+            if chartconfigobject:
+                object_settings.append(chartconfigobject)
+
+            widgetobject = object_map.get("widgetobject")
+            if widgetobject:
+                object_settings.append(widgetobject)
+
+            formconfigobject = object_map.get("formconfigobject")
+            if formconfigobject:
+                object_settings.append(formconfigobject)
+
+            menuconfigobject = object_map.get("menuconfigobject")
+            if menuconfigobject:
+                object_settings.append(menuconfigobject)
+
+        return object_settings
+
+    def load_disk_source_files(self, archive_file, source_root, source_setttings):
+        source_file_config = []
+
+        for source_file_name in source_setttings:
+            self.validate_source_file_name(source_file_name)
+
+            source_file_path = os.path.join(source_root, source_file_name)
+            zip_file_path = os.path.join(zip_file_root, source_file_name)
+            source_file_config.append(source_file_name)
+            with open(source_file_path, 'r') as content_file:
+                content = content_file.read()
+                archive_file.writestr(zip_file_path, content)
+
+        return source_file_config
+
+    @gen.coroutine
+    def load_grid_file(self, archive_file, object_service, file_def):
+        file_id = file_def["file_id"]
+        collection_name = file_def.get("collection_name")
+        filename = file_def["filename"]
+
+        if (not collection_name) or (collection_name == COSMOS_SOURCE_MODULES_OBJECT_NAME):
+            ignore_col_name = True
+
+        promise = object_service.load_file(self.current_user, collection_name, file_id, ignore_col_name)
+        result = yield promise
+
+        file_path = collection_name + "/" + str(file_id) + "/" + filename
+        archive_file.writestr(file_path, result.get("body"))
+
+    @gen.coroutine
+    def load_grid_file_objects(self, archive_file, object_service, file_settings):
+        file_objects_data = []
+        for directory_object_name in file_settings:
+            promise = object_service.list_file(self.current_user, directory_object_name)
+            file_list = yield promise
+
+            file_objects_data.append(file_list)
+
+            for file_def in file_list:
+                yield self.load_grid_file(self, archive_file, object_service, file_def)
+
+        raise gen.Return(file_objects_data)
+
+    @gen.coroutine
+    def load_bootstrap_objects(self, application_id, object_settings):
+        bootstrap_objects = []
+        for object_name in object_settings:
+            object_service = self.settings['object_service']
+            query = self.get_query(object_name, application_id)
+            object_data_cursor = object_service.find(self.current_user, object_name, query, [])
+
+            result_list = []
+            while (yield object_data_cursor.fetch_next):
+                qry_result = object_data_cursor.next_object()
+                qry_result["_id"] = str(qry_result["_id"])
+                result_list.append(qry_result)
+
+            dt = {"object": object_name, "data": result_list}
+            bootstrap_objects.append(dt)
+
+        raise gen.Return(bootstrap_objects)
+
     def validate_source_file_name(self, source_file_name):
         # TODO: Make sure path does not contain .. or similar things or start with root ( / or drive letter)
         pass
 
     def get_query(self, object_name, application_id):
         if object_name and object_name.startswith("cosmos."):
-            return {"application_id": application_id}
+            return {"app_id": application_id}
 
         return {}
 

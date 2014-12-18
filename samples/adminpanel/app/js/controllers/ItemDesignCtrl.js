@@ -938,6 +938,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             $scope.sourcefiles = {"type":"gridfile"};
             $scope.chart = { "margin":{}, "columns":[]};
             $scope.interceptor = {};
+            $scope.appendpoint = {};
 
             if($scope.itemType === "app"){
                     var itemConfigName = $scope.getItemConfigName($scope.itemType);

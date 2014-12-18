@@ -5,9 +5,9 @@ except ImportError:
 
 setup(
     name='cosmos',
-    version='0.01.062.00',
-    packages=['cosmos', 'cosmos.admin', 'cosmos.admin.samples', 'cosmos.datamonitor', 'cosmos.dataservice', 'cosmos.rbac', 'cosmos.schema',
-              'cosmos.service', 'cosmos.processors', 'test'],
+    version='0.01.063.00',
+    packages=['cosmos', 'cosmos.common', 'cosmos.admin', 'cosmos.admin.samples', 'cosmos.datamonitor', 'cosmos.dataservice',
+              'cosmos.rbac', 'cosmos.schema', 'cosmos.service', 'cosmos.processors', 'test'],
     url='http://cosmosframework.com',
     license='MIT License',
     author='Maruf Maniruzzaman',

@@ -10,10 +10,15 @@ import hashlib
 import time
 import random
 import json
+import hashlib
 from threading import Thread
 from unittest import skip
+import zipfile
+import io
 import tornado
 import requests
+from cosmos.common.constants import*
+
 import cosmos.datamonitor.monitor as monitor
 from cosmos.dataservice.objectservice import ObjectService
 from cosmos.rbac.service import RbacService
@@ -56,8 +61,10 @@ class ServiceAPITests(LoggedTestCase):
         time.sleep(1)
 
     def setUp(self):
+        self.root_url = "http://localhost:8080/"
         self.service_url = "http://localhost:8080/service/"
         self.gridfs_url = "http://localhost:8080/gridfs/"
+
         self.admin_username = "admin"
         self.admin_password = "admin"
         self.admin_email = "admin@cosmosframework.com"
@@ -91,6 +98,25 @@ class ServiceAPITests(LoggedTestCase):
         url = self.service_url+"cosmos.users/"
         response = requests.post(url, data=params, cookies=cookies)
         self.failUnless(response.status_code == 409)
+
+    def _create_object(self, cookies, object_name, data):
+        params = json.dumps(data)
+        url = self.service_url+object_name+"/"
+        response = requests.post(url, data=params, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+        return response.text.strip('"')
+
+    def _get_object(self, cookies, object_name, _id):
+        url = self.service_url+object_name+"/"+_id
+        response = requests.get(url, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+        return json.loads(response.text)
+
+    def _delete_object(self, cookies, object_name, _id):
+        url = self.service_url+object_name+"/"+_id
+        response = requests.delete(url, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+        return response.text
 
     def get_sample_user(self):
         return {"username": "testuser"+str(int(random.random()*100000)), "password": self.standard_user_password, "roles":[]}
@@ -852,9 +878,211 @@ class ServiceAPITests(LoggedTestCase):
     def test_search_operation_works(self):
         pass
 
-    @skip("Test not implemented")
+    def _create_application_def_object(self):
+        path = "coolapp" + str(random.randint(1000, 9999))
+        app_name = "com.example." + path
+        m = hashlib.md5()
+        m.update(app_name)
+        app_id = m.hexdigest()
+        app_def = {
+            "id": app_id,
+            "name": app_name,
+            "path": path,
+            "title": "Test Application " + path,
+            "contact": "test@cosmosframework.com",
+            "author": "Cosmos T. Runner",
+            "version": "0.1.001.00",
+            "website": "http://cosmosframework.com",
+            "license": "MIT",
+            "settings": {
+                "source_code": [],
+                "objects": [],
+                "objectmap": {
+                    "chartconfigobject": path+".chartconfig",
+                    "listconfigobject": path+".listconfig",
+                    "singleitemconfigobject": path+".sivconfig",
+                    "pageconfigobject": path+".pageconfig",
+                    "formconfigobject": path+".formconfig",
+                    "menuconfigobject": path+".menuconfig"
+                },
+                "file_objects": []
+            }
+        }
+
+        return app_def
+
+    def _create_objectmap_objects(self, cookies, app_def):
+
+        obj_defs = [
+            {"name":app_def["settings"]["objectmap"]["chartconfigobject"]},
+            {"name":app_def["settings"]["objectmap"]["listconfigobject"]},
+            {"name":app_def["settings"]["objectmap"]["singleitemconfigobject"]},
+            {"name":app_def["settings"]["objectmap"]["pageconfigobject"]},
+            {"name":app_def["settings"]["objectmap"]["formconfigobject"]},
+            {"name":app_def["settings"]["objectmap"]["menuconfigobject"]},
+
+        ]
+
+        for obj_def in obj_defs:
+            obj_name = obj_def["name"]
+            data = {"name": obj_name}
+            _id = self._create_object(cookies, obj_name, data)
+            obj_def["_id"] = _id
+
+        return obj_defs
+
+    def _create_cosmos_app_objects(self, cookies, app_def):
+        obj_defs = [
+            {"name":COSMOS_WIDGETS_OBJECT_NAME},
+            {"name":COSMOS_APPLICATION_ENDPOINT_LIST_OBJECT_NAME},
+            {"name":COSMOS_INTERCEPTOR_OBJECT_NAME},
+        ]
+
+        for obj_def in obj_defs:
+            obj_name = obj_def["name"]
+
+            #Create a dummy object - this should not be picked up by exporter
+            data = {"name": obj_name}
+            dummy_id = self._create_object(cookies, obj_name, data)
+            obj_def["dummy_id"] = dummy_id
+
+            data = {"name": obj_name, "app_id": app_def["id"]}
+            _id = self._create_object(cookies, obj_name, data)
+            obj_def["_id"] = _id
+
+        return obj_defs
+
+    def _create_source_moduls_objects(self, cookies, app_def):
+
+        url = self.gridfs_url+COSMOS_SOURCE_MODULES_OBJECT_NAME+"/"
+
+        file_content = "coolvalue=128374972361487"
+        content_type = "cosmos/source"
+        files = {'uploadedfile': ('source.py', file_content, content_type, {'Expires': '0'})}
+
+        response = requests.post(url, files=files, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+
+        resp_data = json.loads(response.text)
+        resp_files = json.loads(resp_data["_d"])
+        resp_file = resp_files[0]
+        file_id = resp_file["file_id"]
+
+        obj_def = {"name": COSMOS_SOURCE_MODULES_OBJECT_NAME}
+        data = {
+            "name": COSMOS_SOURCE_MODULES_OBJECT_NAME,
+            "type": "gridfile",
+            "file_id": file_id,
+            "collection_name": COSMOS_SOURCE_MODULES_OBJECT_NAME,
+            "app_id": app_def["id"],
+            "filename": 'source.py'
+        }
+
+        _id = self._create_object(cookies, COSMOS_SOURCE_MODULES_OBJECT_NAME, data)
+        obj_def["_id"] = _id
+        obj_def["file_id"] = file_id
+        obj_def["collection_name"] = COSMOS_SOURCE_MODULES_OBJECT_NAME
+
+        return [obj_def]
+
+    def _cleanup_objectmap_objects(self, cookies, obj_defs):
+        for obj_def in obj_defs:
+            obj_name = obj_def["name"]
+            _id = obj_def["_id"]
+            self._delete_object(cookies, obj_name, _id)
+
+            dummy_id = obj_def.get("dummy_id")
+            if dummy_id:
+                self._delete_object(cookies, obj_name, dummy_id)
+
+    def _export_app(self, cookies, appid):
+        url = self.root_url + "application/package/"+appid
+
+        response = requests.get(url, cookies=cookies, stream=True)
+        self.failUnless(response.status_code == 200)
+        self.failUnless(response.headers['content-type'] == 'application/zip')
+        self.failUnless(response.headers['content-disposition'] == "attachment; filename='"+appid+".xapp'")
+
+        zipBytes = io.BytesIO()
+
+        for chunk in response.iter_content(chunk_size=4096):
+            if chunk:
+                zipBytes.write(chunk)
+
+        app_zip_file = zipfile.ZipFile(zipBytes)
+
+        return app_zip_file
+
+    def _get_object_def(self, obj_defs, name):
+        for obj_def in obj_defs:
+            if obj_def["name"] == name:
+                return obj_def
+
+        return None
+
+    def _verify_source_module_exported(self, app_zip_file, mod_defs):
+        for mod_def in mod_defs:
+            zip_file_path = mod_def["collection_name"] + "/" + mod_def["file_id"] + "/" + mod_def["filename"]
+            source_module_content_h = app_zip_file.open(zip_file_path)
+            file_content = source_module_content_h.read()
+            self.failUnlessEquals(file_content, "coolvalue=128374972361487")
+
+    def _verify_exported_app(self, app_zip_file, obj_defs):
+        object_data_file = app_zip_file.open(COSMOS_OBJECT_DATA_FILE_NAME)
+        object_data = object_data_file.read()
+
+        object_data_json = json.loads(object_data)
+        found_objects = []
+        for setting in object_data_json["settings"]:
+            setting_name = setting["name"]
+            if setting_name == "bootstrap_objects":
+                bootstrap_objects = setting["value"]
+                for object_defn in bootstrap_objects:
+                    object_name = object_defn["object"]
+                    object_data = object_defn["data"]
+
+                    obj_def = self._get_object_def(obj_defs, object_name)
+
+                    if obj_def:
+                        self.logger.debug("Checking found object " + object_name)
+                        self.failIf(found_objects.__contains__(object_name))
+                        found_objects.append(object_name)
+
+                        self.failUnlessEqual(len(object_data), 1)
+                        loaded_data = object_data[0]
+
+                        self.failUnlessEqual(loaded_data["name"], object_name)
+                        self.failUnlessEqual(loaded_data["_id"], obj_def["_id"])
+
+                        if object_name == COSMOS_SOURCE_MODULES_OBJECT_NAME:
+                            self._verify_source_module_exported(app_zip_file, object_data)
+
+        self.logger.debug("Loaded objects " + json.dumps(found_objects))
+        self.failUnlessEqual(len(found_objects), len(obj_defs))
+
     def test_application_package_works(self):
-        pass
+        app_object_name = COSMOS_APPLICATION_OBJECT_NAME
+        cookies = self.admin_login()
+
+        app_def = self._create_application_def_object()
+        app_id = self._create_object(cookies, app_object_name, app_def)
+
+        appid = app_def["id"]
+
+        obj_defs = self._create_objectmap_objects(cookies, app_def)
+
+        obj_defs = obj_defs + self._create_cosmos_app_objects(cookies, app_def)
+
+        obj_defs = obj_defs +  self._create_source_moduls_objects(cookies, app_def)
+
+        app_ret = self._get_object(cookies, app_object_name, app_id)
+
+        app_zip_file = self._export_app(cookies, appid)
+
+        self._verify_exported_app(app_zip_file, obj_defs)
+
+        self._cleanup_objectmap_objects(cookies, obj_defs)
+        self._delete_object(cookies, app_object_name, app_id)
 
     @skip("Test not implemented")
     def test_application_import_works(self):
