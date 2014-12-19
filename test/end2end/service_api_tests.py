@@ -15,6 +15,8 @@ from threading import Thread
 from unittest import skip
 import zipfile
 import io
+import datetime
+from bson import ObjectId
 import tornado
 import requests
 from cosmos.common.constants import*
@@ -22,6 +24,7 @@ from cosmos.common.constants import*
 import cosmos.datamonitor.monitor as monitor
 from cosmos.dataservice.objectservice import ObjectService
 from cosmos.rbac.service import RbacService
+from cosmos.service.utils import MongoObjectJSONEncoder
 import samples.barebone.cosmosmain as cosmosmain
 from test import *
 from cosmos.rbac.object import ADMIN_USER_ROLE_SID, COSMOS_ROLE_OBJECT_NAME, COSMOS_ROLE_GROUP_OBJECT_NAME
@@ -103,19 +106,19 @@ class ServiceAPITests(LoggedTestCase):
         params = json.dumps(data)
         url = self.service_url+object_name+"/"
         response = requests.post(url, data=params, cookies=cookies)
-        self.failUnless(response.status_code == 200)
+        self.failUnlessEqual(response.status_code, 200)
         return response.text.strip('"')
 
     def _get_object(self, cookies, object_name, _id):
         url = self.service_url+object_name+"/"+_id
         response = requests.get(url, cookies=cookies)
-        self.failUnless(response.status_code == 200)
+        self.failUnlessEqual(response.status_code, 200)
         return json.loads(response.text)
 
     def _delete_object(self, cookies, object_name, _id):
         url = self.service_url+object_name+"/"+_id
         response = requests.delete(url, cookies=cookies)
-        self.failUnless(response.status_code == 200)
+        self.failUnlessEqual(response.status_code, 200)
         return response.text
 
     def get_sample_user(self):
@@ -197,13 +200,13 @@ class ServiceAPITests(LoggedTestCase):
         params = json.dumps(sample_role)
         url = self.service_url+ COSMOS_ROLE_OBJECT_NAME+"/"
         response = requests.post(url, data=params, cookies=cookies)
-        self.failUnless(response.status_code == 200)
+        self.failUnlessEqual(response.status_code, 200)
 
         role_url = url+response.text.strip('"')+'/'
         self.log_request_url(role_url)
         response = requests.get(role_url, cookies=cookies)
         self.log_status_code(response.status_code)
-        self.failUnless(response.status_code == 200)
+        self.failUnlessEqual(response.status_code, 200)
 
         role_json = json.loads(response.text)
         return role_json
@@ -212,13 +215,13 @@ class ServiceAPITests(LoggedTestCase):
         params = json.dumps(role_group)
         url = self.service_url+ COSMOS_ROLE_GROUP_OBJECT_NAME+"/"
         response = requests.post(url, data=params, cookies=cookies)
-        self.failUnless(response.status_code == 200)
+        self.failUnlessEqual(response.status_code, 200)
 
         role_group_url = url+response.text.strip('"')+'/'
         self.log_request_url(role_group_url)
         response = requests.get(role_group_url, cookies = cookies)
         self.log_status_code(response.status_code)
-        self.failUnless(response.status_code == 200)
+        self.failUnlessEqual(response.status_code, 200)
 
         role_group_json = json.loads(response.text)
         return role_group_json
@@ -247,7 +250,7 @@ class ServiceAPITests(LoggedTestCase):
         params = json.dumps(sample_role)
         url = self.service_url+"cosmos.rbac.object.role/"
         response = requests.post(url, data=params, cookies = cookies)
-        self.failUnless(response.status_code == 409)
+        self.failUnlessEqual(response.status_code, 409)
 
     def log_request_url(self, user_url):
         self.logger.info(user_url)
@@ -260,12 +263,12 @@ class ServiceAPITests(LoggedTestCase):
         params = json.dumps(sample_user)
         url = self.service_url+"cosmos.users/"
         response = requests.post(url, data=params, cookies = cookies)
-        self.failUnless(response.status_code == 200)
+        self.failUnlessEqual(response.status_code, 200)
         user_url = url+response.text.strip('"')+'/'
         self.log_request_url(user_url)
         response = requests.get(user_url, cookies=cookies)
         self.log_status_code(response.status_code)
-        self.failUnless(response.status_code == 200)
+        self.failUnlessEqual(response.status_code, 200)
 
         user_json = json.loads(response.text)
         password = user_json.get("password")
@@ -911,8 +914,7 @@ class ServiceAPITests(LoggedTestCase):
 
         return app_def
 
-    def _create_objectmap_objects(self, cookies, app_def):
-
+    def _create_objectmap_objects(self, app_def):
         obj_defs = [
             {"name":app_def["settings"]["objectmap"]["chartconfigobject"]},
             {"name":app_def["settings"]["objectmap"]["listconfigobject"]},
@@ -926,6 +928,16 @@ class ServiceAPITests(LoggedTestCase):
         for obj_def in obj_defs:
             obj_name = obj_def["name"]
             data = {"name": obj_name}
+            obj_def["data"] = data
+            obj_def["_id"] = str(ObjectId())
+
+        return obj_defs
+
+    def _save_objectmap_objects(self, cookies, obj_defs):
+        for obj_def in obj_defs:
+            obj_name = obj_def["name"]
+            data = obj_def["data"]
+
             _id = self._create_object(cookies, obj_name, data)
             obj_def["_id"] = _id
 
@@ -952,21 +964,23 @@ class ServiceAPITests(LoggedTestCase):
 
         return obj_defs
 
-    def _create_source_moduls_objects(self, cookies, app_def):
+    def _save_gridfs_file(self, cookies, collection_name, filename, file_content, content_type):
 
-        url = self.gridfs_url+COSMOS_SOURCE_MODULES_OBJECT_NAME+"/"
+        files = {'uploadedfile': (filename, file_content, content_type, {'Expires': '0'})}
 
-        file_content = "coolvalue=128374972361487"
-        content_type = "cosmos/source"
-        files = {'uploadedfile': ('source.py', file_content, content_type, {'Expires': '0'})}
-
+        url = self.gridfs_url+collection_name+"/"
         response = requests.post(url, files=files, cookies=cookies)
         self.failUnless(response.status_code == 200)
 
         resp_data = json.loads(response.text)
         resp_files = json.loads(resp_data["_d"])
         resp_file = resp_files[0]
-        file_id = resp_file["file_id"]
+        #file_id = resp_file["file_id"]
+        #return file_id
+
+        return resp_file
+
+    def _create_source_moduls_objects(self, app_def, file_id):
 
         obj_def = {"name": COSMOS_SOURCE_MODULES_OBJECT_NAME}
         data = {
@@ -975,15 +989,24 @@ class ServiceAPITests(LoggedTestCase):
             "file_id": file_id,
             "collection_name": COSMOS_SOURCE_MODULES_OBJECT_NAME,
             "app_id": app_def["id"],
-            "filename": 'source.py'
+            "filename": 'source.py',
+            "_id": str(ObjectId())
         }
 
-        _id = self._create_object(cookies, COSMOS_SOURCE_MODULES_OBJECT_NAME, data)
-        obj_def["_id"] = _id
+        obj_def["data"] = data
+        obj_def["_id"] = data["_id"]
         obj_def["file_id"] = file_id
         obj_def["collection_name"] = COSMOS_SOURCE_MODULES_OBJECT_NAME
 
-        return [obj_def]
+        return obj_def
+
+    def _save_source_moduls_object(self, cookies, obj_def):
+        data = obj_def["data"]
+        _id = self._create_object(cookies, COSMOS_SOURCE_MODULES_OBJECT_NAME, data)
+        obj_def["_id"] = _id
+
+        return obj_def
+
 
     def _cleanup_objectmap_objects(self, cookies, obj_defs):
         for obj_def in obj_defs:
@@ -1069,11 +1092,18 @@ class ServiceAPITests(LoggedTestCase):
 
         appid = app_def["id"]
 
-        obj_defs = self._create_objectmap_objects(cookies, app_def)
+        obj_defs = self._save_objectmap_objects(cookies, self._create_objectmap_objects(app_def))
 
         obj_defs = obj_defs + self._create_cosmos_app_objects(cookies, app_def)
 
-        obj_defs = obj_defs +  self._create_source_moduls_objects(cookies, app_def)
+        content_type = "cosmos/source"
+        file_content = "coolvalue=128374972361487"
+        collection_name = COSMOS_SOURCE_MODULES_OBJECT_NAME
+        filename = "source.py"
+        file_def = self._save_gridfs_file(cookies, collection_name, filename,  file_content, content_type)
+        file_id = file_def["file_id"]
+
+        obj_defs = obj_defs + [self._save_source_moduls_object(cookies, self._create_source_moduls_objects(app_def, file_id))]
 
         app_ret = self._get_object(cookies, app_object_name, app_id)
 
@@ -1084,9 +1114,87 @@ class ServiceAPITests(LoggedTestCase):
         self._cleanup_objectmap_objects(cookies, obj_defs)
         self._delete_object(cookies, app_object_name, app_id)
 
-    @skip("Test not implemented")
+    def _import_package(self, cookies, content):
+        url = self.root_url + "application/install/"
+
+        content_type = 'application/zip'
+        files = {'application': ('app.xapp', content, content_type, {'Expires': '0'})}
+
+        response = requests.post(url, files=files, cookies=cookies)
+        self.failUnless(response.status_code == 200)
+
     def test_application_import_works(self):
-        pass
+        cookies = self.admin_login()
+
+        app_def = self._create_application_def_object()
+        mf = io.BytesIO()
+
+        with zipfile.ZipFile(mf, mode='w', compression=zipfile.ZIP_DEFLATED) as archive_file:
+            archive_file.writestr(COSMOS_APPLICATION_FILE_NAME, MongoObjectJSONEncoder().encode(app_def))
+
+            bootstrap_objects = []
+            file_objects_data = []
+            source_file_config = []
+
+            obj_defs = self._create_objectmap_objects(app_def)
+
+            for obj in obj_defs:
+                object_name = obj["name"]
+                dt = {"object": object_name, "data": [obj]}
+                bootstrap_objects.append(dt)
+
+            content_type = "cosmos/source"
+            file_content = "coolvalue=128374972361487"
+            collection_name = COSMOS_SOURCE_MODULES_OBJECT_NAME
+            filename = "source.py"
+            file_def = self._save_gridfs_file(cookies, collection_name, filename,  file_content, content_type)
+            file_id = file_def["file_id"]
+
+            source_module_def = self._create_source_moduls_objects(app_def, file_id)
+
+            bootstrap_objects.append({"object": COSMOS_SOURCE_MODULES_OBJECT_NAME, "data": [source_module_def["data"]]})
+
+            pkg_config = {
+                "exporttime": str(datetime.datetime.utcnow()),
+                "archive_version": COSMOS_CURRENT_ARCHIVE_VERSION,
+                "settings": [
+                    {"name": "bootstrap_objects", "value": bootstrap_objects},
+                    {"name": "file_objects", "value": file_objects_data},
+                    {"name": "source_files", "directory": COSMOS_SOURCE_FILE_ROOT_NAME, "value": source_file_config}
+                ]
+            }
+
+            archive_file.writestr(COSMOS_OBJECT_DATA_FILE_NAME, MongoObjectJSONEncoder().encode(pkg_config))
+
+            archive_file.close()
+
+        package_data = mf.getvalue()
+        self._import_package(cookies, package_data)
+
+        for obj_def in bootstrap_objects:
+            object_name = obj_def["object"]
+            expected_data = obj_def["data"][0]
+            _id = expected_data["_id"]
+            found_obj = self._get_object(cookies, object_name, _id)
+            self.failUnlessEqual(found_obj["name"], expected_data["name"])
+
+            #cleanup
+            self._delete_object(cookies, object_name, _id)
+
+
+        # Check the source file was imported properly
+        url = self.gridfs_url+COSMOS_SOURCE_MODULES_OBJECT_NAME+"/"+ file_id + '/'
+        download_response = requests.get(url, cookies=cookies)
+
+        self.failUnlessEqual(download_response.status_code, 200)
+        self.failUnlessEquals(download_response.text, file_content,
+                              "file content of downloaded file must match uploaded file content")
+        self.failUnlessEquals(download_response.headers.get("Content-Type"), content_type,
+                              "content of uploaded and downloaded files must match")
+
+        #delete source file
+        requests.delete(url, cookies=cookies)
+
 
 if __name__ == "__main__":
     unittest.main()

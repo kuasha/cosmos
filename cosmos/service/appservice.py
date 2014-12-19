@@ -15,7 +15,7 @@ from cosmos.common.constants import *
 from cosmos.service import requesthandler
 from cosmos.service.utils import MongoObjectJSONEncoder
 
-zip_file_root = "sources"
+zip_file_root = COSMOS_SOURCE_FILE_ROOT_NAME
 
 
 class AppInstallHandler(requesthandler.RequestHandler):
@@ -105,9 +105,17 @@ class AppInstallHandler(requesthandler.RequestHandler):
     def post(self):
         application_file = self.request.files["application"][0]['body']
 
-        app_zip_file = zipfile.ZipFile(io.BytesIO(application_file))
+        try:
+            app_zip_file = zipfile.ZipFile(io.BytesIO(application_file))
+        except zipfile.BadZipfile as bzf:
+            raise tornado.web.HTTPError(400, bzf.message)
+
 
         object_data_file = app_zip_file.open(COSMOS_OBJECT_DATA_FILE_NAME)
+
+        if not object_data_file:
+            raise tornado.web.HTTPError(400, COSMOS_OBJECT_DATA_FILE_NAME + " not present in archive.")
+
         object_data = object_data_file.read()
 
         object_data_json = json.loads(object_data)
@@ -120,6 +128,10 @@ class AppInstallHandler(requesthandler.RequestHandler):
             self.import_setting(object_service, app_zip_file, setting_name, value)
 
         application_data_file = app_zip_file.open(COSMOS_APPLICATION_FILE_NAME)
+
+        if not application_data_file:
+            raise tornado.web.HTTPError(400, COSMOS_APPLICATION_FILE_NAME + " not present in archive.")
+
         application_data = application_data_file.read()
         application_data_json = json.loads(application_data)
 
@@ -275,6 +287,7 @@ class AppPackageHandler(requesthandler.RequestHandler):
         collection_name = file_def.get("collection_name")
         filename = file_def["filename"]
 
+        ignore_col_name = False
         if (not collection_name) or (collection_name == COSMOS_SOURCE_MODULES_OBJECT_NAME):
             ignore_col_name = True
 
