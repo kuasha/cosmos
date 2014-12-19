@@ -2,7 +2,7 @@
  * Created by maruf on 10/28/14.
  */
 
-controllers.controller('HomeCtrl', ['$scope', '$modal', '$routeParams', 'CosmosService', function ($scope, $modal, $routeParams, CosmosService) {
+controllers.controller('TerminalCtrl', ['$scope', '$modal', '$routeParams', 'CosmosService', function ($scope, $modal, $routeParams, CosmosService) {
     $scope.service = "/service/";
     $scope.columns = "";
     $scope.filter = "";
@@ -94,9 +94,6 @@ controllers.controller('HomeCtrl', ['$scope', '$modal', '$routeParams', 'CosmosS
                 $scope.processError(data, status);
             }
         );
-    };
-
-    $scope.test = function(){
     };
 }])
 ;

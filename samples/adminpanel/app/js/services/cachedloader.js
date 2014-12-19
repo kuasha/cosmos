@@ -5,6 +5,9 @@
 services.factory('cosmos.cachedloader', ['CosmosService', function (CosmosService) {
     return{
         store: {},
+        clearCache: function(name){
+            delete this.store[name];
+        },
         get: function (name, uri, callback, error_callback, refresh) {
 
             if (!refresh) {

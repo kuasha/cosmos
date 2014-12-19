@@ -101,7 +101,9 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
         };
 
         $scope.loadAppItemsForSelectedApp = function(){
-            $scope.loadAppItems($scope.selectedApplication);
+            if($scope.selectedApplication) {
+                $scope.loadAppItems($scope.selectedApplication);
+            }
         };
 
         $scope.setAsDefault = function(app){
@@ -139,6 +141,46 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
             }
         };
 
+        $scope.deleteItem = function (app, itemTypeLabel, label, itemConfigName, _id, onSuccess) {
+            if(!app){
+                app = $scope.selectedApplication;
+            }
+
+            if (confirm('Are you sure you want to delete the '+ itemTypeLabel +' ' + label + '?')) {
+
+                var appPath = app.path;
+
+                settings.getAppSettings(appPath, itemConfigName,
+                    function (objectName) {
+                        var url = '/service/' + objectName + '/' + _id + '/';
+                        CosmosService.delete(url, function (data) {
+                                if(onSuccess){
+                                    onSuccess(data);
+                                }
+                                else {
+                                    $scope.loadAppItemsForSelectedApp();
+                                }
+                            },
+                            function (data, status) {
+                                $scope.processError(data, status);
+                            }
+                        );
+                    },
+                    $scope.processError
+                );
+
+            }
+        };
+
+        $scope.deleteApp = function(app){
+            $scope.deleteItem(app, "app", app.title, "appconfigobject", app._id,
+                function(data) {
+                    settings.clearCache(settings.getAllAppCacheName());
+                    $scope.getApplications();
+                }
+            );
+        };
+
         $scope.closeApp = function(){
             $scope.hashtable.set($scope.cosmosCurrentApplicationRef, undefined);
         };
@@ -153,11 +195,7 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
 
         $scope.isAppOpened = function(){
             var app = $scope.hashtable.get($scope.cosmosCurrentApplicationRef);
-            if(app){
-                return true;
-            }
-
-            return false;
+            return !!app;
         };
 
         $scope.getOpenedApp = function(){

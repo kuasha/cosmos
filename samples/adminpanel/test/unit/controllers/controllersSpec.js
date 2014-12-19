@@ -7,9 +7,9 @@ describe('controllers', function(){
     beforeEach(module('cosmosUI.controllers'));
 
 
-    it('should have HomeCtrl defined', inject(function($controller) {
+    it('should have TerminalCtrl defined', inject(function($controller) {
         //spec body
-        var myCtrl1 = $controller('HomeCtrl', { $scope: {} });
+        var myCtrl1 = $controller('TerminalCtrl', { $scope: {} });
         expect(myCtrl1).toBeDefined();
     }));
 

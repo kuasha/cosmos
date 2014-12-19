@@ -16,7 +16,7 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
     return{
         getAppSettings: function (appPath, settingsName, successCallback, errorCallback) {
 
-            if(appPath === "cosmosapp" && settingsName === "appconfigobject"){
+            if(settingsName === "appconfigobject"){
                 if(successCallback){
                     successCallback("cosmos.applications");
                     return;
@@ -169,6 +169,14 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
                     errorCallback(data, status);
                 }
             );
+        },
+
+        clearCache : function(cacheName){
+            cachedloader.clearCache(cacheName);
+        },
+
+        getAllAppCacheName: function(){
+            return "Application._Cosmos_All_Applications_";
         },
 
         getApplications : function(successCallback, errorCallback){

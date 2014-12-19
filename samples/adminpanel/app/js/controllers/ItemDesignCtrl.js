@@ -757,7 +757,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
         };
 
         $scope.processError = function(data, status){
-            //TODO: Implement
+            $.notify("Error "+ status + ":"+data, "error");
         };
 
         $scope.processSourceFile = function(sourceModuleEntry){
@@ -851,6 +851,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 url = url + $scope.itemId + '/';
                 CosmosService.put(url, $scope[$scope.itemType], function (data) {
                         $scope.result = data;
+                        $.notify("Updated " + $scope.itemType, "success");
                     },
                     function (data, status) {
                         $scope.processError(data, status);
@@ -866,6 +867,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 CosmosService.post(url, $scope[$scope.itemType], function (data) {
                         $scope.result = data;
                         $scope.itemId = JSON.parse(data);
+                        $.notify("Saved " + $scope.itemType, "success");
                     },
                     function (data, status) {
                         $scope.processError(data, status);

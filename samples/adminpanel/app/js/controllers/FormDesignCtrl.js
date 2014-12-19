@@ -313,6 +313,7 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                         url = url + form_id;
                         CosmosService.put(url, $scope.form, function (data) {
                                 $scope.result = data;
+                                $.notify("Form updated", "success");
                             },
                             function (data, status) {
                                 $scope.processError(data, status);
@@ -323,6 +324,7 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                         CosmosService.post(url, $scope.form, function (data) {
                                 $scope.result = data;
                                 $scope.form._id = JSON.parse(data);
+                                $.notify("Form saved", "success");
                             },
                             function (data, status) {
                                 $scope.processError(data, status);

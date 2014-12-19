@@ -16,9 +16,9 @@ var cosmosUI = angular.module('cosmosUI', [
     'cosmosUI.controllers'
 ]).
 config(['$routeProvider', function($routeProvider) {
-    $routeProvider.when('/terminal', {templateUrl: 'partials/home.html', controller: 'HomeCtrl'});
+    $routeProvider.when('/terminal', {templateUrl: 'partials/terminal.html', controller: 'TerminalCtrl'});
 
-    $routeProvider.when('/install', {templateUrl: 'partials/install.html', controller: 'HomeCtrl'});
+    $routeProvider.when('/install', {templateUrl: 'partials/install.html', controller: 'TerminalCtrl'});
     $routeProvider.when('/message', {templateUrl: 'partials/message.html', controller: 'MessageViewCtrl'});
 
     $routeProvider.when('/users', {templateUrl: 'partials/users.html', controller: 'UsersCtrl'});

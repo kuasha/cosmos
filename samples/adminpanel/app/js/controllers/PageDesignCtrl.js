@@ -263,6 +263,7 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 url = url + page_id + '/';
                 CosmosService.put(url, $scope.page, function (data) {
                         $scope.result = data;
+                        $.notify("Page updated", "success");
                     },
                     function (data, status) {
                         $scope.processError(data, status);
@@ -273,6 +274,7 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 CosmosService.post(url, $scope.page, function (data) {
                         $scope.result = data;
                         $scope.page._id = JSON.parse(data);
+                        $.notify("Page saved", "success");
                     },
                     function (data, status) {
                         $scope.processError(data, status);
