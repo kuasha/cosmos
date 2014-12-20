@@ -168,9 +168,18 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                 "label": "Set value",
                                 "fields": [
                                     {
-                                        "label": "Title",
+                                        "label": "Widget text",
+                                        "type": "codeeditor",
+                                        "name": "widgettext",
+                                        "htmltype": "text"
+                                    }
+
+                                ],
+                                "elsefields": [
+                                    {
+                                        "label": "Label",
                                         "type": "input",
-                                        "name": "title",
+                                        "name": "label",
                                         "htmltype": "text"
                                     },
                                     {
@@ -180,16 +189,8 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                                         "htmltype": "text"
                                     }
                                 ],
-                                "elsefields": [
-                                    {
-                                        "label": "Widget text",
-                                        "type": "codeeditor",
-                                        "name": "widgettext",
-                                        "htmltype": "text"
-                                    }
-                                ],
                                 "type": "condition",
-                                "expression": "$parent.d.type === 'menuitem'"
+                                "expression": "$parent.d.type === 'inlinewidget'"
                             },
                             {
                                 "label": "CSS Class",

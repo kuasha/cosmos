@@ -17,6 +17,8 @@ directives.directive('field', function ($compile) {
                 $scope.CosmosService = CosmosService;
                 $scope.hashtable = hashtable;
 
+                $scope.routeParams = $routeParams;
+
                 $scope.processError = function(data, status){
 
                 };

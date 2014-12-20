@@ -35,6 +35,8 @@ var directives = angular.module('cosmosUI.directives', []).
             controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
                 function ($scope, $location, $routeParams, message, CosmosService, settings) {
 
+                    $scope.routeParams = $routeParams;
+
                     $scope.getConfigurationByUrl = function (url) {
                         CosmosService.get(url, function (data) {
                                 if (data.loginRequired && !loggedIn()) {
@@ -110,6 +112,8 @@ var directives = angular.module('cosmosUI.directives', []).
 
             controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
                 function ($scope, $location, $routeParams, message, CosmosService, settings) {
+
+                    $scope.routeParams = $routeParams;
 
                     $scope.getPageConfigurationByUrl = function (url) {
                         CosmosService.get(url, function (data) {
@@ -238,6 +242,8 @@ var directives = angular.module('cosmosUI.directives', []).
 
             controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
                 function ($scope, $location, $routeParams, message, CosmosService, settings) {
+
+                    $scope.routeParams = $routeParams;
 
                     $scope.getHtml = function () {
                         var url= $scope.htmlUrl;
