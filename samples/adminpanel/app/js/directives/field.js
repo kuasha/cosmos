@@ -510,6 +510,10 @@ directives.directive('field', function ($compile) {
                                 '<input class="form-control" type="{{item.htmltype || \'text\'}}" ng-model="val"'+tags+'  />';
                             break;
 
+                        case "filectrl":
+                                var template = '<filectrl label="item.label" required="item.required" object-name="item.objectName" val="val"/>';
+                            break;
+
                         case "static":
                             template = '<span><label>{{item.label}}</label><input type="text" ng-model="val" readonly="readonly"/></span>';
                             break;

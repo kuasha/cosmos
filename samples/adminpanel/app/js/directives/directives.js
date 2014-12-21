@@ -351,4 +351,149 @@ var directives = angular.module('cosmosUI.directives', []).
         }
     })
 
-;
+    .directive('filectrl', function ($compile) {
+        return {
+            restrict: 'E',
+            scope: {
+                label: '=',
+                objectName: '=',
+                val: '=',
+                required: '='
+            },
+
+            controller: ['$scope', '$location', '$routeParams', '$modal', 'message', 'CosmosService', 'cosmos.settings',
+                function ($scope, $location, $routeParams, $modal, message, CosmosService, settings) {
+                    $scope.routeParams = $routeParams;
+
+                    $scope.browseFile = function(){
+                        var modalInstance = $modal.open({
+                            templateUrl: 'partials/browsefile.html',
+                            controller: "BrowseFileController",
+                            size: 'lg',
+                            backdrop: 'static',
+                            resolve: {
+                                objectName: function () {
+                                    return $scope.objectName;
+                                }
+                            }
+                        });
+
+                        modalInstance.result.then(
+                            function (selectedFile) {
+                                $scope.fileName = '/gridfs/'+selectedFile.collection_name + '/'+selectedFile.file_id +' ['+selectedFile.filename+']';
+                                $scope.selectedFile = selectedFile;
+                                $scope.val = '/gridfs/'+selectedFile.collection_name + '/'+selectedFile.file_id;
+                            },
+                            function () {
+                                //$log.info('Modal dismissed at: ' + new Date());
+                            }
+                        );
+                    };
+
+                    $scope.getTemplate = function () {
+                         var template = '<label>{{label}}<span ng-if="required">&nbsp;*&nbsp;</span></label>' +
+                                '<input readonly class="form-control" type="\'text\'}}" ng-model="val" title="{{fileName}}"/>'+
+                                '<button ng-click="browseFile()" class="btn btn-sm btn-primary">Brwose</button>';
+                         return template;
+                    };
+                }
+            ],
+
+            link: function (scope, element, attributes) {
+                var template = scope.getTemplate();
+
+                console.log("File ctrl template" + template);
+                var newElement = angular.element(template);
+                element.replaceWith(newElement);
+                $compile(newElement)(scope);
+            }
+
+        }
+    });
+
+controllers.controller('BrowseFileController', ['$scope', '$modalInstance', 'CosmosService', 'objectName',
+    function ($scope, $modalInstance, CosmosService, objectName) {
+    $scope.fileObjectName = objectName;
+
+    $scope.uploaded_files = [];
+
+    $scope.setAction = function () {
+        document.uploadForm.action = "/gridfs/" + $scope.fileObjectName + "/";
+        $scope.getFiles();
+    };
+
+    $scope.selectFile = function(file){
+        $scope.selectedFile = file;
+    };
+
+    $scope.getFiles = function () {
+        CosmosService.get('/gridfs/' + $scope.fileObjectName + '/', function (data) {
+                $scope.uploaded_files = data;
+            },
+            function (data, status) {
+                $scope.processError(data, status);
+            }
+        );
+    };
+
+    $scope.onFileUploadLoaded = function () {
+        var responseText = this.contentDocument.body.innerText;
+
+        if (responseText) {
+            var values = JSON.parse(JSON.parse(responseText)._d);
+            angular.forEach(values, function (data, index) {
+                $scope.uploaded_files.push(data);
+            });
+            $scope.$apply();
+        }
+        // Clear the iframe control
+        $('#submit-iframe').remove();
+        jQuery("#fileList").empty();
+        jQuery("#fileList").append(jQuery('<input class="file-selector" name="uploadedfile" type="file" onchange="angular.element(this).scope().fileNameChanged()" />'));
+    };
+
+    $scope.uploadFile = function () {
+        jQuery("#iFramePlaceholder").html("<iframe name='submit-iframe' id='submit-iframe' style='display: none;'></iframe>");
+
+        jQuery("#submit-iframe").load($scope.onFileUploadLoaded);
+        document.getElementById("uploadForm").submit();
+    };
+
+    $scope.fileNameChanged = function (fileInput) {
+        var emptyFound = false;
+        angular.forEach(jQuery("#fileList").children(), function (data, index) {
+            if (!data.value) {
+                emptyFound = true;
+            }
+        });
+
+        if (!emptyFound) {
+            jQuery("#fileList").append(jQuery('<input class="file-selector" name="uploadedfile" type="file" onchange="angular.element(this).scope().fileNameChanged()" />'));
+        }
+    };
+
+    $scope.removeFile = function (index) {
+        var file = $scope.uploaded_files[index];
+        if (confirm('Are you sure you want to delete the file ' + file.filename + '?')) {
+            var file_id = file.file_id;
+            CosmosService.delete('/gridfs/' + $scope.fileObjectName + '/' + file_id + '/', function (data) {
+                    $scope.uploaded_files.splice(index, 1);
+                },
+                function (data, status) {
+                    $scope.processError(data, status);
+                }
+            );
+        }
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close($scope.selectedFile);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+
+}]);
+
+

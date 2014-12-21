@@ -1,0 +1,62 @@
+<style>
+.file-list {
+    padding-bottom: 10px;
+}
+.file-selector{
+    margin: 5px;
+}
+   .selected{
+       background-color: #DDD;
+   }
+</style>
+
+<div class="modal-header">
+    <h3 class="modal-title" >Select a file</h3>
+</div>
+<div class="modal-body">
+    <div>
+        <div ng-bind="fileObjectName"></div>
+        <div ng-show="hasError" class="bg-warning">
+            <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+            <div><label>Error code:</label><span ng-bind="status"></span></div>
+            <div ng-bind="status_data"></div>
+        </div>
+        <div id="iFramePlaceholder"></div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>File Id</th>
+                <th>File size</th>
+                <th>File name</th>
+                <th>File MD5</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="file in uploaded_files" ng-click="selectFile(file)" ng-class="(file.file_id == selectedFile.file_id)?'selected':''">
+                <td>{{file.file_id}}</td>
+                <td>{{file.length}}</td><td>{{file.filename}}</td>
+                <td>{{file.md5}}</td>
+                <td>
+                    <a class="btn btn-xs btn-success glyphicon glyphicon-download" href="/gridfs/{{file.collection_name}}/{{file.file_id}}/"></a>
+                </td>
+                <td>
+                    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove" ng-click="removeFile($index)"></button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <form ng-init="setAction()" id="uploadForm" name="uploadForm" method='POST' enctype='multipart/form-data' target='submit-iframe' action="/gridfs/">
+            <div class="file-list" id="fileList">
+                <input class="file-selector" name="uploadedfile" type="file" onchange="angular.element(this).scope().fileNameChanged(this)" />
+            </div>
+            <button  class="btn btn-primary glyphicon glyphicon-cloud-upload" ng-click="uploadFile()" > Upload </button>
+        </form>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button ng-disabled="!selectedFile" class="btn btn-primary" ng-click="ok()">OK</button>
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

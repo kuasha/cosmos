@@ -509,7 +509,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                         "htmltype": "text"
                     },
                     {
-                        "label": "Handler name",
+                        "label": "Handler module",
                         "type": "input",
                         "name": "handler_module",
                         "required":true,
@@ -796,7 +796,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                         var url = '/service/' + objectName + '/' + $scope.itemId+"/";
                         if($scope.itemType === "widget" || $scope.itemType === "interceptor"
                             || $scope.itemType === "sourcefiles" || $scope.itemType === "appendpoint"){
-                            url = url + '?filter={"app_id":"'+$scope.app._id+'"}';
+                            url = url + '?filter={"app_id":"'+$scope.app.id+'"}';
                         }
                         $scope.getItemByUrl(itemType, url);
                     },
@@ -862,7 +862,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             else {
                 if($scope.itemType === "widget" || $scope.itemType === "interceptor"
                     || $scope.itemType === "sourcefiles" || $scope.itemType === "appendpoint"){
-                    $scope[$scope.itemType]["app_id"]=$scope.app._id;
+                    $scope[$scope.itemType]["app_id"]=$scope.app.id;
                 }
 
                 CosmosService.post(url, $scope[$scope.itemType], function (data) {

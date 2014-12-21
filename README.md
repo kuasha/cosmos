@@ -78,7 +78,7 @@ Now do rs.config() to see the status
 Index db collection for text search
 -----------------------------------
 
-Before you can builtin use search API you have to enable search in mongodb for each collection.
+Before you can use builtin search API you have to enable search in mongodb for each collection.
    
 Here is an example: 
 
@@ -98,7 +98,7 @@ How to create project
 ---------------------
 
 ```
-cosmosadmin new-project
+cosmosadmin new-project adminpanel
 ```
 
 This will create a simple demo project where you can create users/ create and assign roles to users and call GET/POST/PUT/DELETE APIs to read/insert/update/delete documents in json format.

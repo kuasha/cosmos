@@ -71,7 +71,7 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
                         var url = '/service/' + objectName + '/';
                         if(itemConfigName === "widgetobject" || itemConfigName === "sourcecolname"
                             || itemConfigName === "interceptorconigobject" || itemConfigName === "appendpointconigobject" ){
-                            url = url + '?filter={"app_id":"'+app._id+'"}';
+                            url = url + '?filter={"app_id":"'+app.id+'"}';
                         }
                         $scope.getItemsByUrl(itemType, url);
                     },

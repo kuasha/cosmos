@@ -63,7 +63,7 @@ if DB_USER_NAME and DB_USER_PASSWORD:
 else:
     DATABASE_URI = "mongodb://"+DB_HOST+":"+str(DB_PORT)
 
-if DB_USER_NAME and DB_USER_PASSWORD:
+if LOG_DB_USER_NAME and LOG_DB_USER_PASSWORD:
     LOG_DATABASE_URI = "mongodb://"+ LOG_DB_USER_NAME + ":"+ LOG_DB_USER_PASSWORD +"@"+ LOG_DB_HOST+":"+str(LOG_DB_PORT)+"/"+LOG_DB_NAME
 else:
     LOG_DATABASE_URI = "mongodb://"+ LOG_DB_HOST+":"+str(LOG_DB_PORT)

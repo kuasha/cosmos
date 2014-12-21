@@ -159,6 +159,15 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             ]
             },
 
+            "filectrl":{
+                 "label": "File Select Options", "type": "form",
+                 "fields": [
+                    {"type": "text", "label": "Label", "name": "label"},
+                    {"type": "text", "label": "Name", "name": "name"},
+                    {"type": "text", "label": "Object name", "name": "objectName"}
+                ]
+            },
+
             "condition": {
                 "label": "Condition options", "type": "condition", "name": "condition", "fields": [
                     {"type": "text", "label": "Label", "name": "label"},
@@ -188,6 +197,7 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                 {'value': 'option1', 'label': 'option1'},
                 {'value': 'option2', 'label': 'option2'}
             ]}},
+            {"label":"File select", "type":"filectrl"},
             {label: 'Group', type: "composite", options: {}, fields: []},
             {label: 'Array', type: "array", options: {}, fields: []},
             {label: 'Lookup', type: "lookup", options: {}, fields: []},
