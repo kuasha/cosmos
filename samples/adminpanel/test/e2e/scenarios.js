@@ -4,32 +4,35 @@
 
 describe('Admin app', function() {
 
-    function login(ptor){
+    function login(){
         browser.get('#/login/');
-        var username = ptor.findElement(protractor.By.id('username'));
-        var password = ptor.findElement(protractor.By.id('password'));
-        var submit = ptor.findElement(protractor.By.id('loginbtn'));
+        var username = element(by.id('username'));
+        var password = element(by.id('password'));
+        var submit = element(by.id('loginbtn'));
 
         username.sendKeys('admin');
         password.sendKeys('admin');
         submit.click();
     }
 
-    function logout(ptor){
-        var logout = ptor.findElement(protractor.By.linkText('Logout [admin]'));
-        logout.click();
+    function logout(){
+        /*
+        var logout = element(webdriver.By.partialLinkText('Logout'));
+        if(logout) {
+            logout.click();
+        }
+        */
     }
 
     browser.get('index.html');
 
     describe('login', function() {
-        var ptor = protractor.getInstance();
-
         beforeEach(function() {
         });
 
         it('should be able to login and logout', function() {
-            login(ptor);
+            login();
+            logout();
 
             //var logout = ptor.findElement(protractor.By.partialLinkText('Logout'));
             //expect(logout.getText()).toEqual('Logout [No Name]');
