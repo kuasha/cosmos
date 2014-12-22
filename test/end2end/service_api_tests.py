@@ -36,15 +36,8 @@ class ServiceAPITests(LoggedTestCase):
         pass
 
     @classmethod
-    def stop_tornado(cls):
-        pass
-
-    @classmethod
     def tearDownClass(cls):
-        monitor.continue_monitor = False
-        cls.stop_tornado()
-        cls.thread.join()
-        time.sleep(1)
+        pass
 
     def setUp(self):
         self.root_url = "http://localhost:8080/"

@@ -22,24 +22,6 @@ describe('Admin app', function() {
 
     browser.get('index.html');
 
-    it('should automatically redirect to /home when location hash/fragment is empty', function() {
-        expect(browser.getLocationAbsUrl()).toMatch("/a/");
-    });
-
-
-    describe('home', function() {
-        var ptor = protractor.getInstance();
-
-        beforeEach(function() {
-            browser.get('#/a/terminal');
-        });
-
-        it('should render form in #/home page', function() {
-            expect(element.all(by.css('form')).count()).toEqual(1);
-        });
-
-    });
-
     describe('login', function() {
         var ptor = protractor.getInstance();
 
