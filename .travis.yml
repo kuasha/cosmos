@@ -23,7 +23,7 @@ install:
   - npm install karma-chrome-launcher
   - npm install karma-firefox-launcher
   - npm install karma-junit-reporter
-  - npm install -g protractor
+  - npm install protractor
   - webdriver-manager update
 
 
@@ -32,6 +32,9 @@ services:
 
 before_script: 
  - mongo 127.0.0.1/cosmos --eval 'db.cosmos.users.insert({ "username":"admin","roles":["43425097-e630-41ea-88eb-17b339339706"],"email":"admin@cosmosframework.com","password":"hmac:1ddb4e6b0b810f59018babbb5dc0eed4"});'
+ - echo "import os" >> samples/barebone/local_settings.py
+ - echo "STATIC_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../adminpanel/app/')" >> samples/barebone/local_settings.py
+ - echo "INDEX_HTML_PATH = os.path.join(STATIC_PATH, 'index.html')" >> samples/barebone/local_settings.py
  - webdriver-manager start &
  - python startbarebone.py &
  - sleep 10
