@@ -32,29 +32,12 @@ from cosmos.rbac.object import ADMIN_USER_ROLE_SID, COSMOS_ROLE_OBJECT_NAME, COS
 
 class ServiceAPITests(LoggedTestCase):
     @classmethod
-    def service_thread(cls, options):
-#        object_service = ObjectService(rbac_service = RbacService(), db=options.db)
-
-        if options.start_web_service:
-            cosmosmain.start_service(options)
-
-        cls.logger.info("Starting torando ioloop")
-        tornado.ioloop.IOLoop.instance().start()
-        cls.logger.info("Tornado ioloop stopped")
-
-    @classmethod
     def setUpClass(cls):
-        cls.options = cosmosmain.prepare(8080)
-
-        cls.thread = Thread(target=cls.service_thread, args=(cls.options,))
-        cls.thread.start()
-        time.sleep(5)
+        pass
 
     @classmethod
     def stop_tornado(cls):
-        ioloop = tornado.ioloop.IOLoop.instance()
-        ioloop.add_callback(lambda x: x.stop(), ioloop)
-        cls.logger.info("Stopping tornado ioloop")
+        pass
 
     @classmethod
     def tearDownClass(cls):
