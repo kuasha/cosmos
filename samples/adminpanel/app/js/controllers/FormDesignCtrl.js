@@ -78,6 +78,7 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                     {"type": "text", "label": "Title", "name": "title"},
                     {"type": "text", "label": "Name", "name": "name"},
                     {"type": "text", "label": "Action", "name": "action"},
+                    {"type": "checkbox", "label": "Enable reCapcha", "name": "enableReCapcha"},
                     {
                         "type": "composite", "label": "On success", "name": "onsuccess",
                         "fields": [

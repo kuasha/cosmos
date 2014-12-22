@@ -38,7 +38,9 @@ controllers.controller('PageViewCtrl', ['$scope', '$routeParams', '$location', '
         };
 
         $scope.init = function () {
-            $scope.getConfiguration();
+            settings.initSettings(function() {
+                $scope.getConfiguration();
+            });
         };
 
         $scope.init();

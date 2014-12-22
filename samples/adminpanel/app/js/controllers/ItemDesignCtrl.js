@@ -145,6 +145,23 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                         "htmltype": "text"
                     },
                     {
+                        "label": "Type",
+                        "type": "select",
+                        "name": "navtype",
+                        "options": {
+                            "choices": [
+                                {
+                                    "value": "topfixed",
+                                    "label": "Top fixed"
+                                },
+                                {
+                                    "value": "sidebar",
+                                    "label": "Side bar"
+                                }
+                            ]
+                        }
+                    },
+                    {
                         "fields": [
                             {
                                 "label": "Type",

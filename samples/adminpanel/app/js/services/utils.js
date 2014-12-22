@@ -3,8 +3,10 @@
  */
 
 
-services.factory('cosmos.utils', ['CosmosService', 'cosmos.cachedloader', function (CosmosService, cachedloader) {
+services.factory('cosmos.utils', ['CosmosService', 'cosmos.cachedloader', 'cosmos.settings',
+    function (CosmosService, cachedloader, settings) {
     return{
+        siteWideCounter : 0,
         setAppAsDefault: function (app, onSuccess, onError) {
 
             if (app && app.id) {
@@ -65,6 +67,21 @@ services.factory('cosmos.utils', ['CosmosService', 'cosmos.cachedloader', functi
                     errorCallback(data, status);
                 }
             );
+        },
+
+        getNextValue: function(value){
+            if(value){
+                return value +1;
+            }
+            this.siteWideCounter +=1;
+            return this.siteWideCounter;
+        },
+
+        getCapchaSiteKey: function(){
+            var globalSettings = cachedloader.getFromCache("Settings._Cosmos_Global_Settings_");
+            if(globalSettings){
+                return globalSettings[0]["recapchasitekey"];
+            }
         }
     }
 }]);

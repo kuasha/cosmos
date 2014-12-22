@@ -199,16 +199,26 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
                 function (gs) {
                     if(gs && gs.length==1) {
 
-                        onSuccess(gs[0]);
+                        if(onSuccess) {
+                            onSuccess(gs[0]);
+                        }
                     }
                     else{
-                        onError(404, "Global settings not found or more than one found. Count = " + gs.length)
+                        if(onError) {
+                            onError(404, "Global settings not found or more than one found. Count = " + gs.length)
+                        }
                     }
                 },
                 function (data, status) {
-                    onError(data, status);
+                    if(onError) {
+                        onError(data, status);
+                    }
                 }
             );
+        },
+
+        initSettings: function(onSuccess, onError){
+            this.getGlobalSettings(onSuccess, onError);
         }
     }
 }]);

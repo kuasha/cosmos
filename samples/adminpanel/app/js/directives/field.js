@@ -10,8 +10,10 @@ directives.directive('field', function ($compile) {
             val: '='
         },
 
-        controller: ['$scope', '$location', '$routeParams', '$modal', 'message', 'CosmosService', 'namedcolection', 'calculator', 'globalhashtable', 'cosmos.settings', 'cosmos.configNames',
-            function ($scope, $location, $routeParams, $modal, message, CosmosService, namedcolection, calculator, hashtable, settings, configNames) {
+        controller: ['$scope', '$location', '$routeParams', '$modal', 'message', 'CosmosService', 'namedcolection',
+            'calculator', 'globalhashtable', 'cosmos.settings', 'cosmos.configNames','cosmos.utils',
+            function ($scope, $location, $routeParams, $modal, message, CosmosService, namedcolection, calculator,
+                      hashtable, settings, configNames, utils) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
@@ -353,6 +355,16 @@ directives.directive('field', function ($compile) {
                 $scope.onFormSubmit = function () {
                     if ($scope.form.action) {
 
+                        if($scope.form.enableReCapcha){
+                            var capchaResponse = grecaptcha.getResponse();
+                            if(!capchaResponse || capchaResponse.length < 10){
+                                $scope.processError("Capcha not satisfied", 400);
+                                return;
+                            }
+
+                            $scope.data["g-recaptcha-response"] = capchaResponse;
+                        }
+
                         if (!$scope.val) {
                             CosmosService.post($scope.form.action, $scope.data, function (data) {
                                     $scope.processFormResult($scope.form, data);
@@ -556,10 +568,11 @@ directives.directive('field', function ($compile) {
                                     '<select class="form-control" ng-if="!item.options.hideRefType" ng-model="ref" ' +
                                     'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"' +
                                     'ng-change="updateOptions(item)">' +
-                                    '   <option ng-value="null">---</option>' +
+                                    ((item.options.refRequired)?'':'   <option>---</option>')+
                                     '</select>' +
 
                                     '<select class="form-control" ng-model="val">' +
+                                    ((item.required)?'':'   <option>---</option>')+
                                     '    <option ng-value="option[getLookup(item, ref).value]"' +
                                     '    ng-selected="option[getLookup(item, ref).value] === val"' +
                                     '        ng-repeat="option in optionData">{{option[getLookup(item, ref).label]}}</option>' +
@@ -571,10 +584,11 @@ directives.directive('field', function ($compile) {
                                     '<select class="form-control" ng-model="val.ref" ' +
                                     'ng-options="lookup.ref as lookup.lookupname for lookup in item.options.lookups"' +
                                     'ng-change="updateOptions(item)">' +
-                                    '   <option ng-value="null">---</option>' +
+                                    ((item.options.refRequired)?'':'   <option>---</option>')+
                                     '</select>' +
 
                                     '<select class="form-control" ng-model="val.data">' +
+                                    ((item.required)?'':'   <option>---</option>')+
                                     '    <option ng-value="option[getLookup(item, val.ref).value]"' +
                                     '    ng-selected="option[getLookup(item, val.ref).value] === val.data"' +
                                     '        ng-repeat="option in optionData">{{option[getLookup(item, val.ref).label]}}</option>' +
@@ -598,6 +612,9 @@ directives.directive('field', function ($compile) {
                                 '        <li ng-repeat="field in form.fields">' +
                                 '            <field item="field" val="data[field.name]"></field>' +
                                 '        </li>' +
+                                '        <li ng-if="form.enableReCapcha">' +
+                                '           <div id="g_recapcha_'+utils.getNextValue()+'" class="g-recaptcha" data-sitekey="'+utils.getCapchaSiteKey()+'"></div>' +
+                                '        </li>'+
                                 '    </ul>' +
                                 '    <button ng-disabled="!(form'+item.value.formId+'.$valid)" class="btn btn-primary" ng-click="onFormSubmit()">Submit</button>' +
                                 '</form>';
@@ -609,6 +626,10 @@ directives.directive('field', function ($compile) {
 
                         case "jsref":
                             template = '<script data-ng-src="item.src" />';
+                            break;
+
+                        case "extjsref":
+                            template = '<script src="'+item.src+'" />';
                             break;
 
                         case "list":
@@ -796,7 +817,7 @@ directives.directive('field', function ($compile) {
                 template = "<!-- cssref has been placed into header  -->";
             }
 
-            if (scope.item.type === "jsref") {
+            if (scope.item.type === "jsref" || scope.item.type === "extjsref") {
                 var headElement = angular.element(document.getElementsByTagName('head')[0]);
 
                 var newElement = angular.element(template);

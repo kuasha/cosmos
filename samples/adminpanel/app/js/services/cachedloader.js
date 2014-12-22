@@ -33,6 +33,9 @@ services.factory('cosmos.cachedloader', ['CosmosService', function (CosmosServic
                     }).bind(this)
                 );
             }
+        },
+        getFromCache: function(name){
+            return this.store[name];
         }
     }
 }]);

@@ -97,6 +97,11 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     {"type": "text", "label": "src", "name": "src"}
                 ]
             },
+            "extjsref": {
+                "fields": [
+                    {"type": "text", "label": "src", "name": "src"}
+                ]
+            },
             "widgethost": {
                 "fields": [
                         {"type": "text", "label": "Widget Name", "name": "value"}
@@ -142,7 +147,8 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             {label: 'Chart', type: "chartref"},
             {label: "Widget", type: "widgethost"},
             {label: "CSS File", type: "cssref"},
-            {label: "JS File", type: "jsref"}
+            {label: "JS File", type: "jsref"},
+            {label: "External JS File", type: "extjsref"}
         ];
 
         $scope.components = jQuery.extend(true, [], $scope.toolsList);

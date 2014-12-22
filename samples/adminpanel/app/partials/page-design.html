@@ -110,6 +110,12 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="extjsref-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div>External JS File {{item.src}}</div>
+    </div>
+</script>
+
 <script type="text/ng-template" id="chartref-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <div ng-bind="field.type"></div>

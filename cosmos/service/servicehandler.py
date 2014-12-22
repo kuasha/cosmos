@@ -84,7 +84,7 @@ class ServiceHandler(requesthandler.RequestHandler):
 
     def clean_data(self, data):
         assert isinstance(data, dict)
-        reserved_words = ["_id", "createtime", "modifytime", "owner"]
+        reserved_words = ["_id", "createtime", "modifytime", "owner", "g-recaptcha-response"]
         for word in reserved_words:
             if word in data:
                 del data[word]
