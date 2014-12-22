@@ -32,8 +32,8 @@ services:
 
 before_script: 
  - mongo 127.0.0.1/cosmos --eval 'db.cosmos.users.insert({ "username":"admin","roles":["43425097-e630-41ea-88eb-17b339339706"],"email":"admin@cosmosframework.com","password":"hmac:1ddb4e6b0b810f59018babbb5dc0eed4"});'
- - webdriver-manager start
- - python startbarebone.py
+ - webdriver-manager start &
+ - python startbarebone.py &
  - sleep 10
 
 # command to run tests
