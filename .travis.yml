@@ -23,7 +23,7 @@ install:
   - npm install karma-chrome-launcher
   - npm install karma-firefox-launcher
   - npm install karma-junit-reporter
-  - npm install protractor
+  - sudo npm install -g protractor
   - webdriver-manager update
 
 
