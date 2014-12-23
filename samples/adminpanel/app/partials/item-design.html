@@ -39,7 +39,6 @@ input.ng-invalid
             <field type="form" item="chartconfigEditorForm" val="chart"></field>
         </div>
 
-
         <div ng-if="itemType === 'menu'">
             <field type="form" item="menuEditorForm" val="menu"></field>
         </div>
@@ -69,7 +68,7 @@ input.ng-invalid
 
         <div>
             <br />
-            <button ng-disabled="!(itemconfigform.$valid)" ng-click="saveItem()" class="btn btn-primary">Save {{itemType}}</button>
+            <button id="create_item_btn" ng-disabled="!(itemconfigform.$valid)" ng-click="saveItem()" class="btn btn-primary">Save {{itemType}}</button>
         </div>
     </form>
 </div>
