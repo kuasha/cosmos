@@ -27,7 +27,7 @@ input.ng-invalid
     <label>/{{itemType}}/{{appPath}}/{{itemId}}</label>
     <hr />
 
-    <form name="itemconfigform" class="form-horizontal" ng-if = "ready">
+    <form name="itemconfigform" novalidate class="form-horizontal" ng-if = "ready">
         <div ng-if="itemType === 'widget'">
             <field type="form" item="widgetEditorForm" val="widget"></field>
         </div>

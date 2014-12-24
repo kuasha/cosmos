@@ -18,23 +18,39 @@ describe('Admin app', function() {
         browser.waitForAngular();
     }
 
-    function logout(){
+    function logout() {
+        browser.get('/logout/');
+        browser.waitForAngular();
+
         /*
-        var logout = element(webdriver.By.partialLinkText('Logout'));
-        if(logout) {
-            logout.click();
-        }
-        */
+         var logout = element(webdriver.By.partialLinkText('Logout'));
+         if(logout) {
+         logout.click();
+         }
+         */
     }
 
-    // abstract writing screen shot to a file
-    function writeScreenShot(data, filename) {
+    function saveScreenShot(data, filename) {
         var stream = fs.createWriteStream(filename);
-
         stream.write(new Buffer(data, 'base64'));
         stream.end();
     }
 
+    function setInputItemValues(values, clear) {
+        element.all(by.css('input')).each(function (element) {
+            element.evaluate("item").then(function (item) {
+                console.log(JSON.stringify(item));
+                var fieldName = item["name"];
+                var val = values[fieldName];
+                if (val) {
+                    if(clear) {
+                        element.clear();
+                    }
+                    element.sendKeys(val);
+                }
+            });
+        });
+    }
 
     function createApplication(){
         browser.get('/#/appstudio/');
@@ -56,16 +72,7 @@ describe('Admin app', function() {
         appConfig["chartconfigobject"] = appName+"."+"chartconfigobject";
         appConfig["singleitemconfigobject"] = appName+"."+"singleitemconfigobject";
 
-        element.all(by.css('input')).each(function(element) {
-          element.evaluate("item").then(function(item){
-              console.log(JSON.stringify(item));
-              var fieldName= item["name"];
-              var val = appConfig[fieldName];
-              if(val){
-                  element.sendKeys(val);
-              }
-          });
-        });
+        setInputItemValues(appConfig);
 
         var createItemBtn = element(by.id('create_item_btn'));
         createItemBtn.click();
@@ -74,17 +81,55 @@ describe('Admin app', function() {
         return appConfig;
     }
 
+    function deleteApplication(appConfig) {
+        var delAppBtn = element(by.id('delete_' + appConfig["id"]));
+        delAppBtn.click();
+
+        var confirmDeleteAppDialod = browser.switchTo().alert();
+        confirmDeleteAppDialod.accept();
+        browser.waitForAngular();
+    }
+
+    function acceptBrowserConfirm() {
+        var confirmDeleteAppDialog = browser.switchTo().alert();
+        confirmDeleteAppDialog.accept();
+    }
+
+    function clickElementById(id, noWait) {
+        var elem = element(by.id(id));
+        elem.click();
+        if(!noWait) {
+            browser.waitForAngular();
+        }
+    }
+
+    function dragDrop(fromId, toId) {
+        var startElem = element(by.id(fromId));
+        var stopElem = element(by.id(toId));
+
+        browser.actions().dragAndDrop(startElem, stopElem).perform();
+    }
+
     describe('appstudio', function() {
+        var appConfig;
+        browser.driver.manage().window().maximize();
+        //browser.driver.manage().window().setSize(width, height);
+
         beforeEach(function() {
-        });
-
-        it('should be able create, open, close and delete app', function() {
             login();
-
-            var appConfig = createApplication();
-
+            appConfig = createApplication();
             browser.get('/#/appstudio/');
             browser.waitForAngular();
+        });
+
+        afterEach(function(){
+            if(appConfig){
+                deleteApplication(appConfig);
+            }
+            logout();
+        });
+
+        it('should be able to open, close, set default and delete app', function() {
 
             var openAppBtn = element(by.id('open_'+appConfig["id"]));
             openAppBtn.click();
@@ -145,7 +190,6 @@ describe('Admin app', function() {
 
             var closeAppBtn = element(by.id('close_app_btn'));
             closeAppBtn.click();
-
             browser.waitForAngular();
 
             // Set current app as default
@@ -167,8 +211,52 @@ describe('Admin app', function() {
             browser.waitForAngular();
 
             expect(element.all(by.id('open_'+appConfig["id"])).count()).toEqual(0);
+            appConfig = null;
         });
+
+        it('should be able to create and delete page', function() {
+
+            var openAppBtn = element(by.id('open_' + appConfig["id"]));
+            openAppBtn.click();
+
+            clickElementById('pages_tab');
+            clickElementById('create_page_btn');
+
+            clickElementById("design_title_label");
+
+            setInputItemValues({"title": "Test page 1"}, true);
+            dragDrop('tool_menuref', 'design_canvas');
+
+            var menuId = "6732541276452367";
+            setInputItemValues({"menuId": menuId}, true);
+
+            clickElementById("save_page_button");
+
+            element(by.id("page_id_label")).getText().then(function(pageId) {
+                console.log("Page Id: " + pageId);
+
+                browser.get('/#/appstudio/');
+                browser.waitForAngular();
+
+                clickElementById("refresh_app_btn");
+
+                clickElementById('pages_tab');
+
+                var delPageBtnId = "delete_pg_"+pageId;
+
+                clickElementById(delPageBtnId, true);
+
+                acceptBrowserConfirm();
+
+                expect(element.all(by.id(delPageBtnId)).count()).toEqual(0);
+
+                clickElementById('close_app_btn');
+            });
+
+        });
+
     });
+
 /*
     describe('userservice', function() {
         var ptor = protractor.getInstance();
@@ -190,23 +278,7 @@ describe('Admin app', function() {
 });
 
 /*
-// at the top of the test spec:
-var fs = require('fs');
-
-// ... other code
-
-// abstract writing screen shot to a file
-function writeScreenShot(data, filename) {
-    var stream = fs.createWriteStream(filename);
-
-    stream.write(new Buffer(data, 'base64'));
-    stream.end();
-}
-
-// ...
-
-// within a test:
-browser.takeScreenshot().then(function (png) {
-    writeScreenShot(png, 'exception.png');
+browser.takeScreenshot().then(function (pngData) {
+    saveScreenShot(pngData, 'fileName.png');
 });
  */

@@ -86,17 +86,17 @@
                         </tr>
                         <tr ng-repeat="page in selectedApplication.pages">
                             <td>
-                                <a ng-href="#/appstudio/page/{{selectedApplication.path}}/{{page._id}}">[Edit {{page.title}}]</a>
+                                <a id="edit_pg_{{page._id}}" ng-href="#/appstudio/page/{{selectedApplication.path}}/{{page._id}}">[Edit {{page.title}}]</a>
                             </td>
                             <td>
-                                <a ng-href="#/a/{{selectedApplication.path}}/page/{{page._id}}">[View {{page.title}}]</a>
+                                <a id="view_pg_{{page._id}}" ng-href="#/a/{{selectedApplication.path}}/page/{{page._id}}">[View {{page.title}}]</a>
                             </td>
                             <td>
-                                <button ng-hide="page._id === selectedApplication.settings.indexPageId"  ng-click="setPageAsDefault(page)" class="btn btn-success btn-xs">Set default</button>
-                                <span ng-show="page._id === selectedApplication.settings.indexPageId">Default</span>
+                                <button id="set_default_pg_{{page._id}}" ng-hide="page._id === selectedApplication.settings.indexPageId"  ng-click="setPageAsDefault(page)" class="btn btn-success btn-xs">Set default</button>
+                                <span id="default_txt_{{page._id}}" ng-show="page._id === selectedApplication.settings.indexPageId">Default</span>
                             </td>
                             <td>
-                                <button ng-click="deleteItem(null, 'page', page.title, 'pageconfigobject' , page._id)" class="btn btn-danger btn-xs">Delete</button>
+                                <button id="delete_pg_{{page._id}}" ng-click="deleteItem(null, 'page', page.title, 'pageconfigobject' , page._id)" class="btn btn-danger btn-xs">Delete</button>
                             </td>
                         </tr>
                     </table>
@@ -108,10 +108,10 @@
                     <table class="table">
                         <tr ng-repeat="form in selectedApplication.forms">
                             <td>
-                                <a ng-href="#/appstudio/form/{{selectedApplication.path}}/{{form._id}}">[{{form.title}}]</a>
+                                <a id="edit_form_{{form._id}}" ng-href="#/appstudio/form/{{selectedApplication.path}}/{{form._id}}">[{{form.title}}]</a>
                             </td>
                             <td>
-                                <button ng-click="deleteItem(null, 'form', form.title, 'formconfigobject' , form._id)" class="btn btn-danger btn-xs">Delete</button>
+                                <button id="delete_form_{{form._id}}" ng-click="deleteItem(null, 'form', form.title, 'formconfigobject' , form._id)" class="btn btn-danger btn-xs">Delete</button>
                             </td>
                         </tr>
                     </table>
@@ -123,10 +123,10 @@
                     <table class="table">
                         <tr ng-repeat="list in selectedApplication.lists">
                             <td>
-                                <a ng-href="#/appstudio/list/{{selectedApplication.path}}/{{list._id}}">[{{list.title}}]</a>
+                                <a id="edit_list_{{list._id}}" ng-href="#/appstudio/list/{{selectedApplication.path}}/{{list._id}}">[{{list.title}}]</a>
                             </td>
                             <td>
-                                <button ng-click="deleteItem(null, 'list', list.title, 'listconfigobject' , list._id)" class="btn btn-danger btn-xs">Delete</button>
+                                <button id="delete_list_{{list._id}}" ng-click="deleteItem(null, 'list', list.title, 'listconfigobject' , list._id)" class="btn btn-danger btn-xs">Delete</button>
                             </td>
                         </tr>
                     </table>
@@ -143,9 +143,9 @@
                             <td>
                                 {{chart.chartType}}
                             </td>
-                            <td><a class="btn btn-xs btn-info" ng-href="#/appstudio/chart/{{selectedApplication.path}}/{{chart._id}}">Edit</a></td>
+                            <td><a id="edit_chart_{{chart._id}}" class="btn btn-xs btn-info" ng-href="#/appstudio/chart/{{selectedApplication.path}}/{{chart._id}}">Edit</a></td>
                             <td>
-                                <button ng-click="deleteItem(null, 'chart', chart.title, 'chartconfigobject' , chart._id)" class="btn btn-danger btn-xs">Delete</button>
+                                <button id="delete_chart_{{chart._id}}" ng-click="deleteItem(null, 'chart', chart.title, 'chartconfigobject' , chart._id)" class="btn btn-danger btn-xs">Delete</button>
                             </td>
 
                         </tr>
@@ -158,10 +158,10 @@
                     <table class="table">
                         <tr ng-repeat="siv in selectedApplication.singleitemviews">
                             <td>
-                                <a ng-href="#/appstudio/singleitemview/{{selectedApplication.path}}/{{siv._id}}">[{{siv.objectName}}]</a>
+                                <a id="edit_item_view_{{siv._id}}" ng-href="#/appstudio/singleitemview/{{selectedApplication.path}}/{{siv._id}}">[{{siv.objectName}}]</a>
                             </td>
                             <td>
-                                <button ng-click="deleteItem(null, 'item view of ', siv.objectName, 'singleitemconfigobject' , siv._id)" class="btn btn-danger btn-xs">Delete</button>
+                                <button id="delete_item_view_{{siv._id}}" ng-click="deleteItem(null, 'item view of ', siv.objectName, 'singleitemconfigobject' , siv._id)" class="btn btn-danger btn-xs">Delete</button>
                             </td>
                         </tr>
                     </table>
@@ -173,10 +173,10 @@
                     <table class="table">
                         <tr ng-repeat="widget in selectedApplication.widgets">
                             <td>
-                                <a ng-href="#/appstudio/widget/{{selectedApplication.path}}/{{widget._id}}">[{{widget.name}}]</a>
+                                <a id="edit_widget_{{widget._id}}" ng-href="#/appstudio/widget/{{selectedApplication.path}}/{{widget._id}}">[{{widget.name}}]</a>
                             </td>
                             <td>
-                                <button ng-click="deleteItem(null, 'widget', widget.name, 'widgetobject' , widget._id)" class="btn btn-danger btn-xs">Delete</button>
+                                <button id="delete_widget_{{widget._id}}" ng-click="deleteItem(null, 'widget', widget.name, 'widgetobject' , widget._id)" class="btn btn-danger btn-xs">Delete</button>
                             </td>
                         </tr>
                     </table>
@@ -188,10 +188,10 @@
                     <table class="table">
                         <tr ng-repeat="menu in selectedApplication.menus">
                             <td>
-                                <a ng-href="#/appstudio/menu/{{selectedApplication.path}}/{{menu._id}}">[{{menu.brandtitle}}]</a>
+                                <a id="edit_menu_{{menu._id}}" ng-href="#/appstudio/menu/{{selectedApplication.path}}/{{menu._id}}">[{{menu.brandtitle}}]</a>
                             </td>
                             <td>
-                                <button ng-click="deleteItem(null, 'menu', menu.brandtitle, 'menuconfigobject' , menu._id)" class="btn btn-danger btn-xs">Delete</button>
+                                <button id="delete_menu_{{menu._id}}" ng-click="deleteItem(null, 'menu', menu.brandtitle, 'menuconfigobject' , menu._id)" class="btn btn-danger btn-xs">Delete</button>
                             </td>
                         </tr>
                     </table>
@@ -203,13 +203,14 @@
                     <table class="table">
                         <tr ng-repeat="sourcefile in selectedApplication.sourcefiles">
                             <td>
-                                <a ng-href="#/appstudio/sourcefiles/{{selectedApplication.path}}/{{sourcefile._id}}">{{sourcefile.filename}}</a>
+                                {{sourcefile.filename}}
                             </td>
                             <td>
                                 {{sourcefile.fullname}}
                             </td>
                             <td>{{sourcefile.type}}</td>
-                            <td><a class="btn btn-sm btn-info" ng-href="#/appstudio/sourcefiles/{{selectedApplication.path}}/{{sourcefile._id}}">Edit</a></td>
+                            <td><a id="edit_source_{{sourcefile._id}}" class="btn btn-xs btn-primary" ng-href="#/appstudio/sourcefiles/{{selectedApplication.path}}/{{sourcefile._id}}">Edit</a></td>
+                            <td><button id="delete_source_{{sourcefile._id}}" class="btn btn-xs btn-danger" ng-click="deleteSourceFile(sourcefile);">Delete</button></td>
                         </tr>
                     </table>
                     <a id="create_source_btn" ng-href="#/appstudio/sourcefiles/{{selectedApplication.path}}/" class="btn btn-primary">New source</a>
@@ -226,9 +227,9 @@
                                 {{interceptor.access}}
                             </td>
                             <td>{{interceptor.interceptor_name}}</td>
-                            <td><a class="btn btn-xs btn-info" ng-href="#/appstudio/interceptor/{{selectedApplication.path}}/{{interceptor._id}}">Edit</a></td>
+                            <td><a id="edit_interceptor_{{interceptor._id}}" class="btn btn-xs btn-info" ng-href="#/appstudio/interceptor/{{selectedApplication.path}}/{{interceptor._id}}">Edit</a></td>
                             <td>
-                                <button ng-click="deleteItem(null, 'interceptor for  ', interceptor.object_name, 'interceptorconigobject' , interceptor._id)" class="btn btn-danger btn-xs">Delete</button>
+                                <button id="delete_interceptor_{{interceptor._id}}" ng-click="deleteItem(null, 'interceptor for  ', interceptor.object_name, 'interceptorconigobject' , interceptor._id)" class="btn btn-danger btn-xs">Delete</button>
                             </td>
                         </tr>
                     </table>
@@ -240,7 +241,7 @@
                     <table class="table">
                         <tr ng-repeat="endpoint in selectedApplication.appendpoints">
                             <td>
-                                <a ng-href="#/appstudio/appendpoint/{{selectedApplication.path}}/{{endpoint._id}}">{{endpoint.uri_pattern}}</a>
+                                <a id="edit_endpoint_{{endpoint._id}}" ng-href="#/appstudio/appendpoint/{{selectedApplication.path}}/{{endpoint._id}}">{{endpoint.uri_pattern}}</a>
                             </td>
                             <td>
                                 {{endpoint.handler_module}}.{{endpoint.handler_name}}
@@ -248,7 +249,7 @@
                             <td>{{interceptor.interceptor_name}}</td>
                             <td><a class="btn btn-xs btn-info" ng-href="#/appstudio/appendpoint/{{selectedApplication.path}}/{{endpoint._id}}">Edit</a></td>
                             <td>
-                                <button ng-click="deleteItem(null, 'endpoint for', endpoint.uri_pattern, 'appendpointconigobject' , endpoint._id)" class="btn btn-danger btn-xs">Delete</button>
+                                <button id="delete_endpoint_{{endpoint._id}}" ng-click="deleteItem(null, 'endpoint for', endpoint.uri_pattern, 'appendpointconigobject' , endpoint._id)" class="btn btn-danger btn-xs">Delete</button>
                             </td>
 
                         </tr>

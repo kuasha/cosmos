@@ -289,19 +289,21 @@
         <div><label>Error code:</label><span ng-bind="status"/></div>
         <div ng-bind="status_data"></div>
     </div>
-
+    <div  class="row">
+            <label>Page Id: </label><label id="page_id_label">{{page._id}}</label><br />
+    </div>
     <div class="row">
-        <div class="col-sm-2">
+        <div id="toolbar" class="col-sm-2">
                 <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
-                    <li ng-repeat="comp in components">
+                    <li ng-repeat="comp in components" id="tool_{{comp.type}}">
                         {{comp.label}}
                     </li>
                 </ul>
         </div>
         <div class="col-sm-8 page">
             <div ng-click="selectItem(page); $event.stopPropagation();">
-                <label class="control-label">{{page.title}}</label>
-                <ul class="apps-container" ui-sortable="sortableOptions" ng-model="page.fields">
+                <label id="design_title_label" class="control-label">{{page.title}}</label>
+                <ul id="design_canvas" class="apps-container" ui-sortable="sortableOptions" ng-model="page.fields">
                     <li class="innerCont" ng-repeat="field in page.fields">
                         <button ng-show="selectedItem == field" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
                                 ng-click="removeItem(page.fields, $index);"></button>
@@ -327,7 +329,7 @@
     <div style="clear: both;"></div>
 
     <div>
-        <button class="btn btn-success" ng-click="savePage()">Save Page</button>
+        <button id="save_page_button" class="btn btn-success" ng-click="savePage()">Save Page</button>
     </div>
     <div>
         <label>Data</label>

@@ -181,6 +181,10 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
             );
         };
 
+        $scope.deleteSourceFile = function(sourcefile){
+
+        };
+
         $scope.closeApp = function(){
             $scope.hashtable.set($scope.cosmosCurrentApplicationRef, undefined);
         };
