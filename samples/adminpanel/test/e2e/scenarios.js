@@ -301,7 +301,8 @@ describe('Admin app', function() {
             clickElementById('inceptors_tab');
             clickElementById('create_interceptor_btn');
 
-            setItemValues("input", {"object_name":"test.object", "interceptor_module":"testsource", "interceptor_name":"on_test_object_insert"});
+            setItemValues("input", {"object_name":"test.object", "interceptor_module":"testsource",
+                "interceptor_name":"on_test_object_insert"});
 
             element(by.css('[ng-click="add_primitive_item(-1)"]')).click();
 
@@ -335,7 +336,8 @@ describe('Admin app', function() {
             clickElementById('endpoints_tab');
             clickElementById('create_endpoint_btn');
 
-            setItemValues("input", {"uri_pattern":"/test/(*)", "handler_module":"testhandlers", "handler_name":"TestHandler"});
+            setItemValues("input", {"uri_pattern":"/test/(*)", "handler_module":"testhandlers",
+                "handler_name":"TestHandler"});
 
             clickElementById("create_item_btn");
             browser.waitForAngular();
