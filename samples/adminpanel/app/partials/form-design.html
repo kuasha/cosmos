@@ -132,7 +132,7 @@
         <ul ng-if="field.type === 'composite' || field.type === 'form'" class="apps-container" ui-sortable="sortableOptions"
             ng-model="field.fields">
             <li class="innerCont" ng-repeat="field in field.fields">
-                <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
+                <button ng-show="field === selectedItem" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
                 <div ng-include="field.type+'-field.html'"></div>
             </li>
         </ul>
@@ -149,7 +149,7 @@
                     ui-sortable="sortableOptions"
                     ng-model="field.fields">
                     <li class="innerCont" ng-repeat="field in field.fields">
-                        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                        <button ng-show="field === selectedItem" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
                                 ng-click="removeItem($parent.field.fields, $index);"></button>
                         <div ng-include="field.type+'-field.html'"></div>
                     </li>
@@ -161,7 +161,7 @@
                     ui-sortable="sortableOptions"
                     ng-model="field.elsefields">
                     <li class="innerCont" ng-repeat="field in field.elsefields">
-                        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                        <button ng-show="field === selectedItem" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
                                 ng-click="removeItem($parent.field.elsefields, $index);"></button>
                         <div ng-include="field.type+'-field.html'"></div>
                     </li>
@@ -176,7 +176,7 @@
         <label class="control-label">{{field.label}} [ ]</label>
         <ul class="apps-container" ui-sortable="sortableOptions" ng-model="field.fields">
             <li class="innerCont" ng-repeat="field in field.fields">
-                <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
+                <button ng-show="field === selectedItem" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
                 <div ng-include="field.type+'-field.html'"></div>
             </li>
         </ul>
@@ -241,21 +241,23 @@
         <div><label>Error code:</label><span ng-bind="status"/></div>
         <div ng-bind="status_data"></div>
     </div>
-
+    <div  class="row">
+            <label>Form Id: </label><label id="form_id_label">{{form._id}}</label><br />
+    </div>
     <div class="row">
         <div class="col-sm-2">
             <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
-                <li ng-repeat="comp in components">
+                <li ng-repeat="comp in components" id="tool_{{comp.type}}">
                     {{comp.label}}
                 </li>
             </ul>
         </div>
         <div class="col-sm-8 page">
         <div ng-click="selectItem(form); $event.stopPropagation();">
-            <label class="control-label">{{form.title}}</label>
-            <ul class="apps-container" ui-sortable="sortableOptions" ng-model="form.fields">
+            <label id="design_title_label" class="control-label">{{form.title}}</label>
+            <ul id="design_canvas" class="apps-container" ui-sortable="sortableOptions" ng-model="form.fields">
                 <li class="innerCont" ng-repeat="field in form.fields">
-                    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem(form.fields, $index);"></button>
+                    <button ng-show="field === selectedItem" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem(form.fields, $index);"></button>
                     <div ng-include="field.type+'-field.html'"></div>
                 </li>
             </ul>
@@ -278,7 +280,7 @@
     <div style="clear: both;"></div>
 
     <div>
-        <button class="btn btn-success" ng-click="saveForm()">Save Form</button>
+        <button id="save_form_button" class="btn btn-success" ng-click="saveForm()">Save Form</button>
     </div>
     <div>
         <label>Data</label>

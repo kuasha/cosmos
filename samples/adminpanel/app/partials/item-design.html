@@ -52,8 +52,8 @@ input.ng-invalid
         </div>
 
         <div ng-if="itemType === 'sourcefiles'">
-            <field item='{"type":"input", "required":true, "label":"File name"}' val="sourcefiles.filename"></field>
-            <field item='{"type":"input", "required":true, "label":"Module name"}' val="sourcefiles.fullname"></field>
+            <field item='{"type":"input", "required":true, "name":"filename", "label":"File name"}' val="sourcefiles.filename"></field>
+            <field item='{"type":"input", "required":true, "name":"modulename", "label":"Module name"}' val="sourcefiles.fullname"></field>
             <field ng-if="sourcefiles.type==='gridfile'" item='{"type":"codeeditor", "required":true, "label":"Source code", "name":"code"}' val="source.code"></field>
             <field ng-if="sourcefiles.type==='embedded'" item='{"type":"codeeditor", "label":"Source code", "name":"code"}' val="sourcefiles.code"></field>
         </div>

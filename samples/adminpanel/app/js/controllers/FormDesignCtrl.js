@@ -280,8 +280,12 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                     // clone the original model to restore the removed item
                     $scope.components = jQuery.extend(true, [], $scope.toolsList);
                 }
-
-                $scope.selectedItem = null;
+            },
+            update: function(e, ui){
+                var scope = ui.item.scope();
+                if(scope) {
+                    $scope.selectItem(scope.comp);
+                }
             }
         };
 

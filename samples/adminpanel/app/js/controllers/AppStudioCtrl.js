@@ -181,8 +181,21 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
             );
         };
 
-        $scope.deleteSourceFile = function(sourcefile){
+        $scope.deleteSourceFile = function(sourcefile) {
+            var fileUrl = "/gridfs/cosmos.sourcefiles/" + sourcefile.file_id + "/";
 
+            $scope.deleteItem(app, "source file", sourcefile.filename, "sourcecolname", sourcefile._id,
+                function (data) {
+                    settings.clearCache(settings.getAllAppCacheName());
+                    CosmosService.delete(fileUrl, function (data) {
+                        },
+                        function (data, status) {
+                            $scope.processError(data, status);
+                        }
+                    );
+                    $scope.loadAppItemsForSelectedApp();
+                }
+            );
         };
 
         $scope.closeApp = function(){
