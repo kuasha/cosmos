@@ -35,7 +35,7 @@ before_script:
  - echo "import os" >> samples/barebone/local_settings.py
  - echo "STATIC_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../adminpanel/app/')" >> samples/barebone/local_settings.py
  - echo "INDEX_HTML_PATH = os.path.join(STATIC_PATH, 'index.html')" >> samples/barebone/local_settings.py
- - webdriver-manager start &
+ - nohup bash -c "webdriver-manager start 2>&1 &"
  - python startbarebone.py &
  - sleep 10
 
