@@ -9,6 +9,7 @@ describe('Admin app', function() {
     function navigateTo(url){
         browser.get(url);
         browser.waitForAngular();
+        browser.sleep(1000);
     }
 
     function login(){
@@ -206,6 +207,8 @@ describe('Admin app', function() {
             element(by.cssContainingText('option', 'Top fixed')).click();
 
             clickElementById("create_item_btn");
+            browser.waitForAngular();
+            browser.sleep(1000);
 
             element(by.id("item_id_label")).getText().then(function(menuId) {
                 console.log("Menu Id: " + menuId);
@@ -236,6 +239,9 @@ describe('Admin app', function() {
             setItemValues("textarea", {"template": "<h1>Hello world</h1>"});
 
             clickElementById("create_item_btn");
+            browser.waitForAngular();
+            browser.sleep(1000);
+
 
             element(by.id("item_id_label")).getText().then(function(widgetId) {
                 console.log("Wifget Id: " + widgetId);
@@ -266,8 +272,8 @@ describe('Admin app', function() {
             setItemValues("textarea", {"code": "value=10"});
 
             clickElementById("create_item_btn");
-            browser.sleep(1000); //TODO: understadn why it fails sometimes
             browser.waitForAngular();
+            browser.sleep(1000);
 
             element(by.id("item_id_label")).getText().then(function(sourceId) {
                 console.log("Source module Id: " + sourceId);
@@ -302,6 +308,8 @@ describe('Admin app', function() {
             element(by.cssContainingText('option', 'Insert')).click();
 
             clickElementById("create_item_btn");
+            browser.waitForAngular();
+            browser.sleep(1000);
 
             element(by.id("item_id_label")).getText().then(function(interceptorId) {
                 console.log("Interceptor Id: " + interceptorId);
@@ -330,6 +338,8 @@ describe('Admin app', function() {
             setItemValues("input", {"uri_pattern":"/test/(*)", "handler_module":"testhandlers", "handler_name":"TestHandler"});
 
             clickElementById("create_item_btn");
+            browser.waitForAngular();
+            browser.sleep(1000);
 
             element(by.id("item_id_label")).getText().then(function(endpointId) {
                 console.log("Endpoint Id: " + endpointId);
@@ -366,6 +376,8 @@ describe('Admin app', function() {
             setInputItemValues({"menuId": menuId}, true);
 
             clickElementById("save_page_button");
+            browser.waitForAngular();
+            browser.sleep(1000);
 
             element(by.id("page_id_label")).getText().then(function(pageId) {
                 console.log("Page Id: " + pageId);
@@ -409,6 +421,8 @@ describe('Admin app', function() {
             setInputItemValues({"label": "Name", "name":"name", "minlength":"5"}, true);
 
             clickElementById("save_form_button");
+            browser.waitForAngular();
+            browser.sleep(1000);
 
             element(by.id("form_id_label")).getText().then(function(formId) {
                 console.log("Form Id: " + formId);
