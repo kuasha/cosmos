@@ -6,8 +6,13 @@ describe('Admin app', function() {
 
     var fs = require('fs');
 
+    function navigateTo(url){
+        browser.get(url);
+        browser.waitForAngular();
+    }
+
     function login(){
-        browser.get('#/login/');
+        navigateTo('#/login/');
         var username = element(by.id('username'));
         var password = element(by.id('password'));
         var submit = element(by.id('loginbtn'));
@@ -19,8 +24,7 @@ describe('Admin app', function() {
     }
 
     function logout() {
-        browser.get('/logout/');
-        browser.waitForAngular();
+        navigateTo('/logout/');
 
         /*
          var logout = element(webdriver.By.partialLinkText('Logout'));
@@ -91,8 +95,10 @@ describe('Admin app', function() {
     }
 
     function acceptBrowserConfirm() {
+        browser.sleep(500);
         var confirmDeleteAppDialog = browser.switchTo().alert();
         confirmDeleteAppDialog.accept();
+        //confirmDeleteAppDialod.dismiss(); //to cancel
     }
 
     function clickElementById(id, noWait) {
@@ -118,8 +124,7 @@ describe('Admin app', function() {
         beforeEach(function() {
             login();
             appConfig = createApplication();
-            browser.get('/#/appstudio/');
-            browser.waitForAngular();
+            navigateTo('/#/appstudio/');
         });
 
         afterEach(function(){
@@ -134,84 +139,81 @@ describe('Admin app', function() {
             var openAppBtn = element(by.id('open_'+appConfig["id"]));
             openAppBtn.click();
 
-            var pagesTab = element(by.id('pages_tab'));
-            var formsTab = element(by.id('forms_tab'));
-            var listsTab = element(by.id('lists_tab'));
-            var chartsTab = element(by.id('charts_tab'));
-            var itemViewsTab = element(by.id('itemviews_tab'));
-            var widgetsTab = element(by.id('widgets_tab'));
-            var menusTab = element(by.id('menus_tab'));
-            var sourceCodeTab = element(by.id('source_code_tab'));
-            var interceptorsTab = element(by.id('inceptors_tab'));
-            var endpointsTab = element(by.id('endpoints_tab'));
-
-            formsTab.click();
-            browser.waitForAngular();
+            clickElementById('forms_tab');
             expect(element.all(by.id('create_form_btn')).count()).toEqual(1);
 
-            listsTab.click();
-            browser.waitForAngular();
+            clickElementById('lists_tab');
             expect(element.all(by.id('create_list_btn')).count()).toEqual(1);
 
-            chartsTab.click();
-            browser.waitForAngular();
+            clickElementById('charts_tab');
             expect(element.all(by.id('create_chart_btn')).count()).toEqual(1);
 
-            itemViewsTab.click();
-            browser.waitForAngular();
+            clickElementById('itemviews_tab');
             expect(element.all(by.id('create_itemview_btn')).count()).toEqual(1);
 
-            widgetsTab.click();
-            browser.waitForAngular();
+            clickElementById('widgets_tab');
             expect(element.all(by.id('create_widget_btn')).count()).toEqual(1);
 
-            menusTab.click();
-            browser.waitForAngular();
+            clickElementById('menus_tab');
             expect(element.all(by.id('create_menu_btn')).count()).toEqual(1);
 
-            sourceCodeTab.click();
-            browser.waitForAngular();
+            clickElementById('source_code_tab');
             expect(element.all(by.id('create_source_btn')).count()).toEqual(1);
 
-            interceptorsTab.click();
-            browser.waitForAngular();
+            clickElementById('inceptors_tab');
             expect(element.all(by.id('create_interceptor_btn')).count()).toEqual(1);
 
-            endpointsTab.click();
-            browser.waitForAngular();
+            clickElementById('endpoints_tab');
             expect(element.all(by.id('create_endpoint_btn')).count()).toEqual(1);
 
-            pagesTab.click();
-            browser.waitForAngular();
+            clickElementById('pages_tab');
             expect(element.all(by.id('create_page_btn')).count()).toEqual(1);
 
-
-            browser.waitForAngular();
-
-            var closeAppBtn = element(by.id('close_app_btn'));
-            closeAppBtn.click();
-            browser.waitForAngular();
+            // Close the app
+            clickElementById('close_app_btn');
 
             // Set current app as default
-            var setDefaultAppBtn = element(by.id('set_default_'+appConfig["id"]));
-            setDefaultAppBtn.click();
-
-            browser.waitForAngular();
-
+            clickElementById('set_default_'+appConfig["id"]);
             expect(element(by.id('set_default_'+appConfig["id"])).isDisplayed()).toBeFalsy();
             expect(element(by.id('default_txt_'+appConfig["id"])).isDisplayed()).toBeTruthy();
 
-            var delAppBtn = element(by.id('delete_'+appConfig["id"]));
-            delAppBtn.click();
-
-            var confirmDeleteAppDialod = browser.switchTo().alert();
-            confirmDeleteAppDialod.accept();
-            //confirmDeleteAppDialod.dismiss(); //to cancel
-
-            browser.waitForAngular();
-
+            // Delete the app
+            clickElementById('delete_'+appConfig["id"], true);
+            acceptBrowserConfirm();
             expect(element.all(by.id('open_'+appConfig["id"])).count()).toEqual(0);
+
             appConfig = null;
+        });
+
+        it('should be able to create and delete menu', function() {
+            var openAppBtn = element(by.id('open_' + appConfig["id"]));
+            openAppBtn.click();
+
+            clickElementById('menus_tab');
+            clickElementById('create_menu_btn');
+
+            setInputItemValues({"brandtitle": appConfig["name"], "brandhref":"/#/a/"});
+
+            element(by.cssContainingText('option', 'Top fixed')).click();
+
+            clickElementById("create_item_btn");
+
+            element(by.id("item_id_label")).getText().then(function(menuId) {
+                console.log("Menu Id: " + menuId);
+
+                navigateTo('/#/appstudio/');
+                clickElementById("refresh_app_btn");
+                clickElementById('menus_tab');
+
+                var delMenuBtnId = "delete_menu_"+menuId;
+
+                clickElementById(delMenuBtnId, true);
+                acceptBrowserConfirm();
+                expect(element.all(by.id(delMenuBtnId)).count()).toEqual(0);
+
+                clickElementById('close_app_btn');
+            });
+
         });
 
         it('should be able to create and delete page', function() {
@@ -235,21 +237,16 @@ describe('Admin app', function() {
             element(by.id("page_id_label")).getText().then(function(pageId) {
                 console.log("Page Id: " + pageId);
 
-                browser.get('/#/appstudio/');
-                browser.waitForAngular();
-
+                // Delete the page
+                navigateTo('/#/appstudio/');
                 clickElementById("refresh_app_btn");
-
                 clickElementById('pages_tab');
-
                 var delPageBtnId = "delete_pg_"+pageId;
-
                 clickElementById(delPageBtnId, true);
-
                 acceptBrowserConfirm();
-
                 expect(element.all(by.id(delPageBtnId)).count()).toEqual(0);
 
+                // Close the app
                 clickElementById('close_app_btn');
             });
 
