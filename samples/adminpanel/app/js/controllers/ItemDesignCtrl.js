@@ -482,8 +482,8 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                         "type":"radiogroup",
                         "options":{
                             "choices":[
-                                {"value":0,"label":"Pre-processor"},
-                                {"value":1,"label":"Post-processor"}
+                                {"value":0,"label":"Pre-processor", "name":"preprocessor"},
+                                {"value":1,"label":"Post-processor", "name":"postprocessor"}
                             ]
                         },
                         "name":"interceptor_type"

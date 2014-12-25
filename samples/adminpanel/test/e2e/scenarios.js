@@ -9,7 +9,6 @@ describe('Admin app', function() {
     function navigateTo(url){
         browser.get(url);
         browser.waitForAngular();
-        browser.sleep(1000);
     }
 
     function login(){
@@ -26,13 +25,6 @@ describe('Admin app', function() {
 
     function logout() {
         navigateTo('/logout/');
-
-        /*
-         var logout = element(webdriver.By.partialLinkText('Logout'));
-         if(logout) {
-         logout.click();
-         }
-         */
     }
 
     function saveScreenShot(data, filename) {
@@ -44,7 +36,7 @@ describe('Admin app', function() {
     function setItemValues(itemType, values, clear) {
         element.all(by.css(itemType)).each(function (element) {
             element.evaluate("item").then(function (item) {
-                console.log(JSON.stringify(item));
+                log(JSON.stringify(item));
                 if(item) {
                     var fieldName = item["name"];
                     var val = values[fieldName];
@@ -111,7 +103,12 @@ describe('Admin app', function() {
         //confirmDeleteAppDialod.dismiss(); //to cancel
     }
 
+    function log(message){
+        console.log(message);
+    }
+
     function clickElementById(id, noWait) {
+        log("Clicking " + id);
         var elem = element(by.id(id));
         elem.click();
         if(!noWait) {
@@ -126,10 +123,74 @@ describe('Admin app', function() {
         browser.actions().dragAndDrop(startElem, stopElem).perform();
     }
 
+    function testItemCreateDelete(appConfig, itemTabId, itemCreateBtnId, itemUrlIncludes, delete_btn_id_prefix, populateInputs, save_item_btn_id, item_id_label_id) {
+
+        if(!item_id_label_id){
+            item_id_label_id = "item_id_label";
+        }
+
+        if(!save_item_btn_id){
+            save_item_btn_id = "create_item_btn";
+        }
+
+        log("opening app" + appConfig["id"]);
+        clickElementById('open_' + appConfig["id"]);
+
+        log("Waiting for applicatioon to be opened.");
+        browser.driver.wait(function () {
+            return element(by.id("close_app_btn")).isDisplayed();
+        }).then(function () {
+            log("App opened");
+            clickElementById(itemTabId);
+            clickElementById(itemCreateBtnId);
+
+            browser.driver.wait(function () {
+                return browser.driver.getCurrentUrl().then(function (url) {
+                    return new RegExp(itemUrlIncludes).test(url);
+                });
+            }).then(function () {
+                populateInputs();
+
+                clickElementById(save_item_btn_id);
+
+                log("Waiting for item id");
+
+                browser.driver.wait(function () {
+                    return element(by.id(item_id_label_id)).isDisplayed();
+                }).then(function () {
+                    element(by.id(item_id_label_id)).getText().then(function (itemId) {
+                        log("Item Id: " + itemId);
+
+                        if (itemId) {
+                            // Delete the source file
+                            navigateTo('/#/appstudio/');
+                            browser.driver.wait(function () {
+                                return browser.driver.getCurrentUrl().then(function (url) {
+                                    return /appstudio/.test(url) && ! (new RegExp(itemUrlIncludes).test(url));
+                                });
+                            }).then(function () {
+                                clickElementById("refresh_app_btn");
+                                clickElementById(itemTabId);
+                                var delItemBtnId = delete_btn_id_prefix + itemId;
+
+                                clickElementById(delItemBtnId, true);
+                                acceptBrowserConfirm();
+                                expect(element.all(by.id(delItemBtnId)).count()).toEqual(0);
+                            });
+                        }
+
+                        // Close the app
+                        clickElementById('close_app_btn');
+                    });
+                });
+            });
+        });
+    }
+
     describe('appstudio', function() {
         var appConfig;
         browser.driver.manage().window().maximize();
-        //browser.driver.manage().window().setSize(width, height);
+        //browser.driver.manage().window().setSize(1400, 800);
 
         beforeEach(function() {
             logout();
@@ -196,272 +257,75 @@ describe('Admin app', function() {
         });
 
         it('should be able to create and delete menu', function() {
-            var openAppBtn = element(by.id('open_' + appConfig["id"]));
-            openAppBtn.click();
-
-            clickElementById('menus_tab');
-            clickElementById('create_menu_btn');
-
-            setInputItemValues({"brandtitle": appConfig["name"], "brandhref":"/#/a/"});
-
-            element(by.cssContainingText('option', 'Top fixed')).click();
-
-            clickElementById("create_item_btn");
-            browser.waitForAngular();
-            browser.sleep(1000);
-
-            element(by.id("item_id_label")).getText().then(function(menuId) {
-                console.log("Menu Id: " + menuId);
-
-                navigateTo('/#/appstudio/');
-                clickElementById("refresh_app_btn");
-                clickElementById('menus_tab');
-
-                var delMenuBtnId = "delete_menu_"+menuId;
-
-                clickElementById(delMenuBtnId, true);
-                acceptBrowserConfirm();
-                expect(element.all(by.id(delMenuBtnId)).count()).toEqual(0);
-
-                clickElementById('close_app_btn');
+            testItemCreateDelete(appConfig, 'menus_tab', 'create_menu_btn', "menu", "delete_menu_", function() {
+                setInputItemValues({"brandtitle": appConfig["name"], "brandhref": "/#/a/"});
+                element(by.cssContainingText('option', 'Top fixed')).click();
             });
-
         });
 
         it('should be able to create and delete widget', function() {
-            var openAppBtn = element(by.id('open_' + appConfig["id"]));
-            openAppBtn.click();
-
-            clickElementById('widgets_tab');
-            clickElementById('create_widget_btn');
-
-            setItemValues("input", {"name":"test.widget1"});
-            setItemValues("textarea", {"template": "<h1>Hello world</h1>"});
-
-            clickElementById("create_item_btn");
-            browser.waitForAngular();
-            browser.sleep(1000);
-
-
-            element(by.id("item_id_label")).getText().then(function(widgetId) {
-                console.log("Wifget Id: " + widgetId);
-
-                // Delete the widget
-                navigateTo('/#/appstudio/');
-                clickElementById("refresh_app_btn");
-                clickElementById('widgets_tab');
-                var delMenuBtnId = "delete_widget_"+widgetId;
-                clickElementById(delMenuBtnId, true);
-                acceptBrowserConfirm();
-                expect(element.all(by.id(delMenuBtnId)).count()).toEqual(0);
-
-                // Close the app
-                clickElementById('close_app_btn');
+            testItemCreateDelete(appConfig, 'widgets_tab', 'create_widget_btn', "widget", "delete_widget_", function() {
+                setItemValues("input", {"name": "test.widget1"});
+                setItemValues("textarea", {"template": "<h1>Hello world</h1>"});
             });
-
         });
 
+
         it('should be able to create and delete source file', function() {
-            var openAppBtn = element(by.id('open_' + appConfig["id"]));
-            openAppBtn.click();
-
-            clickElementById('source_code_tab');
-            clickElementById('create_source_btn');
-
-            setItemValues("input", {"filename":"testsource.py", "modulename":"testsource"});
-            setItemValues("textarea", {"code": "value=10"});
-
-            clickElementById("create_item_btn");
-            browser.waitForAngular();
-            browser.sleep(1000);
-
-            element(by.id("item_id_label")).getText().then(function(sourceId) {
-                console.log("Source module Id: " + sourceId);
-
-                // Delete the source file
-                navigateTo('/#/appstudio/');
-                clickElementById("refresh_app_btn");
-                clickElementById('source_code_tab');
-                var delMenuBtnId = "delete_source_"+sourceId;
-
-                clickElementById(delMenuBtnId, true);
-                acceptBrowserConfirm();
-                expect(element.all(by.id(delMenuBtnId)).count()).toEqual(0);
-
-                // Close the app
-                clickElementById('close_app_btn');
+            testItemCreateDelete(appConfig, 'source_code_tab', 'create_source_btn', "sourcefiles", "delete_source_", function() {
+                setItemValues("input", {"filename": "testsource.py", "modulename": "testsource"});
+                setItemValues("textarea", {"code": "value=10"});
             });
-
         });
 
         it('should be able to create and delete interceptor', function() {
-            var openAppBtn = element(by.id('open_' + appConfig["id"]));
-            openAppBtn.click();
-
-            clickElementById('inceptors_tab');
-            clickElementById('create_interceptor_btn');
-
-            setItemValues("input", {"object_name":"test.object", "interceptor_module":"testsource",
-                "interceptor_name":"on_test_object_insert"});
-
-            element(by.css('[ng-click="add_primitive_item(-1)"]')).click();
-
-            element(by.cssContainingText('option', 'Insert')).click();
-
-            clickElementById("create_item_btn");
-            browser.waitForAngular();
-            browser.sleep(1000);
-
-            element(by.id("item_id_label")).getText().then(function(interceptorId) {
-                console.log("Interceptor Id: " + interceptorId);
-
-                // Delete the interceptor
-                navigateTo('/#/appstudio/');
-                clickElementById("refresh_app_btn");
-                clickElementById('inceptors_tab');
-                var delMenuBtnId = "delete_interceptor_"+interceptorId;
-                clickElementById(delMenuBtnId, true);
-                acceptBrowserConfirm();
-                expect(element.all(by.id(delMenuBtnId)).count()).toEqual(0);
-
-                // Close the app
-                clickElementById('close_app_btn');
+            testItemCreateDelete(appConfig, 'inceptors_tab', 'create_interceptor_btn', "interceptor", "delete_interceptor_", function() {
+                setItemValues("input", {"object_name": "test.object", "interceptor_module": "testsource",
+                    "interceptor_name": "on_test_object_insert"});
+                //element.all(by.model('interceptor.interceptor_type')).get(0).click();
+                element(by.css('[ng-click="add_primitive_item(-1)"]')).click();
+                element(by.cssContainingText('option', 'Insert')).click();
             });
         });
 
         it('should be able to create and delete endpoint', function() {
-            var openAppBtn = element(by.id('open_' + appConfig["id"]));
-            openAppBtn.click();
-
-            clickElementById('endpoints_tab');
-            clickElementById('create_endpoint_btn');
-
-            setItemValues("input", {"uri_pattern":"/test/(*)", "handler_module":"testhandlers",
-                "handler_name":"TestHandler"});
-
-            clickElementById("create_item_btn");
-            browser.waitForAngular();
-            browser.sleep(1000);
-
-            element(by.id("item_id_label")).getText().then(function(endpointId) {
-                console.log("Endpoint Id: " + endpointId);
-
-                // Delete the endpoint
-                navigateTo('/#/appstudio/');
-                clickElementById("refresh_app_btn");
-                clickElementById('endpoints_tab');
-                var delMenuBtnId = "delete_endpoint_"+endpointId;
-                clickElementById(delMenuBtnId, true);
-                acceptBrowserConfirm();
-                expect(element.all(by.id(delMenuBtnId)).count()).toEqual(0);
-
-                // Close the app
-                clickElementById('close_app_btn');
+            testItemCreateDelete(appConfig, 'endpoints_tab', 'create_endpoint_btn', "endpoint", "delete_endpoint_", function() {
+                setItemValues("input", {"uri_pattern": "/test/(*)", "handler_module": "testhandlers",
+                    "handler_name": "TestHandler"});
             });
         });
 
         it('should be able to create and delete page', function() {
+            testItemCreateDelete(appConfig, 'pages_tab', 'create_page_btn', "page", "delete_pg_", function() {
+                clickElementById("design_title_label");
 
-            var openAppBtn = element(by.id('open_' + appConfig["id"]));
-            openAppBtn.click();
+                setInputItemValues({"title": "Test page 1"}, true);
+                dragDrop('tool_menuref', 'design_canvas');
+                browser.waitForAngular();
 
-            clickElementById('pages_tab');
-            clickElementById('create_page_btn');
-
-            clickElementById("design_title_label");
-
-            setInputItemValues({"title": "Test page 1"}, true);
-            dragDrop('tool_menuref', 'design_canvas');
-            browser.waitForAngular();
-
-            var menuId = "6732541276452367";
-            setInputItemValues({"menuId": menuId}, true);
-
-            clickElementById("save_page_button");
-            browser.waitForAngular();
-            browser.sleep(1000);
-
-            element(by.id("page_id_label")).getText().then(function(pageId) {
-                console.log("Page Id: " + pageId);
-
-                // Delete the page
-                navigateTo('/#/appstudio/');
-                clickElementById("refresh_app_btn");
-                clickElementById('pages_tab');
-                var delPageBtnId = "delete_pg_"+pageId;
-                clickElementById(delPageBtnId, true);
-                acceptBrowserConfirm();
-                expect(element.all(by.id(delPageBtnId)).count()).toEqual(0);
-
-                // Close the app
-                clickElementById('close_app_btn');
-            });
+                var menuId = "6732541276452367";
+                setInputItemValues({"menuId": menuId}, true);
+            }, "save_page_button",  "page_id_label" );
         });
 
         it('should be able to create and delete form', function() {
-            var openAppBtn = element(by.id('open_' + appConfig["id"]));
-            openAppBtn.click();
+            testItemCreateDelete(appConfig, 'forms_tab', 'create_form_btn', "form", "delete_form_", function() {
+                clickElementById("design_title_label");
 
-            clickElementById('forms_tab');
-            clickElementById('create_form_btn');
+                log("Setting form properties");
+                setInputItemValues({"title": "Test form 1", "name": "testform", "action": "/service/test.object"}, true);
+                element(by.cssContainingText('option', 'Embeded message')).click();
+                setInputItemValues({"value": "Test object has been saved!"});
 
-            clickElementById("design_title_label");
+                dragDrop('tool_input', 'design_canvas');
+                browser.waitForAngular();
 
-            console.log("Setting form properties");
+                log("Setting input field properties");
+                setInputItemValues({"label": "Name", "name": "name", "minlength": "5"}, true);
 
-            setInputItemValues({"title": "Test form 1", "name":"testform", "action":"/service/test.object"}, true);
-
-            element(by.cssContainingText('option', 'Embeded message')).click();
-
-            setInputItemValues({"value": "Test object has been saved!"});
-
-            dragDrop('tool_input', 'design_canvas');
-            browser.waitForAngular();
-
-            console.log("Setting input field properties");
-
-            setInputItemValues({"label": "Name", "name":"name", "minlength":"5"}, true);
-
-            clickElementById("save_form_button");
-            browser.waitForAngular();
-            browser.sleep(1000);
-
-            element(by.id("form_id_label")).getText().then(function(formId) {
-                console.log("Form Id: " + formId);
-
-                // Delete the page
-                navigateTo('/#/appstudio/');
-                clickElementById("refresh_app_btn");
-                clickElementById('forms_tab');
-                var delPageBtnId = "delete_form_"+formId;
-                clickElementById(delPageBtnId, true);
-                acceptBrowserConfirm();
-                expect(element.all(by.id(delPageBtnId)).count()).toEqual(0);
-
-                // Close the app
-                clickElementById('close_app_btn');
-            });
+            }, "save_form_button",  "form_id_label" );
         });
     });
-
-/*
-    describe('userservice', function() {
-        var ptor = protractor.getInstance();
-
-        beforeEach(function () {
-            login(ptor);
-        });
-
-        afterEach(function() {
-            logout(ptor);
-        });
-
-        it('should be able to create new user', function () {
-
-        });
-    });
-*/
-
 });
 
 /*

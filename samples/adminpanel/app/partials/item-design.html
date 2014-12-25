@@ -24,7 +24,7 @@ input.ng-invalid
 </div>
 
 <div ng-init="init()" class="container theme-showcase" role="main">
-    <label>/{{itemType}}/{{appPath}}/</label><label id="item_id_label">{{itemId}}</label>
+    <label>/{{itemType}}/{{appPath}}/</label><label ng-show="itemId" id="item_id_label">{{itemId}}</label>
     <hr />
 
     <form name="itemconfigform" novalidate class="form-horizontal" ng-if = "ready">
