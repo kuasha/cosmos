@@ -43,4 +43,4 @@ before_script:
 script:
   - python setup.py test
   - karma start --single-run --browsers PhantomJS samples/adminpanel/test/karma.conf.js
-  - protractor --browser firefox samples/adminpanel/test/protractor-conf.js
+  #- protractor --browser firefox samples/adminpanel/test/protractor-conf.js
