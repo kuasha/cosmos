@@ -1,7 +1,5 @@
 'use strict';
 
-/* https://github.com/angular/protractor/blob/master/docs/getting-started.md */
-
 describe('Admin app', function() {
 
     var fs = require('fs');
@@ -123,7 +121,8 @@ describe('Admin app', function() {
         browser.actions().dragAndDrop(startElem, stopElem).perform();
     }
 
-    function testItemCreateDelete(appConfig, itemTabId, itemCreateBtnId, itemUrlIncludes, delete_btn_id_prefix, populateInputs, save_item_btn_id, item_id_label_id) {
+    function testItemCreateDelete(appConfig, itemTabId, itemCreateBtnId, itemUrlIncludes, delete_btn_id_prefix,
+                                  populateInputs, save_item_btn_id, item_id_label_id) {
 
         if(!item_id_label_id){
             item_id_label_id = "item_id_label";
@@ -187,7 +186,7 @@ describe('Admin app', function() {
         });
     }
 
-    describe('appstudio', function() {
+    describe('App Studio P0', function() {
         var appConfig;
         browser.driver.manage().window().maximize();
         //browser.driver.manage().window().setSize(1400, 800);
@@ -203,6 +202,8 @@ describe('Admin app', function() {
             if(appConfig){
                 deleteApplication(appConfig);
             }
+            logout();
+            browser.waitForAngular();
         });
 
         it('should be able to open, close, set default and delete app', function() {
@@ -264,7 +265,8 @@ describe('Admin app', function() {
         });
 
         it('should be able to create and delete widget', function() {
-            testItemCreateDelete(appConfig, 'widgets_tab', 'create_widget_btn', "widget", "delete_widget_", function() {
+            testItemCreateDelete(appConfig, 'widgets_tab', 'create_widget_btn', "widget", "delete_widget_",
+                function() {
                 setItemValues("input", {"name": "test.widget1"});
                 setItemValues("textarea", {"template": "<h1>Hello world</h1>"});
             });
@@ -272,14 +274,16 @@ describe('Admin app', function() {
 
 
         it('should be able to create and delete source file', function() {
-            testItemCreateDelete(appConfig, 'source_code_tab', 'create_source_btn', "sourcefiles", "delete_source_", function() {
+            testItemCreateDelete(appConfig, 'source_code_tab', 'create_source_btn', "sourcefiles", "delete_source_",
+                function() {
                 setItemValues("input", {"filename": "testsource.py", "modulename": "testsource"});
                 setItemValues("textarea", {"code": "value=10"});
             });
         });
 
         it('should be able to create and delete interceptor', function() {
-            testItemCreateDelete(appConfig, 'inceptors_tab', 'create_interceptor_btn', "interceptor", "delete_interceptor_", function() {
+            testItemCreateDelete(appConfig, 'inceptors_tab', 'create_interceptor_btn', "interceptor",
+                "delete_interceptor_", function() {
                 setItemValues("input", {"object_name": "test.object", "interceptor_module": "testsource",
                     "interceptor_name": "on_test_object_insert"});
                 //element.all(by.model('interceptor.interceptor_type')).get(0).click();
@@ -289,7 +293,8 @@ describe('Admin app', function() {
         });
 
         it('should be able to create and delete endpoint', function() {
-            testItemCreateDelete(appConfig, 'endpoints_tab', 'create_endpoint_btn', "endpoint", "delete_endpoint_", function() {
+            testItemCreateDelete(appConfig, 'endpoints_tab', 'create_endpoint_btn', "endpoint", "delete_endpoint_",
+                function() {
                 setItemValues("input", {"uri_pattern": "/test/(*)", "handler_module": "testhandlers",
                     "handler_name": "TestHandler"});
             });
@@ -299,9 +304,8 @@ describe('Admin app', function() {
             testItemCreateDelete(appConfig, 'pages_tab', 'create_page_btn', "page", "delete_pg_", function() {
                 clickElementById("design_title_label");
 
-                setInputItemValues({"title": "Test page 1"}, true);
+                setInputItemValues({"title": "Test page1"}, true);
                 dragDrop('tool_menuref', 'design_canvas');
-                browser.waitForAngular();
 
                 var menuId = "6732541276452367";
                 setInputItemValues({"menuId": menuId}, true);
@@ -313,7 +317,7 @@ describe('Admin app', function() {
                 clickElementById("design_title_label");
 
                 log("Setting form properties");
-                setInputItemValues({"title": "Test form 1", "name": "testform", "action": "/service/test.object"}, true);
+                setInputItemValues({"title": "Test form1", "name": "testform", "action": "/service/test.object"}, true);
                 element(by.cssContainingText('option', 'Embeded message')).click();
                 setInputItemValues({"value": "Test object has been saved!"});
 

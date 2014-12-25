@@ -37,11 +37,11 @@
             <td>{{role.sid}}</td><td>{{role.name}}</td>
             <td>
                 <button class="btn btn-xs btn-warning glyphicon glyphicon-edit" ng-click="editRole($index);"></button>
-                <button class="btn btn-xs btn-danger glyphicon glyphicon-remove" ng-click="removeRole($index);"></button>
+                <button id="remove-role-{{role.sid}}" class="btn btn-xs btn-danger glyphicon glyphicon-remove" ng-click="removeRole($index);"></button>
             </td>
         </tr>
         </tbody>
     </table>
 
-    <button class="btn btn-primary" ng-click="addRole('lg')">Create role</button>
+    <button id="create-role-btn" class="btn btn-primary" ng-click="addRole('lg')">Create role</button>
 </div>

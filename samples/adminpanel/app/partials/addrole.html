@@ -32,19 +32,19 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat="role_item in role.role_items">
-                        <td><select class="form-control" ng-model="role_item.type" ng-options="access_type.name as access_type.display for access_type in access_types"></select></td>
-                        <td class="col-xs-2"><input class="form-control" type="text" ng-model="role_item.object_name" /> </td>
-                        <td class="col-xs-2"><input class="form-control" type="text" ng-model="role_item.property_name" /> </td>
+                        <td><select id="role-item-{{$index}}-type" class="form-control" ng-model="role_item.type" ng-options="access_type.name as access_type.display for access_type in access_types"></select></td>
+                        <td class="col-xs-2"><input id="role-item-{{$index}}-object-name" class="form-control" type="text" ng-model="role_item.object_name" /> </td>
+                        <td class="col-xs-2"><input id="role-item-{{$index}}-property-name" class="form-control" type="text" ng-model="role_item.property_name" /> </td>
                         <td>
-                            <input type="checkbox" ng-model="role_item.access_bits.read" /> Read
-                            <input type="checkbox" ng-model="role_item.access_bits.insert" /> Insert
-                            <input type="checkbox" ng-model="role_item.access_bits.write" /> Write
-                            <input type="checkbox" ng-model="role_item.access_bits.delete" /> Delete
+                            <input id="role-item-{{$index}}-access-bits-read" type="checkbox" ng-model="role_item.access_bits.read" /> Read
+                            <input id="role-item-{{$index}}-access-bits-insert" type="checkbox" ng-model="role_item.access_bits.insert" /> Insert
+                            <input id="role-item-{{$index}}-access-bits-write" type="checkbox" ng-model="role_item.access_bits.write" /> Write
+                            <input id="role-item-{{$index}}-access-bits-delete" type="checkbox" ng-model="role_item.access_bits.delete" /> Delete
                         </td>
-                        <td><button class="btn btn-xs btn-danger" ng-click="removeRoleItem($index)">x</button> </td>
+                        <td><button id="remove-role-item-{{$index}}-btn"  class="btn btn-xs btn-danger" ng-click="removeRoleItem($index)">x</button> </td>
                     </tr>
                     <tr>
-                        <td colspan="5"><button ng-click="addRoleItem()">Add</button> </td>
+                        <td colspan="5"><button id="add-role-item-btn" class="btn btn-info btn-sm" ng-click="addRoleItem()">Add</button> </td>
                     </tr>
                 </tbody>
             </table>
@@ -53,6 +53,6 @@
     </form>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">OK</button>
-    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    <button id="add-role-ok-btn" class="btn btn-primary" ng-click="ok()">OK</button>
+    <button id="add-role-cancel-btn" class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

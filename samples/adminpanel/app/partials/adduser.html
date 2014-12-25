@@ -55,7 +55,7 @@
                     <tr>
                         <td><select class="form-control" ng-model="selected_role" ng-options="role.sid as role.name for role in roles"></select></td>
                         <td colspan="2">
-                                <button class="btn btn-primary" ng-click="addRole(selected_role)">Add</button>
+                                <button id="add-user-add-role-btn" class="btn btn-primary" ng-click="addRole(selected_role)">Add</button>
                         </td>
                     </tr>
                     </tbody>
@@ -65,6 +65,6 @@
     </form>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">OK</button>
-    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    <button id="add-user-ok-btn" class="btn btn-primary" ng-click="ok()">OK</button>
+    <button id="add-user-cancel-btn"  class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>
