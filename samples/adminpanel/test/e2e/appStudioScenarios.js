@@ -25,12 +25,6 @@ describe('Admin app', function() {
         navigateTo('/logout/');
     }
 
-    function saveScreenShot(data, filename) {
-        var stream = fs.createWriteStream(filename);
-        stream.write(new Buffer(data, 'base64'));
-        stream.end();
-    }
-
     function setItemValues(itemType, values, clear) {
         element.all(by.css(itemType)).each(function (element) {
             element.evaluate("item").then(function (item) {
@@ -186,7 +180,7 @@ describe('Admin app', function() {
         });
     }
 
-    describe('App Studio P0', function() {
+    xdescribe('App Studio P0', function() {
         var appConfig;
         browser.driver.manage().window().maximize();
         //browser.driver.manage().window().setSize(1400, 800);
@@ -331,9 +325,3 @@ describe('Admin app', function() {
         });
     });
 });
-
-/*
-browser.takeScreenshot().then(function (pngData) {
-    saveScreenShot(pngData, 'fileName.png');
-});
- */

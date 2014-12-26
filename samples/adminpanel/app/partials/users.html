@@ -37,7 +37,8 @@
             <td>{{user.username}}</td>
             <td>{{user.email}}</td>
             <td>
-                <button class="btn btn-xs btn-warning glyphicon glyphicon-edit" ng-click="editUser($index);"></button>
+                <button id="edit-user-{{user.username}}"  class="btn btn-xs btn-warning glyphicon glyphicon-edit"
+                        ng-click="editUser($index);"></button>
                 <button id="remove-user-{{user.username}}" class="btn btn-xs btn-danger glyphicon glyphicon-remove"
                         ng-click="removeUser($index);"></button>
             </td>

@@ -16,6 +16,7 @@
         };
 
         _common.saveScreenShot = function (data, filename) {
+            /*browser.takeScreenshot().then(function (pngData) {saveScreenShot(pngData, 'fileName.png');}); */
             var stream = fs.createWriteStream(filename);
             stream.write(new Buffer(data, 'base64'));
             stream.end();
@@ -104,13 +105,14 @@
             browser.actions().dragAndDrop(startElem, stopElem).perform();
         };
 
-        _common.waitForNavigation = function(toUrl, onSuccess){
+        _common.waitForNavigation = function(toUrl, onSuccess, skipIfThere) {
+
             _common.navigateTo(toUrl);
             browser.driver.wait(function () {
                 return browser.driver.getCurrentUrl().then(function (url) {
                     return new RegExp(toUrl).test(url);
                 });
-            }).then(function(){
+            }).then(function () {
                 browser.waitForAngular();
                 onSuccess();
             });
