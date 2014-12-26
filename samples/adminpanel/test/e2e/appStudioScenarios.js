@@ -180,7 +180,7 @@ describe('Admin app', function() {
         });
     }
 
-    xdescribe('App Studio P0', function() {
+    describe('App Studio P0', function() {
         var appConfig;
         browser.driver.manage().window().maximize();
         //browser.driver.manage().window().setSize(1400, 800);
