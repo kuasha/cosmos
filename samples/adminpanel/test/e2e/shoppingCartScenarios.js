@@ -82,24 +82,73 @@ describe('Shopping cart scenarios', function() {
         return deferred.promise;
     }
 
+    function _doDeleteApplication(appConfig) {
+        var deferred = protractor.promise.defer();
+
+        common.waitUntillDisplayed(by.id('delete_' + appConfig["id"]), 2000).then(function () {
+            common.clickElementById('delete_' + appConfig["id"], true);
+            common.acceptBrowserConfirm();
+
+            common.waitUntillRemoved(by.id('open_' + appConfig["id"]), 2000).then(function () {
+                deferred.fulfill(undefined);
+            });
+        });
+
+        return deferred.promise;
+    }
+
+    function deleteApplication(appConfig) {
+        var deferred = protractor.promise.defer();
+
+        common.waitForNavigation('/#/appstudio/', function () {
+            common.isElementVisible(by.id("create_app_btn")).then(function (visible) {
+                if (!visible) {
+                    appCommon.closeApp().then(function () {
+                        _doDeleteApplication(appConfig).then(function () {
+                            deferred.fulfill(undefined);
+                        })
+                    })
+                }
+                else {
+                    _doDeleteApplication(appConfig).then(function () {
+                        deferred.fulfill(undefined);
+                    })
+                }
+            });
+        });
+
+        return deferred.promise;
+    }
+
 
 
     describe("Create shopping cart tests", function () {
         var self = this;
 
-        it("should setup",function () {
+        beforeEach(function (done) {
+            common.logout();
             common.login('admin', 'admin');
 
             var appPromise = common.createApplication();
 
             appPromise.then(function (appCfg) {
-                cartScenario.appConfig = appCfg;
+                self.appConfig = appCfg;
+                done();
             });
 
             // The condition is required to wait untill the promise is fullfilled.
             // It will not wait unless expect is used or some other way to make it wait
-            expect(appPromise).not.toEqual(undefined);
+            //expect(appPromise).not.toEqual(undefined);
         });
+
+        afterEach(function (done) {
+            deleteApplication(self.appConfig).then(function () {
+                common.log("Application deleted.");
+                common.logout();
+                done();
+            });
+        });
+
 
         it("should be able to create forms", function () {
 
@@ -107,16 +156,16 @@ describe('Shopping cart scenarios', function() {
 
         it("should be able to create form", function () {
             common.waitForNavigation('/#/appstudio/', function () {
-                common.log("opening app" + cartScenario.appConfig["id"]);
-                common.clickElementById('open_' + cartScenario.appConfig["id"]);
+                common.log("opening app" + self.appConfig["id"]);
+                common.clickElementById('open_' + self.appConfig["id"]);
 
                 common.log("Waiting for applicatioon to be opened.");
                 common.waitUntillDisplayed(by.id("close_app_btn"), 2000).then(function () {
                     common.log("Application opened");
-                    createForm(cartScenario.appConfig).then(function (formId) {
+                    createForm(self.appConfig).then(function (formId) {
                         common.log("Form created. FormId = " + formId);
 
-                        deleteForm(cartScenario.appConfig, formId).then(function () {
+                        deleteForm(self.appConfig, formId).then(function () {
                             common.log("Form deleted.");
                             appCommon.closeApp().then(function () {
                                 common.log("Application closed");
@@ -124,13 +173,6 @@ describe('Shopping cart scenarios', function() {
                         });
                     });
                 });
-            });
-        });
-
-        it("should teardown:", function () {
-            appCommon.deleteApplication(cartScenario.appConfig).then(function () {
-                common.log("Application deleted.");
-                common.logout();
             });
         });
     });

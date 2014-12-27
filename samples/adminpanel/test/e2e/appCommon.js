@@ -70,7 +70,7 @@
             common.waitForNavigation('/#/appstudio/', function () {
                 common.isElementVisible(by.id("create_app_btn")).then(function (visible) {
                     if (!visible) {
-                        appCommon.closeApp().then(function () {
+                        _app_common.closeApp().then(function () {
                             _app_common._doDeleteApplication(appConfig).then(function () {
                                 deferred.fulfill(undefined);
                             })

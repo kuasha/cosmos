@@ -61,8 +61,8 @@
         _common.setItemValues = function (itemType, values, clear) {
             element.all(by.css(itemType)).each(function (elem) {
                 elem.evaluate("item").then(function (item) {
-                    _common.log(JSON.stringify(item));
-                    if (item && item.type === "input" && (item.htmltype==="text" || item.htmltype==="password")) {
+                    //_common.log(JSON.stringify(item));
+                    if (item && item.type==="input") {
                         if (clear) {
                             elem.clear();
                         }
@@ -87,7 +87,8 @@
         };
 
         _common.log = function (message) {
-            console.log(message);
+            var jasmineConsole = jasmine.getGlobal().console
+            jasmineConsole.log(message);
         };
 
         _common.clickElementById = function (id, noWait) {
