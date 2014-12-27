@@ -167,3 +167,11 @@ Supporters
 
 JetBrains has generously provided us with unlimited license of the PyCharm IDE for this project.
 http://www.jetbrains.com/pycharm/
+
+
+Code Climate
+------------
+
+The environment is not setup properly yet. When done will move this to top.
+[![Code Climate](https://codeclimate.com/github/kuasha/cosmos/badges/gpa.svg)](https://codeclimate.com/github/kuasha/cosmos)
+[![Test Coverage](https://codeclimate.com/github/kuasha/cosmos/badges/coverage.svg)](https://codeclimate.com/github/kuasha/cosmos)
