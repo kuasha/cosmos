@@ -99,7 +99,7 @@ describe('User management', function() {
         return deferred.promise;
     }
 
-    xdescribe("User management P0", function() {
+    describe("User management P0", function() {
         beforeEach(function () {
             common.login('admin', 'admin');
         });

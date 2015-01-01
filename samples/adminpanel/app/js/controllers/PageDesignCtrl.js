@@ -62,56 +62,56 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             "menuref": {
                 "fields": [
                     {"type": "composite", "label": "Settings", "name": "value", fields:[
-                        {"type": "text", "label": "Menu Id", "name": "menuId"}
+                        {"type": "input", "label": "Menu Id", "name": "menuId"}
                     ]}
                 ]
             },
             "formref": {
                 "fields": [
                     {"type": "composite", "label": "Settings", "name": "value", fields:[
-                        {"type": "text", "label": "Form Id", "name": "formId"}
+                        {"type": "input", "label": "Form Id", "name": "formId"}
                     ]}
                 ]
             },
             "listref": {
                 "fields": [
                     {"type": "composite", "label": "Settings", "name": "value", fields:[
-                        {"type": "text", "label": "List Id", "name": "listId"}
+                        {"type": "input", "label": "List Id", "name": "listId"}
                     ]}
                 ]
             },
             "chartref": {
                 "fields": [
                     {"type": "composite", "label": "Settings", "name": "value", fields:[
-                        {"type": "text", "label": "Chart Id", "name": "chartId"}
+                        {"type": "input", "label": "Chart Id", "name": "chartId"}
                     ]}
                 ]
             },
             "cssref": {
                 "fields": [
-                    {"type": "text", "label": "href", "name": "href"}
+                    {"type": "input", "label": "href", "name": "href"}
                 ]
             },
             "jsref": {
                 "fields": [
-                    {"type": "text", "label": "src", "name": "src"}
+                    {"type": "inout", "label": "src", "name": "src"}
                 ]
             },
             "extjsref": {
                 "fields": [
-                    {"type": "text", "label": "src", "name": "src"}
+                    {"type": "input", "label": "src", "name": "src"}
                 ]
             },
             "widgethost": {
                 "fields": [
-                        {"type": "text", "label": "Widget Name", "name": "value"}
+                        {"type": "input", "label": "Widget Name", "name": "value"}
                 ]
             },
             "condition":{
                 "label": "Condition options", "type":"condition", "name":"condition", "fields":[
-                    {"type": "text", "label": "Label", "name": "label"},
-                    {"type": "text", "label": "Name", "name": "name"},
-                    {"type": "text", "label": "Expression", "name": "expression"}
+                    {"type": "input", "label": "Label", "name": "label"},
+                    {"type": "input", "label": "Name", "name": "name"},
+                    {"type": "input", "label": "Expression", "name": "expression"}
                 ]
             },
             "htmlblock":{
@@ -130,8 +130,8 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             },
             "default": {
                 "fields": [
-                    {"type": "text", "label": "Label", "name": "label"},
-                    {"type": "text", "label": "Name", "name": "name"}
+                    {"type": "input", "label": "Label", "name": "label"},
+                    {"type": "input", "label": "Name", "name": "name"}
                 ]
             }
         };

@@ -1,0 +1,116 @@
+[
+    {
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "541f4c921d61d80e487e6adc",
+        "name": "cosmos.widget_error_banner.html",
+        "template": "<div ng-show=\"hasError\" class=\"bg-warning\">\n    <button class=\"btn btn-xs btn-danger glyphicon glyphicon-remove pull-right\" ng-click=\"clearError();\"></button>\n    <div><label>Error code:</label><span ng-bind=\"status\" /></div> \n    <div ng-bind=\"status_data\"></div>\n</div>",
+        "createtime": "2014-09-21 18:09:22.211523"
+    },
+    {
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "541f4ca01d61d80e487e6add",
+        "name": "cosmos.basiclist.html",
+        "template": "<div>\n<error ng-include=\" 'cosmos.widget_error_banner.html' \" />\n</div>\n<h3>{{listConfiguration.title}}</h3>\n<div class=\"left-col\">\n</div>\n<table class=\"table table-hover right-col\">\n    <thead>\n        <tr>\n            <th ng-repeat=\"column in listConfiguration.columns\" ng-if=\"column.showInList\">{{column.title}}</th>\n            <th ng-if=\"listConfiguration.editable && listConfiguration.itemeditor_id\">&nbsp;</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr ng-repeat=\"item in data\">\n            <td ng-repeat=\"column in listConfiguration.columns\" ng-click=\"showDetails('lg', item, listConfiguration)\" ng-if=\"column.showInList\">\n                <div ng-if=\"column.widget && column.widget.length>0\" ng-include=\"column.widget\">\n                </div>                \n                \n                <div ng-if=\"!column.widget\">\n                    {{item[column.name]}}\n                </div>\n                \n            </td>\n            <td ng-if=\"listConfiguration.editable &&listConfiguration.itemeditor_id\">\n                <a href=\"#/forms/{{listConfiguration.itemeditor_id}}/{{item._id}}\">Edit</a>\n            </td>\n        </tr>\n    </tbody>\n</table>",
+        "createtime": "2014-09-21 18:09:36.974878"
+    },
+    {
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "541f4cae1d61d80e487e6ade",
+        "name": "cosmos.editor-view.html",
+        "template": "<div ui-ace class=\"editor\" readonly=\"readonly\" ng-model=\"item[column.name]\"></div>",
+        "createtime": "2014-09-21 18:09:50.878011"
+    },
+    {
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "541f4cbc1d61d80e487e6adf",
+        "name": "cosmos.listconfig-columns.html",
+        "template": "<div ng-repeat=\"column in item.columns\">\n    {{column.title}} ({{column.name}})\n</div>",
+        "createtime": "2014-09-21 18:10:04.111173"
+    },
+    {
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "541f4cca1d61d80e487e6ae0",
+        "name": "cosmos.form_list_widget.html",
+        "template": "<div ng-repeat=\"item in data\"><a href=\"#/forms/{{item['_id']}}\">{{item['title']}}</a> <a class=\"btn btn-xs btn-warning glyphicon glyphicon-edit pull-right\" href=\"#/formdesign/{{item['_id']}}\"></a></div>",
+        "createtime": "2014-09-21 18:10:18.996785"
+    },
+    {
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "541f4cd71d61d80e487e6ae1",
+        "name": "cosmos.forms-list.html",
+        "template": " <div>\n <error ng-include=\" 'cosmos.widget_error_banner.html' \" /></div>\n <h3>{{listConfiguration.title}}</h3> \n <div class=\"left-col\"></div><div class=\"right-col\" ng-include=\" 'cosmos.form_list_widget.html' \" ></div>\n <a class=\"btn btn-primary\" href=\"#/formdesign/\">New form</a>",
+        "createtime": "2014-09-21 18:10:31.582099"
+    },
+    {
+        "cssclass": "navbar-inner",
+        "name": "monohori.cartlink",
+        "template": "<a href='/#/a/monohori/page/542437fd1d61d82cc06e8a52/' ng-bind=\"'Cart ['+namedcolection.length('cart')+']';\"></a>",
+        "modifytime": "2014-09-25 11:45:37.785832",
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "542436bf1d61d82cc06e8a51",
+        "createtime": "2014-09-25 11:37:35.455068"
+    },
+    {
+        "name": "monohori.productdetailsview",
+        "template": "<div>    \n    <img ng-src=\"/gridfs/userfiles.products/541f49ac1d61d80e487e6ad5\" />\n    <div><b>{{item['title']}}</b></div>\n    <div>List price: {{item['list_price']}}</div>\n    <div>Your price: {{item['current_price']}}</div>\n    <button class=\"btn btn-primary btn-xs\"  ng-click=\"namedcolection.append('cart', item);\">Add to cart</button>\n</div>\n",
+        "modifytime": "2014-09-26 16:26:46.500539",
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "5425ca371d61d82cc06e8a54",
+        "createtime": "2014-09-26 16:19:03.653196"
+    },
+    {
+        "name": "monohori.basicproductlist.html",
+        "template": "<div class=\"product\" ng-repeat=\"item in data\">\n    <a ng-href=\"/#/a/monohori/view/5425e6c61d61d82cc06e8a55/{{item._id}}\"><img ng-src=\"{{item['thumbnailimage']}}\" /></a>\n    <div><a ng-href=\"/#/a/monohori/view/5425e6c61d61d82cc06e8a55/{{item._id}}\"><b>{{item['title']}}</b></a></div>\n    <div>List price: {{item['list_price']}}</div>\n    <div>Your price: {{item['current_price']}}</div>\n    <button class=\"btn btn-primary btn-xs\"  ng-click=\"namedcolection.append('cart', item);\">Add to cart</button>\n</div>\n",
+        "modifytime": "2014-09-27 13:18:07.707592",
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "541f704d1d61d80e6c150db5",
+        "createtime": "2014-09-21 20:41:49.980230"
+    },
+    {
+        "name": "monohori.order_payment",
+        "template": "<div  ng-init=\"orderId=hashtable.get('orderId')\">\n    <div ng-if=\"orderId\">\n        <a class=\"btn btn-primary\" ng-href=\"/#/a/monohori/page/5494f4f41d61d86be38cd167?orderId={{hashtable.get('orderId')}}/\">Proceed to Payment</a>\n    </div>\n</div>",
+        "modifytime": "2014-12-19 23:34:29.656612",
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "543958301d61d8335aef0df4",
+        "createtime": "2014-10-11 12:17:52.963208"
+    },
+    {
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "543971361d61d8335a18abac",
+        "name": "monohori.order_complete",
+        "template": "<div>Your order has been placed.</div>",
+        "createtime": "2014-10-11 14:04:38.264974"
+    },
+    {
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "543972591d61d8335a18abae",
+        "name": "monohori.order_error",
+        "template": "<div>There was an error</div>",
+        "createtime": "2014-10-11 14:09:29.444500"
+    },
+    {
+        "name": "monohori.cartview",
+        "template": "<div ng-if=\"namedcolection.length('cart') === 0\">\n    Your shopping cart is empty.\n</div>\n<div ng-if=\"namedcolection.length('cart') > 0\">\n    <div ng-if=\"!orderId\">\n        <div>Total items in cart: <span ng-bind=\"namedcolection.length('cart');\"></span></div>\n        <table class='table'>\n            <tr>\n                <td>Title</td>\n                <td>List pric</td>\n                <td>Your price</td>\n                <td>&nbsp;</td>\n            </tr>\n            <tr ng-repeat=\"citem in namedcolection.getCollection('cart') track by $index\">\n                <td>{{citem.title}}</td>\n                <td>{{citem.list_price}}</td>\n                <td>{{citem.current_price}}</td>\n                <td><button class=\"btn btn-xs btn-danger glyphicon glyphicon-remove\" ng-click=\"namedcolection.removeById('cart', citem['_id'])\"></button></td>\n            </tr>\n            <tr>\n                <td colspan='2'>Total</td>\n                <td ng-bind=\"calculator.sumColumnValues(namedcolection.getCollection('cart'),'current_price')\"</td>\n                <td>&nbsp;</td>\n            </tr>\n            \n        </table> \n    \n        <button class=\"btn btn-primary\" ng-click=\"CosmosService.postWithArgs('/service/monohori.orders/', {'items':namedcolection.getCollection('cart'), 'total_price':calculator.sumColumnValues(namedcolection.getCollection('cart'),'current_price')},receiveServiceDataAs,{'name':'orderId', 'parse':true});\">Place Order</button>\n    </div>\n        \n    <div ng-if=\"orderId\">\n        <div>\n            <div>We have saved your cart items. Reference # {{orderId}}.</div>\n            <!--field item='{\"type\":\"formref\", \"value\":{\"formId\":\"542874741d61d84565570584\"}}' val=\"orderId\"></field-->\n            <a class=\"btn btn-primary\" ng-href=\"/#/a/monohori/page/5494f4f41d61d86be38cd167?orderId={{orderId}}\">Continue to payment</a>\n            \n        </div>\n    </div>    \n</div>",
+        "modifytime": "2014-12-19 23:39:47.446185",
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "542436b91d61d82cc06e8a50",
+        "createtime": "2014-09-25 11:37:29.498629"
+    },
+    {
+        "name": "monohori.productpage",
+        "template": "<div class='row'><div class='col-md-4'><img ng-src=\"{{val['images'][0]}}\" />\n</div><div class='col-md-8'><div><h1>{{val['title']}}</h1></div>\n    <div>List price: {{val['list_price']}}</div>\n    <div>Your price: {{val['current_price']}}</div>\n    <button class=\"btn btn-primary btn-xs\"  ng-click=\"namedcolection.append('cart', val);\">Add to cart</button>\n    \n </div><dev ng-bind=\"val['description']\"></div></div>",
+        "modifytime": "2014-11-23 13:35:28.346788",
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "542644621d61d8353a80dea1",
+        "createtime": "2014-09-27 01:00:18.479202"
+    },
+    {
+        "name": "monohori.paymentoptions",
+        "app_id": "541dd43d1d61d8795e381794",
+        "template": "<div>\n    <rawhtml html-url=\"'/payment/awssimplepay/start/'+$parent.$parent.$parent.routeParams['orderId']+'/'\"></rawhtml>\n</div>",
+        "modifytime": "2014-12-19 23:25:22.033212",
+        "owner": "541dd27fcfa08fa8a1755a6f",
+        "_id": "5494f4c71d61d86be38cd166",
+        "createtime": "2014-12-19 23:02:15.498795"
+    }
+]

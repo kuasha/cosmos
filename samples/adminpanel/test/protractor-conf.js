@@ -22,5 +22,7 @@ exports.config = {
         var CosmosReporter = require('./e2e/cosmos-reporter');
         // add jasmine spec reporter
         jasmine.getEnv().addReporter(new CosmosReporter());
+
+        browser.driver.manage().window().maximize();
     }
 };

@@ -30,14 +30,14 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
         $scope.optionFormByType = {
             "input": {
                 "fields": [
-                    {"type": "text", "label": "Label", "name": "label"},
-                    {"type": "text", "label": "Name", "name": "name"},
+                    {"htmltype": "text", "type": "input", "label": "Label", "name": "label"},
+                    {"htmltype": "text", "type": "input", "label": "Name", "name": "name"},
                     {"type": "checkbox", "label": "Required", "name": "required"},
-                    {"type": "text", "label": "Min Length", "name": "minlength"},
-                    {"type": "text", "label": "Max Length", "name": "maxlength"},
-                    {"type": "text", "label": "Pattern", "name": "pattern"},
-                    {"type": "text", "label": "Placeholder", "name": "placeholder"},
-                    {"type": "text", "label": "Tooltip", "name": "title"},
+                    {"htmltype": "text", "type": "input", "label": "Min Length", "name": "minlength"},
+                    {"htmltype": "text", "type": "input", "label": "Max Length", "name": "maxlength"},
+                    {"htmltype": "text", "type": "input", "label": "Pattern", "name": "pattern"},
+                    {"htmltype": "text", "type": "input", "label": "Placeholder", "name": "placeholder"},
+                    {"htmltype": "text", "type": "input", "label": "Tooltip", "name": "title"},
                     {
                         "label": "Type",
                         "type": "select",
@@ -75,9 +75,9 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             },
             "form": {
                 "fields": [
-                    {"type": "text", "label": "Title", "name": "title"},
-                    {"type": "text", "label": "Name", "name": "name"},
-                    {"type": "text", "label": "Action", "name": "action"},
+                    {"htmltype": "text", "type": "input", "label": "Title", "name": "title"},
+                    {"htmltype": "text", "type": "input", "label": "Name", "name": "name"},
+                    {"htmltype": "text", "type": "input", "label": "Action", "name": "action"},
                     {"type": "checkbox", "label": "Enable reCapcha", "name": "enableReCapcha"},
                     {
                         "type": "composite", "label": "On success", "name": "onsuccess",
@@ -104,25 +104,25 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                                 "name": "type",
                                 "nullable": false
                             },
-                            {"type": "text", "label": "Value", "name": "value"}
+                            {"htmltype": "text", "type": "input", "label": "Value", "name": "value"}
                         ]
                     }
                 ]
             },
             "select": {"label": "Select Options", "type": "composite", "fields": [
-                {"type": "text", "label": "Label", "name": "label"},
-                {"type": "text", "label": "Name", "name": "name"},
+                {"htmltype": "text", "type": "input", "label": "Label", "name": "label"},
+                {"htmltype": "text", "type": "input", "label": "Name", "name": "name"},
                 {"label": "Options", "type": "composite", "options": {}, "fields": [
                     {"label": "Choices", "type": "array", "options": {}, "fields": [
-                        {"label": "Label", "type": "text", "name": "label"},
-                        {"label": "Value", "type": "text", "name": "value"}
+                        {"label": "Label", "htmltype": "text", "type": "input", "name": "label"},
+                        {"label": "Value", "htmltype": "text", "type": "input", "name": "value"}
                     ], "name": "choices"}
                 ], "name": "options"}
             ]
             },
             "array": {"label": "Select Options", "type": "composite", "fields": [
-                {"type": "text", "label": "Label", "name": "label"},
-                {"type": "text", "label": "Name", "name": "name"},
+                {"htmltype": "text", "type": "input", "label": "Label", "name": "label"},
+                {"htmltype": "text", "type": "input", "label": "Name", "name": "name"},
                 {"label": "Options", "type": "composite", "options": {}, "fields": [
                     {"label": "Value only", "type": "checkbox", "name": "primitive"}
                 ], "name": "options"}
@@ -130,18 +130,18 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             },
 
             "lookup": {"label": "Select Options", "type": "composite", "fields": [
-                {"type": "text", "label": "Label", "name": "label"},
-                {"type": "text", "label": "Name", "name": "name"},
+                {"htmltype": "text", "type": "input", "label": "Label", "name": "label"},
+                {"htmltype": "text", "type": "input", "label": "Name", "name": "name"},
                 {"label": "Options", "type": "composite", "options": {}, "fields": [
                     {"label": "Value only", "type": "checkbox", "name": "saveValueOnly"},
                     {"label": "Hide reference", "type": "checkbox", "name": "hideRefType"},
 
                     {"label": "References", "type": "array", "name": "lookups", "fields": [
-                        {"label": "Data endpoint", "type": "text", "name": "url"},
-                        {"label": "Reference label", "type": "text", "name": "lookupname"},
-                        {"label": "Reference name", "type": "text", "name": "ref"},
-                        {"label": "Value field", "type": "text", "name": "value"},
-                        {"label": "Label field", "type": "text", "name": "label"}
+                        {"label": "Data endpoint", "htmltype": "text", "type": "input", "name": "url"},
+                        {"label": "Reference label", "htmltype": "text", "type": "input", "name": "lookupname"},
+                        {"label": "Reference name", "htmltype": "text", "type": "input", "name": "ref"},
+                        {"label": "Value field", "htmltype": "text", "type": "input", "name": "value"},
+                        {"label": "Label field", "htmltype": "text", "type": "input", "name": "label"}
                     ]
                     }
 
@@ -149,12 +149,12 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             ]
             },
             "radiogroup": {"label": "Select Options", "type": "form", "fields": [
-                {"type": "text", "label": "Label", "name": "label"},
-                {"type": "text", "label": "Name", "name": "name"},
+                {"htmltype": "text", "type": "input", "label": "Label", "name": "label"},
+                {"htmltype": "text", "type": "input", "label": "Name", "name": "name"},
                 {"label": "Options", "type": "composite", "options": {}, "fields": [
                     {"label": "Choices", "type": "array", "options": {}, "fields": [
-                        {"label": "Label", "type": "text", "name": "label"},
-                        {"label": "Value", "type": "text", "name": "value"}
+                        {"label": "Label", "htmltype": "text", "type": "input", "name": "label"},
+                        {"label": "Value", "htmltype": "text", "type": "input", "name": "value"}
                     ], "name": "choices"}
                 ], "name": "options"}
             ]
@@ -163,23 +163,23 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             "filectrl":{
                  "label": "File Select Options", "type": "form",
                  "fields": [
-                    {"type": "text", "label": "Label", "name": "label"},
-                    {"type": "text", "label": "Name", "name": "name"},
-                    {"type": "text", "label": "Object name", "name": "objectName"}
+                    {"htmltype": "text", "type": "input", "label": "Label", "name": "label"},
+                    {"htmltype": "text", "type": "input", "label": "Name", "name": "name"},
+                    {"htmltype": "text", "type": "input", "label": "Object name", "name": "objectName"}
                 ]
             },
 
             "condition": {
                 "label": "Condition options", "type": "condition", "name": "condition", "fields": [
-                    {"type": "text", "label": "Label", "name": "label"},
-                    {"type": "text", "label": "Name", "name": "name"},
-                    {"type": "text", "label": "Expression", "name": "expression"}
+                    {"htmltype": "text", "type": "input", "label": "Label", "name": "label"},
+                    {"htmltype": "text", "type": "input", "label": "Name", "name": "name"},
+                    {"htmltype": "text", "type": "input", "label": "Expression", "name": "expression"}
                 ]
             },
             "default": {
                 "fields": [
-                    {"type": "text", "label": "Label", "name": "label"},
-                    {"type": "text", "label": "Name", "name": "name"}
+                    {"htmltype": "text", "type": "input", "label": "Label", "name": "label"},
+                    {"htmltype": "text", "type": "input", "label": "Name", "name": "name"}
                 ]
             }
         };

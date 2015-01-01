@@ -61,15 +61,15 @@
         _common.setItemValues = function (itemType, values, clear) {
             element.all(by.css(itemType)).each(function (elem) {
                 elem.evaluate("item").then(function (item) {
-                    //_common.log(JSON.stringify(item));
-                    if (item && item.type==="input") {
-                        if (clear) {
-                            elem.clear();
-                        }
-
+                    _common.log(JSON.stringify(item));
+                    if (item) {
                         var fieldName = item["name"];
                         var val = values[fieldName];
                         if (val) {
+                            if (clear) {
+                                elem.clear();
+                            }
+
                             elem.sendKeys(val);
                         }
                     }
@@ -157,11 +157,11 @@
         _common.isElementPresent = function (locator) {
             var deferred = protractor.promise.defer();
 
-            if(element.all(locator).then(function(items){
-                if(items.length === 0){
+            if (element.all(locator).then(function (items) {
+                if (items.length === 0) {
                     deferred.fulfill(false);
                 }
-                else{
+                else {
                     deferred.fulfill(true);
                 }
             }));
@@ -172,13 +172,13 @@
         _common.isElementVisible = function (locator) {
             var deferred = protractor.promise.defer();
 
-            if(element.all(locator).then(function(items){
-                if(items.length === 0){
+            if (element.all(locator).then(function (items) {
+                if (items.length === 0) {
                     deferred.fulfill(false);
                 }
-                else{
-                    element(locator).isDisplayed().then(function(visible){
-                       deferred.fulfill(visible);
+                else {
+                    element(locator).isDisplayed().then(function (visible) {
+                        deferred.fulfill(visible);
                     });
                 }
             }));
@@ -198,7 +198,7 @@
             });
         };
 
-        _common.waitUntillRemoved = function(locator, timeout){
+        _common.waitUntillRemoved = function (locator, timeout) {
             var deferred = protractor.promise.defer();
 
             browser.driver.wait(function () {
@@ -225,7 +225,7 @@
             });
         };
 
-        _common.waitForUrl = function(targetUrl) {
+        _common.waitForUrl = function (targetUrl) {
             var deferred = protractor.promise.defer();
 
             browser.driver.wait(function () {
@@ -242,7 +242,7 @@
         _common.createApplication = function () {
             var deferred = protractor.promise.defer();
 
-            _common.waitForNavigation('/#/appstudio/',function() {
+            _common.waitForNavigation('/#/appstudio/', function () {
                 _common.clickElementById('create_app_btn');
 
                 var appId = 'A55CAFE' + Math.floor((Math.random() * 99999));
@@ -269,6 +269,13 @@
             });
 
             return deferred.promise;
+        };
+
+        _common.dragDrop = function (fromId, toId) {
+            var startElem = element(by.id(fromId));
+            var stopElem = element(by.id(toId));
+
+            browser.actions().dragAndDrop(startElem, stopElem).perform();
         };
     };
 
