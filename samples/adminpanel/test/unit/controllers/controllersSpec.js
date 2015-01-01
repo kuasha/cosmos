@@ -3,7 +3,7 @@
 /* jasmine specs for controllers go here */
 
 describe('controllers', function(){
-    beforeEach(module('cosmosUI'));
+    beforeEach(module('cosmosUIDemo'));
     beforeEach(module('cosmosUI.controllers'));
 
 

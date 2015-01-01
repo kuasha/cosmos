@@ -3,7 +3,7 @@
  */
 
 describe('TerminalCtrl', function() {
-    beforeEach(module('cosmosUI'));
+    beforeEach(module('cosmosUIDemo'));
     beforeEach(module('cosmosUI.controllers'));
 
     var $scope, $rootScope, $controller, createController, $httpBackend;
