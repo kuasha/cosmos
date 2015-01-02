@@ -70,6 +70,47 @@ describe('Shopping cart scenarios', function() {
         return deferred.promise;
     }
 
+    function createMenuFromConfig(appConfig, menuConfig) {
+        var deferred = protractor.promise.defer();
+
+        appCommon.createItem(appConfig, 'menus_tab', 'create_menu_btn', "menu", "create_item_btn", "item_id_label", function () {
+            common.log("Setting menu properties");
+            common.setItemValues("input", {"brandtitle": menuConfig.brandtitle, "brandhref": menuConfig.brandhref}, true);
+            element(by.cssContainingText('option', 'Top fixed')).click();
+
+            var addNewBtn = element(by.css('[ng-click="add_item(-1)"]'));
+
+            for(var ci=0; ci<menuConfig.fields.length; ci++){
+                addNewBtn.click();
+            }
+
+            browser.waitForAngular();
+
+            for(var fi =0; fi<menuConfig.fields.length; fi++ ){
+                var field = menuConfig.fields[fi];
+                common.log("Create menu item = " + JSON.stringify(field) + " Type = " + field.type);
+
+                if(field.type === "menuitem") {
+                    element(by.xpath("(//li[4]/ul/li["+(fi+1)+"]//option[@value='0'])")).click();
+                    browser.waitForAngular();
+                    element(by.xpath("(//li[4]/ul/li["+(fi+1)+"]//input[@type='text'])[1]")).sendKeys(field.value.label);
+                    element(by.xpath("(//li[4]/ul/li["+(fi+1)+"]//input[@type='text'])[2]")).sendKeys(field.value.href);
+                    element(by.xpath("(//li[4]/ul/li["+(fi+1)+"]//input[@type='text'])[3]")).sendKeys(field.cssclass?field.cssclass:'');
+                }
+                else if(field.type === "inlinewidget") {
+                    element(by.xpath("(//li[4]/ul/li["+(fi+1)+"]//option[@value='1'])")).click();
+                    browser.waitForAngular();
+                    element(by.xpath("(//li[4]/ul/li["+(fi+1)+"]//textarea)")).sendKeys(field.value.widgettext);
+                    element(by.xpath("(//li[4]/ul/li["+(fi+1)+"]//input[@type='text'])[1]")).sendKeys(field.cssclass?field.cssclass:'');
+                }
+            }
+        }).then(function (menuId) {
+            deferred.fulfill(menuId);
+        });
+
+        return deferred.promise;
+    }
+
     function createListFromConfig(appConfig, listConfig) {
         var deferred = protractor.promise.defer();
 
@@ -560,7 +601,7 @@ describe('Shopping cart scenarios', function() {
             });
         });
 
-        it("should be able to create product list", function () {
+        xit("should be able to create product list", function () {
             var productListDef = {
                 "objectName": "monohori.products",
                 "title": "Products",
@@ -602,7 +643,91 @@ describe('Shopping cart scenarios', function() {
                 common.waitUntillDisplayed(by.id("close_app_btn"), 2000).then(function () {
                     common.log("Application opened");
                     createListFromConfig(self.appConfig, productListDef).then(function (listId) {
-                        common.log("Form created successfully with id = " + listId);
+                        common.log("List created successfully with id = " + listId);
+                    });
+                });
+            });
+        });
+
+        it("should be able to create menu from config", function () {
+            var menuDef = {
+                "brandtitle": "Cosmos Admin",
+                "fields": [
+                    {
+                        "cssclass": "navbar-search pull-right",
+                        "type": "inlinewidget",
+                        "value": {
+                            "widgettext": "<a href='/#/a/monohori/page/542437fd1d61d82cc06e8a52/' ng-bind=\"'Cart ['+namedcolection.length('cart')+']';\"></a>"
+                        }
+                    },
+                    {
+                        "cssclass": "test",
+                        "type": "menuitem",
+                        "value": {
+                            "label": "Home",
+                            "href": "/#/a/admin/page/544a76fcedb05831be77e526"
+                        }
+                    },
+                    {
+                        "type": "menuitem",
+                        "value": {
+                            "label": "Terminal",
+                            "href": "/#/terminal"
+                        }
+                    },
+                    {
+                        "type": "menuitem",
+                        "value": {
+                            "label": "Lists",
+                            "href": "/#/a/admin/page/544ae5d9edb05831be77e52a"
+                        }
+                    },
+                    {
+                        "type": "menuitem",
+                        "value": {
+                            "label": "Forms",
+                            "href": "/#/a/admin/page/544aec87edb05831be77e52d"
+                        }
+                    },
+                    {
+                        "type": "menuitem",
+                        "value": {
+                            "label": "Widgets",
+                            "href": "/#/a/admin/page/544bd416edb05831be77e531"
+                        }
+                    },
+                    {
+                        "type": "menuitem",
+                        "value": {
+                            "label": "Pages",
+                            "href": "/#/a/admin/page/544bd615edb05831be77e533"
+                        }
+                    },
+                    {
+                        "type": "menuitem",
+                        "value": {
+                            "label": "Applications",
+                            "href": "/#/a/admin/page/544be6e0edb05831be77e535"
+                        }
+                    }
+                ],
+                "modifytime": "2015-01-02 10:00:12.551148",
+                "owner": "5415b4b7d70af3e2078df1c1",
+                "brandhref": "/#/a/",
+                "_id": "544d4e14edb0583b75dbe299",
+                "type": "menu",
+                "createtime": "2014-10-26 18:18:16.808561"
+            };
+
+            common.waitForNavigation('/#/appstudio/', function () {
+                common.log("opening app" + self.appConfig["id"]);
+                common.clickElementById('open_' + self.appConfig["id"]);
+
+                common.log("Waiting for applicatioon to be opened.");
+                common.waitUntillDisplayed(by.id("close_app_btn"), 2000).then(function () {
+                    common.log("Application opened");
+                    createMenuFromConfig(self.appConfig, menuDef).then(function (menuId) {
+                        common.log("Menu created successfully with id = " + menuId);
                     });
                 });
             });

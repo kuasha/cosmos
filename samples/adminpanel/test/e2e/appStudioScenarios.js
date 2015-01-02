@@ -49,7 +49,6 @@ describe('Admin app', function() {
         setItemValues('input', values, clear);
     }
 
-
     function createApplication(){
         browser.get('/#/appstudio/');
         browser.waitForAngular();
@@ -180,7 +179,7 @@ describe('Admin app', function() {
         });
     }
 
-    describe('App Studio P0', function() {
+    xdescribe('App Studio P0', function() {
         var appConfig;
         browser.driver.manage().window().maximize();
         //browser.driver.manage().window().setSize(1400, 800);

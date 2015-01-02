@@ -209,8 +209,14 @@ directives.directive('field', function ($compile) {
                     var objectName = listConfiguration.objectName;
                     var listFilter = JSON.parse(listConfiguration.filter || "{}");
                     var queryFilter = listConfiguration.useQueryFilterParam ? JSON.parse($routeParams.filter || "{}") : {};
+                    var userFilter = {};
 
-                    var filter = angular.extend({}, listFilter, queryFilter);
+                    for(var ui=0; ui<$scope.toolbarFilters.length; ui++){
+                        var f = $scope.toolbarFilters[ui];
+                        userFilter[f.column] = f.firstOperand;
+                    }
+
+                    var filter = angular.extend({}, listFilter, queryFilter, userFilter);
 
                     if(Object.keys(filter).length < 1){
                         filter = null;
@@ -634,7 +640,11 @@ directives.directive('field', function ($compile) {
 
                         case "list":
                         case "listref":
-                            template = '<div ng-if="listConfiguration !== undefined"><div ng-include="listConfiguration.widgetName" /></div></div>';
+                            template = '<div ng-if="listConfiguration.allowUserFilter">' +
+                                '   <filter columns="listConfiguration.columns" filters="toolbarFilters"></filter>' +
+                                '   <button class="glyphicon glyphicon-refresh" ng-click="getListDataFromConfig(listConfiguration)"></button>' +
+                                '</div>' +
+                                '<div ng-if="listConfiguration !== undefined"><div ng-include="listConfiguration.widgetName" /></div></div>';
                             break;
 
                         case "chartref":
@@ -782,6 +792,7 @@ directives.directive('field', function ($compile) {
             }
 
             if (scope.item.type === "listref") {
+                scope.toolbarFilters = [];
                 scope.getListConfiguration();
             }
 
@@ -832,7 +843,7 @@ directives.directive('field', function ($compile) {
                 scope.getMenuConfiguration();
             }
 
-            console.log("Field template" + template);
+            //console.log("Field template" + template);
 
             var newElement = angular.element(template);
             element.replaceWith(newElement);

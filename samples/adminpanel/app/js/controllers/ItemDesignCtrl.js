@@ -51,6 +51,11 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                     },
                     {
                         "type": "checkbox",
+                        "name": "allowUserFilter",
+                        "label": "Allow user modifiable server filter"
+                    },
+                    {
+                        "type": "checkbox",
                         "name": "allowClientFilter",
                         "label": "Allow search on client"
                     },
