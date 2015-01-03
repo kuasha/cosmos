@@ -10,7 +10,7 @@ describe('File store scenarios', function() {
     var Common = require("./common.js");
     var common = new Common();
 
-    xdescribe("File store P0", function () {
+    describe("File store P0", function () {
         beforeEach(function () {
             common.login('admin', 'admin');
         });

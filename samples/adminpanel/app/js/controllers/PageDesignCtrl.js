@@ -94,7 +94,7 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
             },
             "jsref": {
                 "fields": [
-                    {"type": "inout", "label": "src", "name": "src"}
+                    {"type": "input", "label": "src", "name": "src"}
                 ]
             },
             "extjsref": {

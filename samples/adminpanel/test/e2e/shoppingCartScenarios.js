@@ -462,7 +462,7 @@ describe('Shopping cart scenarios', function() {
             });
         });
 
-        xit('should be able to create widgets', function() {
+        it('should be able to create widgets', function() {
             var widgets  = require('./data/widgets.json');
             for(var wi=0;wi<widgets.length;wi++) {
                 common.log(wi);
@@ -470,7 +470,7 @@ describe('Shopping cart scenarios', function() {
             }
         });
 
-        xit("should be able to create home page", function () {
+        it("should be able to create home page", function () {
             var homePageDef = {
                 "title":"Home",
                 "fields":[
@@ -499,7 +499,7 @@ describe('Shopping cart scenarios', function() {
             });
         });
 
-        xit("should be able to create cart page", function () {
+        it("should be able to create cart page", function () {
             var cartPageDef = {
                 "title":"Cart",
                 "fields":[
@@ -516,7 +516,7 @@ describe('Shopping cart scenarios', function() {
             });
         });
 
-        xit("should be able to create payment option page", function () {
+        it("should be able to create payment option page", function () {
             var paymentOptionPageDef = {
                 "title":"Payment options",
                 "fields":[
@@ -533,7 +533,7 @@ describe('Shopping cart scenarios', function() {
             });
         });
 
-        xit("should be able to create single item view", function () {
+        it("should be able to create single item view", function () {
             var sivPageDef = {
                 "pageId": "5494e4651d61d86be38cd163",
                 "objectName": "monohori.products",
@@ -562,7 +562,7 @@ describe('Shopping cart scenarios', function() {
             });
         });
 
-        xit("should be able to create product form", function () {
+        it("should be able to create product form", function () {
             var productFormDef = {
                 "name": "product",
                 "title": "Product",
@@ -601,7 +601,7 @@ describe('Shopping cart scenarios', function() {
             });
         });
 
-        xit("should be able to create product list", function () {
+        it("should be able to create product list", function () {
             var productListDef = {
                 "objectName": "monohori.products",
                 "title": "Products",
@@ -733,7 +733,7 @@ describe('Shopping cart scenarios', function() {
             });
         });
 
-        xit("should be able to create form", function () {
+        it("should be able to create form", function () {
             common.waitForNavigation('/#/appstudio/', function () {
                 common.log("opening app" + self.appConfig["id"]);
                 common.clickElementById('open_' + self.appConfig["id"]);

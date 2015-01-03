@@ -112,6 +112,12 @@ describe('Admin app', function() {
         var stopElem = element(by.id(toId));
 
         browser.actions().dragAndDrop(startElem, stopElem).perform();
+        browser.waitForAngular();
+    }
+
+    function dragDropElement(startElemSelector, stopElemSelector) {
+        browser.actions().dragAndDrop(element(startElemSelector), element(stopElemSelector)).perform();
+        browser.waitForAngular();
     }
 
     function testItemCreateDelete(appConfig, itemTabId, itemCreateBtnId, itemUrlIncludes, delete_btn_id_prefix,
@@ -179,7 +185,7 @@ describe('Admin app', function() {
         });
     }
 
-    xdescribe('App Studio P0', function() {
+    describe('App Studio P0', function() {
         var appConfig;
         browser.driver.manage().window().maximize();
         //browser.driver.manage().window().setSize(1400, 800);
@@ -298,10 +304,22 @@ describe('Admin app', function() {
                 clickElementById("design_title_label");
 
                 setInputItemValues({"title": "Test page1"}, true);
+
+                dragDrop('tool_twocolumn', 'design_canvas');
+
+                dragDropElement(by.id('tool_listref'), by.xpath("(//ul[@id='design_canvas']/li[1]//ul[1])"));
+                setInputItemValues({"listId": "123456789"}, true);
+
+                dragDropElement(by.id('tool_formref'), by.xpath("(//ul[@id='design_canvas']/li[1]//ul[2])"));
+                setInputItemValues({"formId": "987654321"}, true);
+
+
                 dragDrop('tool_menuref', 'design_canvas');
+                browser.waitForAngular();
 
                 var menuId = "6732541276452367";
                 setInputItemValues({"menuId": menuId}, true);
+
             }, "save_page_button",  "page_id_label" );
         });
 

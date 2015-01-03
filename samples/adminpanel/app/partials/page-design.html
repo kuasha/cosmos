@@ -8,6 +8,7 @@
         border: 1px dashed lightgray;
         min-height: 24px;
         min-width: 128px;
+        padding-top: 10px;
         padding-bottom: 10px;
     }
 
@@ -106,7 +107,7 @@
 
 <script type="text/ng-template" id="jsref-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
-        <div ng-bind="field.type"></div>
+        <div>Internal JS File {{item.src}}</div>
     </div>
 </script>
 
@@ -127,7 +128,7 @@
         <div ng-show="selectedItem == field">&nbsp;</div>
         <div class="container-fluid" >
             <div class="row">
-                <ul class="apps-container col-md-6" ng-init="field.leftcolumn = field.leftcolumn || []"
+                <ul class="apps-container col-md-6 column0" ng-init="field.leftcolumn = field.leftcolumn || []"
                     ui-sortable="sortableOptions"
                     ng-model="field.leftcolumn">
                     <li class="innerCont" ng-repeat="field in field.leftcolumn">
@@ -136,7 +137,7 @@
                         <div ng-include="field.type+'-field.html'"></div>
                     </li>
                 </ul>
-                <ul class="apps-container col-md-6" ng-init="field.rightcolumn = field.rightcolumn || []"
+                <ul class="apps-container col-md-6 column1" ng-init="field.rightcolumn = field.rightcolumn || []"
                     ui-sortable="sortableOptions"
                     ng-model="field.rightcolumn">
                     <li class="innerCont" ng-repeat="field in field.rightcolumn">
@@ -155,7 +156,7 @@
         <div ng-show="selectedItem == field">&nbsp;</div>
         <div class="container-fluid" >
             <div class="row">
-                <ul class="apps-container col-md-4" ng-init="field.leftcolumn = field.leftcolumn || []"
+                <ul class="apps-container col-md-4  column0" ng-init="field.leftcolumn = field.leftcolumn || []"
                     ui-sortable="sortableOptions"
                     ng-model="field.leftcolumn">
                     <li class="innerCont" ng-repeat="field in field.leftcolumn">
@@ -164,7 +165,7 @@
                         <div ng-include="field.type+'-field.html'"></div>
                     </li>
                 </ul>
-                <ul class="apps-container col-md-4" ng-init="field.midcolumn = field.midcolumn || []"
+                <ul class="apps-container col-md-4 column1" ng-init="field.midcolumn = field.midcolumn || []"
                     ui-sortable="sortableOptions"
                     ng-model="field.midcolumn">
                     <li class="innerCont" ng-repeat="field in field.midcolumn">
@@ -173,7 +174,7 @@
                         <div ng-include="field.type+'-field.html'"></div>
                     </li>
                 </ul>
-                <ul class="apps-container col-md-4" ng-init="field.rightcolumn = field.rightcolumn || []"
+                <ul class="apps-container col-md-4 column2" ng-init="field.rightcolumn = field.rightcolumn || []"
                     ui-sortable="sortableOptions"
                     ng-model="field.rightcolumn">
                     <li class="innerCont" ng-repeat="field in field.rightcolumn">
