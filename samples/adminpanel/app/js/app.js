@@ -16,37 +16,37 @@ var cosmosUIDemo = angular.module('cosmosUIDemo', [
     'cosmosUI.controllers'
 ]).
 config(['$routeProvider', function($routeProvider) {
-    $routeProvider.when('/terminal', {templateUrl: 'partials/terminal.html', controller: 'TerminalCtrl'});
+    $routeProvider.when('/terminal', {templateUrl: 'lib/cosmos/partials/terminal.html', controller: 'TerminalCtrl'});
 
-    $routeProvider.when('/install', {templateUrl: 'partials/install.html', controller: 'TerminalCtrl'});
-    $routeProvider.when('/message', {templateUrl: 'partials/message.html', controller: 'MessageViewCtrl'});
+    $routeProvider.when('/install', {templateUrl: 'lib/cosmos/partials/install.html', controller: 'TerminalCtrl'});
+    $routeProvider.when('/message', {templateUrl: 'lib/cosmos/partials/message.html', controller: 'MessageViewCtrl'});
 
-    $routeProvider.when('/users', {templateUrl: 'partials/users.html', controller: 'UsersCtrl'});
-    $routeProvider.when('/roles', {templateUrl: 'partials/roles.html', controller: 'RolesCtrl'});
-    $routeProvider.when('/lists/', {templateUrl: 'partials/list.html', controller: 'ListCtrl'});
-    $routeProvider.when('/login/', {templateUrl: 'partials/login.html', controller: 'LoginCtrl'});
+    $routeProvider.when('/users', {templateUrl: 'lib/cosmos/partials/users.html', controller: 'UsersCtrl'});
+    $routeProvider.when('/roles', {templateUrl: 'lib/cosmos/partials/roles.html', controller: 'RolesCtrl'});
+    $routeProvider.when('/lists/', {templateUrl: 'lib/cosmos/partials/list.html', controller: 'ListCtrl'});
+    $routeProvider.when('/login/', {templateUrl: 'lib/cosmos/partials/login.html', controller: 'LoginCtrl'});
 
-    $routeProvider.when('/appstudio/:appPath?', {templateUrl: 'partials/appstudio.html', controller: 'AppStudioCtrl'});
-    $routeProvider.when('/appstudio/page/:appPath/:pageId?', {templateUrl: 'partials/page-design.html', controller: 'PageDesignCtrl'});
-    $routeProvider.when('/appstudio/form/:appPath/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
+    $routeProvider.when('/appstudio/:appPath?', {templateUrl: 'lib/cosmos/partials/appstudio.html', controller: 'AppStudioCtrl'});
+    $routeProvider.when('/appstudio/page/:appPath/:pageId?', {templateUrl: 'lib/cosmos/partials/page-design.html', controller: 'PageDesignCtrl'});
+    $routeProvider.when('/appstudio/form/:appPath/:formId?', {templateUrl: 'lib/cosmos/partials/form-design.html', controller: 'FormDesignController'});
 
-    $routeProvider.when('/appstudio/:itemType/:appPath/:itemId?', {templateUrl: 'partials/item-design.html', controller: 'ItemDesignCtrl'});
+    $routeProvider.when('/appstudio/:itemType/:appPath/:itemId?', {templateUrl: 'lib/cosmos/partials/item-design.html', controller: 'ItemDesignCtrl'});
 
-    $routeProvider.when('/a/:appPath/formdesign/:formId?', {templateUrl: 'partials/form-design.html', controller: 'FormDesignController'});
-    $routeProvider.when('/a/:appPath/pagedesign/:pageId?', {templateUrl: 'partials/page-design.html', controller: 'PageDesignCtrl'});
+    $routeProvider.when('/a/:appPath/formdesign/:formId?', {templateUrl: 'lib/cosmos/partials/form-design.html', controller: 'FormDesignController'});
+    $routeProvider.when('/a/:appPath/pagedesign/:pageId?', {templateUrl: 'lib/cosmos/partials/page-design.html', controller: 'PageDesignCtrl'});
 
 
-    $routeProvider.when('/a/:appPath?/', {templateUrl: 'partials/pageholder.html', controller: 'IndexCtrl'});
-    $routeProvider.when('/a/:appPath/lists/:listId/', {templateUrl: 'partials/widget-host.html', controller: 'ListDetailCtrl'});
+    $routeProvider.when('/a/:appPath?/', {templateUrl: 'lib/cosmos/partials/pageholder.html', controller: 'IndexCtrl'});
+    $routeProvider.when('/a/:appPath/lists/:listId/', {templateUrl: 'lib/cosmos/partials/widget-host.html', controller: 'ListDetailCtrl'});
 
-    $routeProvider.when('/a/:appPath/content/:fileObjectName/', {templateUrl: 'partials/uploadfile.html', controller: 'FileUploadCtrl'});
-    $routeProvider.when('/a/:appPath/forms/:formId?/:dataId?', {templateUrl: 'partials/formview.html', controller: 'FormViewCtrl'});
+    $routeProvider.when('/a/:appPath/content/:fileObjectName/', {templateUrl: 'lib/cosmos/partials/uploadfile.html', controller: 'FileUploadCtrl'});
+    $routeProvider.when('/a/:appPath/forms/:formId?/:dataId?', {templateUrl: 'lib/cosmos/partials/formview.html', controller: 'FormViewCtrl'});
 
-    $routeProvider.when('/a/:appPath/page/:pageId?', {templateUrl: 'partials/page.html', controller: 'PageViewCtrl'});
+    $routeProvider.when('/a/:appPath/page/:pageId?', {templateUrl: 'lib/cosmos/partials/page.html', controller: 'PageViewCtrl'});
 
-    $routeProvider.when('/a/:appPath/view/:configId/:itemId/', {templateUrl: 'partials/singleitemview.html', controller: 'SingleItemViewCtrl'});
+    $routeProvider.when('/a/:appPath/view/:configId/:itemId/', {templateUrl: 'lib/cosmos/partials/singleitemview.html', controller: 'SingleItemViewCtrl'});
 
-    $routeProvider.when('/applist/', {templateUrl: 'partials/applist.html', controller: 'AppListCtrl'});
+    $routeProvider.when('/applist/', {templateUrl: 'lib/cosmos/partials/applist.html', controller: 'AppListCtrl'});
 
 
     $routeProvider.otherwise({redirectTo: '/a/'});
