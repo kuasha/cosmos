@@ -228,17 +228,19 @@ def prepare(port):
 def main():
     current_directory = os.getcwd()
 
+    port = settings.WEB_SERVER_LISTEN_PORT
+
     if len(sys.argv) < 2:
         command = "start-service"
-        port = settings.WEB_SERVER_LISTEN_PORT
     else:
         command = sys.argv[1].strip()
 
     if len(sys.argv) >= 3:
         port = int(sys.argv[2].strip())
 
+    options = prepare(port)
+
     if command == "start-service":
-        options = prepare(port)
         if options.start_web_service:
             start_service(options)
         if options.start_db_monitor:
@@ -254,7 +256,7 @@ def main():
         except:
             pass
 
-        handler = CommandHandler(db=db)
+        handler = CommandHandler(db=options.db)
         handler.handle_command(current_directory, command, {"arg0": arg0, "arg1": arg1, "arg2": arg2})
 
     signal.signal(signal.SIGINT, int_signal_handler)
