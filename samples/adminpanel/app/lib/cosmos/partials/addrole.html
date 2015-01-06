@@ -1,0 +1,58 @@
+<div class="modal-header">
+    <h3 class="modal-title" ng-show="!isUpdating">Create new role</h3>
+    <h3 class="modal-title" ng-show="isUpdating">Update role</h3>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" role="form">
+        <div ng-show="haserror">There is an error!!!</div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Name *</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" ng-model="role.name" placeholder="Role name">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">SID</label>
+            <div class="col-sm-8">
+                <input type="text"  class="form-control" ng-model="role.sid" ng-readonly="isUpdating" placeholder="Optional, will be generated if left empty">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Role items</label>
+            <div class="col-sm-10">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Access type</th>
+                        <th class="col-xs-2">Object name</th>
+                        <th class="col-xs-2">Property</th>
+                        <th>Access</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="role_item in role.role_items">
+                        <td><select id="role-item-{{$index}}-type" class="form-control" ng-model="role_item.type" ng-options="access_type.name as access_type.display for access_type in access_types"></select></td>
+                        <td class="col-xs-2"><input id="role-item-{{$index}}-object-name" class="form-control" type="text" ng-model="role_item.object_name" /> </td>
+                        <td class="col-xs-2"><input id="role-item-{{$index}}-property-name" class="form-control" type="text" ng-model="role_item.property_name" /> </td>
+                        <td>
+                            <input id="role-item-{{$index}}-access-bits-read" type="checkbox" ng-model="role_item.access_bits.read" /> Read
+                            <input id="role-item-{{$index}}-access-bits-insert" type="checkbox" ng-model="role_item.access_bits.insert" /> Insert
+                            <input id="role-item-{{$index}}-access-bits-write" type="checkbox" ng-model="role_item.access_bits.write" /> Write
+                            <input id="role-item-{{$index}}-access-bits-delete" type="checkbox" ng-model="role_item.access_bits.delete" /> Delete
+                        </td>
+                        <td><button id="remove-role-item-{{$index}}-btn"  class="btn btn-xs btn-danger" ng-click="removeRoleItem($index)">x</button> </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5"><button id="add-role-item-btn" class="btn btn-info btn-sm" ng-click="addRoleItem()">Add</button> </td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button id="add-role-ok-btn" class="btn btn-primary" ng-click="ok()">OK</button>
+    <button id="add-role-cancel-btn" class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

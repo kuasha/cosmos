@@ -1,0 +1,74 @@
+<style>
+input.ng-invalid
+{
+    border:1px solid #C00;
+}
+</style>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/#/appstudio/">App Studio</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/#/appstudio/">Home</a></li>
+                <li><a href="/#/terminal/">Terminal</a></li>
+                <li ng-show="loggedIn()"><a href="#/users">Users</a></li>
+                <li ng-show="loggedIn()"><a href="#/roles">Roles</a></li>
+                <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
+                <li ng-show="!loggedIn()"><a href="/#/login?redirect=/appstudio/">Login</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div ng-init="init()" class="container theme-showcase" role="main">
+    <label>/{{itemType}}/{{appPath}}/</label><label ng-show="itemId" id="item_id_label">{{itemId}}</label>
+    <hr />
+
+    <form name="itemconfigform" novalidate class="form-horizontal" ng-if = "ready">
+        <div ng-if="itemType === 'widget'">
+            <field type="form" item="widgetEditorForm" val="widget"></field>
+        </div>
+        <div ng-if="itemType === 'list'">
+            <field type="form" item="listEditorForm" val="list"></field>
+        </div>
+
+        <div ng-if="itemType === 'chart'">
+            <field type="form" item="chartconfigEditorForm" val="chart"></field>
+        </div>
+
+        <div ng-if="itemType === 'menu'">
+            <field type="form" item="menuEditorForm" val="menu"></field>
+        </div>
+
+        <div ng-if="itemType === 'singleitemview'">
+            <field type="form" item="singleitemconfigEditorForm" val="singleitemview"></field>
+        </div>
+
+        <div ng-if="itemType === 'app'">
+            <field type="form" item="appEditorForm" val="app"></field>
+        </div>
+
+        <div ng-if="itemType === 'sourcefiles'">
+            <field item='{"type":"input", "required":true, "name":"filename", "label":"File name"}' val="sourcefiles.filename"></field>
+            <field item='{"type":"input", "required":true, "name":"modulename", "label":"Module name"}' val="sourcefiles.fullname"></field>
+            <field ng-if="sourcefiles.type==='gridfile'" item='{"type":"codeeditor", "required":true, "label":"Source code", "name":"code"}' val="source.code"></field>
+            <field ng-if="sourcefiles.type==='embedded'" item='{"type":"codeeditor", "label":"Source code", "name":"code"}' val="sourcefiles.code"></field>
+        </div>
+
+        <div ng-if="itemType === 'interceptor'">
+            <field type="form" item="interceptorEditorForm" val="interceptor"></field>
+        </div>
+
+        <div ng-if="itemType === 'appendpoint'">
+            <field type="form" item="appendpointEditorForm" val="appendpoint"></field>
+        </div>
+
+        <div>
+            <br />
+            <button id="create_item_btn" ng-disabled="!(itemconfigform.$valid)" ng-click="saveItem()" class="btn btn-primary">Save {{itemType}}</button>
+        </div>
+    </form>
+</div>

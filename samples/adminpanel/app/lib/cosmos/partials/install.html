@@ -1,0 +1,30 @@
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Cosmos Framework</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/">Home</a></li>
+                <li><a href="#/terminal/">Terminal</a></li>
+                <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
+                <li ng-show="!loggedIn()"><a href="/#/login/">Login</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container theme-showcase" role="main">
+    <error-banner></error-banner>
+    <div ng-show="loggedIn()">
+        <h1>Install application</h1>
+
+        <form enctype="multipart/form-data" method="POST" action="/application/install/">
+            Application package: <input name="application" type="file"/><br/>
+            <input class="btn btn-primary" type="submit" value="       Install       "/>
+        </form>
+    </div>
+    <div ng-show="!loggedIn()">
+        <p>You should login (as admin) to install an application.</p>
+    </div>
+</div>

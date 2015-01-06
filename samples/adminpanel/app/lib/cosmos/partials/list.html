@@ -1,0 +1,27 @@
+<div class="container theme-showcase" role="main">
+    <div ng-show="hasError" class="bg-warning">
+        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+        <div><label>Error code:</label><span ng-bind="status" /></div>
+        <div ng-bind="status_data"></div>
+    </div>
+
+    <h3>{{title}}</h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="list in lists">
+            <td><a href="#/{{serviceName}}/{{list._id}}/">{{list._id}}</a></td>
+            <td><a href="#/{{serviceName}}/{{list._id}}/">{{list.title}}</a></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div ng-repeat="link in links">
+        <a class="btn btn-primary" href="{{link.href}}">{{link.title}}</a>&nbsp;
+    </div>
+</div>

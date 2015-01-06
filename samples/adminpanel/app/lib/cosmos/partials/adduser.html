@@ -1,0 +1,70 @@
+<div class="modal-header">
+    <h3 class="modal-title" ng-show="!isUpdating">Create new user</h3>
+    <h3 class="modal-title" ng-show="isUpdating">Update user</h3>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" role="form">
+        <div ng-show="haserror">There is an error!!!</div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Username</label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" ng-model="user.username" ng-readonly="isUpdating">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Password</label>
+            <div class="col-sm-5">
+                <input type="password" class="form-control" ng-model="user.password" ng-show="!isUpdating" />
+                <input type="password" class="form-control" ng-model="user.password"  ng-show="isUpdating"
+                       placeholder="Leave blank to keep current password" />
+
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Password again</label>
+            <div class="col-sm-5">
+                <input type="password" class="form-control" ng-model="user.password_re" ng-show="!isUpdating">
+                <input type="password" class="form-control" ng-model="user.password_re" ng-show="isUpdating"
+                       placeholder="Leave blank to keep current password" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Email</label>
+            <div class="col-sm-5">
+                <input type="email" class="form-control" ng-model="user.email">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Roles</label>
+            <div class="col-sm-10">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>SID</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="role_sid in user.roles">
+                        <td><span>{{getRoleName(role_sid);}}</span></td>
+                        <td><span>{{role_sid}}</span> </td>
+                        <td><button class="btn btn-xs btn-danger" ng-click="removeRole($index)">x</button> </td>
+                    </tr>
+                    <tr>
+                        <td><select class="form-control" ng-model="selected_role" ng-options="role.sid as role.name for role in roles"></select></td>
+                        <td colspan="2">
+                                <button id="add-user-add-role-btn" class="btn btn-primary" ng-click="addRole(selected_role)">Add</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button id="add-user-ok-btn" class="btn btn-primary" ng-click="ok()">OK</button>
+    <button id="add-user-cancel-btn"  class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

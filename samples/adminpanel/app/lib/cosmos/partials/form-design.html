@@ -1,0 +1,295 @@
+<style>
+    .list {
+        list-style: none outside none;
+        margin: 10px 0 30px;
+    }
+
+    .apps-container {
+        border: 1px dashed lightgray;
+        min-height: 24px;
+        min-width: 128px;
+        padding-bottom: 10px;
+    }
+
+    .form {
+        min-width: 650px;
+        min-height: 64px;
+    }
+
+    .form ul {
+        list-style-type: none;
+    }
+
+    .floatleft {
+        float: left;
+    }
+
+    .floatright {
+        float: right;
+    }
+
+    .clear {
+        clear: both;
+    }
+
+    .gen-dynamic-directive {
+        display: block;
+    }
+
+    .beingDragged {
+        height: 32px;
+        margin-bottom: .5em !important;
+        border: 1px dashed #ccc !important;
+    }
+    .properties{
+        margin-left: 10px;
+    }
+    .settings-tab-container{
+        min-width: 300px;
+        width:400px;
+    }
+
+</style>
+
+<script type="text/ng-template" id="input-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label>{{field.label}}<span ng-if="field.required">&nbsp;*</span></label>
+        <input ng-class="field.className" type="{{field.htmltype || 'text'}}" name="{{field.model}}" readonly="readonly" disabled="disabled"/>
+    </div>
+</script>
+
+<script type="text/ng-template" id="static-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label>{{field.label}}</label>
+        <input ng-class="field.className" type="text" name="{{field.model}}" ng-model="field.options.value"/>
+    </div>
+</script>
+
+<script type="text/ng-template" id="textarea-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label>{{field.label}}</label>
+        <textarea class="editor" ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled"></textarea>
+    </div>
+</script>
+
+<script type="text/ng-template" id="filectrl-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label>{{field.label}}</label>
+        <input type="text" ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled" />
+        <button class="btn btn-sm btn-primary">Browse</button>
+    </div>
+</script>
+
+<script type="text/ng-template" id="codeeditor-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label>{{field.label}}</label>
+        <div ui-ace class="editor" ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="checkbox-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <input type="checkbox" ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled">
+        <label class="control-label">{{field.label}}</label>
+    </div>
+</script>
+
+<script type="text/ng-template" id="radiogroup-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{field.label}}</label>
+
+        <div class="composite" ng-repeat="choice in field.options.choices">
+            <input type="radio" ng-class="field.className" name="{{field.model}}" ng-value="choice.value"
+                   readonly="readonly" disabled="disabled">
+            <label class="control-label">{{choice.label}}</label>
+        </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="select-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{field.label}}</label>
+        <select ng-class="field.className" name="{{field.model}}" readonly="readonly" disabled="disabled">
+            <option ng-if="field.nullable === true" ng-value=""> --- Select ---</option>
+            <option ng-value="option.value" ng-repeat="choice in field.options.choices">{{choice.label}}</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/ng-template" id="lookup-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{field.label}}</label>
+        <select readonly="readonly" disabled="disabled">
+        </select>
+        <select ng-hide="field.options.saveValueOnly" readonly="readonly" disabled="disabled">
+        </select>
+    </div>
+</script>
+
+<script type="text/ng-template" id="composite-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{field.label}}</label>
+        <ul ng-if="field.type === 'composite' || field.type === 'form'" class="apps-container" ui-sortable="sortableOptions"
+            ng-model="field.fields">
+            <li class="innerCont" ng-repeat="field in field.fields">
+                <button ng-show="field === selectedItem" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
+                <div ng-include="field.type+'-field.html'"></div>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script type="text/ng-template" id="condition-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{field.label}}</label>
+        <ul>
+            <li>
+                <label class="control-label">IF</label>
+                <ul class="apps-container"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.fields">
+                    <li class="innerCont" ng-repeat="field in field.fields">
+                        <button ng-show="field === selectedItem" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.fields, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <label class="control-label">ELSE</label>
+                <ul class="apps-container"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.elsefields">
+                    <li class="innerCont" ng-repeat="field in field.elsefields">
+                        <button ng-show="field === selectedItem" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.elsefields, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script type="text/ng-template" id="array-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{field.label}} [ ]</label>
+        <ul class="apps-container" ui-sortable="sortableOptions" ng-model="field.fields">
+            <li class="innerCont" ng-repeat="field in field.fields">
+                <button ng-show="field === selectedItem" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
+                <div ng-include="field.type+'-field.html'"></div>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script type="text/ng-template" id="field-options.html">
+    <div>
+
+    </div>
+</script>
+
+<script type="text/ng-template" id="control-tab-tools.html">
+    <div>
+        <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
+            <li ng-repeat="comp in components">
+                 {{comp.label}}
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script type="text/ng-template" id="form-options.html">
+    <div>
+        <label>Action</label>
+        <input type="text" ng-model="selectedItem.action" />
+    </div>
+    <div>
+        <label>On success</label>
+        <div>
+            <div>
+                <label>Type</label>
+                <select ng-model="selectedItem.onsuccess.type" ng-options="otype.name as otype.label for otype in onsuccess_types"></select>
+            </div>
+            <div>
+                <label>Value</label>
+                <input type="text" ng-model="selectedItem.onsuccess.value" />
+            </div>
+        </div>
+    </div>
+</script>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/appstudio/">App Studio</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/#/appstudio/">Home</a></li>
+                <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
+                <li ng-show="!loggedIn()"><a href="/#/login/">Login</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div ng-init="init()" class="container-fluid">
+
+    <div ng-show="hasError" class="bg-warning">
+        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+        <div><label>Error code:</label><span ng-bind="status"/></div>
+        <div ng-bind="status_data"></div>
+    </div>
+    <div  class="row">
+            <label>Form Id: </label><label id="form_id_label">{{form._id}}</label><br />
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+            <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
+                <li ng-repeat="comp in components" id="tool_{{comp.type}}">
+                    {{comp.label}}
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-8 page">
+        <div ng-click="selectItem(form); $event.stopPropagation();">
+            <label id="design_title_label" class="control-label">{{form.title}}</label>
+            <ul id="design_canvas" class="apps-container" ui-sortable="sortableOptions" ng-model="form.fields">
+                <li class="innerCont" ng-repeat="field in form.fields">
+                    <button ng-show="field === selectedItem" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem(form.fields, $index);"></button>
+                    <div ng-include="field.type+'-field.html'"></div>
+                </li>
+            </ul>
+        </div>
+        </div>
+        <div class="col-sm-2">
+            <div ng-if="selectedItem">
+                <div>
+                    <label>{{optionsform.title}}</label>
+                </div>
+                <ul>
+                    <li ng-repeat="field in optionsform.fields">
+                        <field item="field" val="selectedItem[field.name]"></field>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <div>
+        <button id="save_form_button" class="btn btn-success" ng-click="saveForm()">Save Form</button>
+    </div>
+    <div>
+        <label>Data</label>
+        <p>{{form}}</p>
+    </div>
+
+    <div>
+        <label>Result</label>
+        <p>{{result}}</p>
+    </div>
+
+</div>

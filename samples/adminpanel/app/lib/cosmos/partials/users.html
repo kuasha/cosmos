@@ -1,0 +1,50 @@
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/#/terminal/">Terminal</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/#/appstudio/">App Studio</a></li>
+                <li ng-show="loggedIn()"><a href="#/users">Users</a></li>
+                <li ng-show="loggedIn()"><a href="#/roles">Roles</a></li>
+                <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
+                <li ng-show="!loggedIn()"><a href="/#/login/?redirect=/terminal/">Login</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container theme-showcase" role="main">
+    <div ng-show="hasError" class="bg-warning">
+        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+        <div><label>Error code:</label><span ng-bind="status"/></div>
+        <div ng-bind="status_data"></div>
+    </div>
+
+    <h3>Users</h3>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="user in users">
+            <td>{{user.username}}</td>
+            <td>{{user.email}}</td>
+            <td>
+                <button id="edit-user-{{user.username}}"  class="btn btn-xs btn-warning glyphicon glyphicon-edit"
+                        ng-click="editUser($index);"></button>
+                <button id="remove-user-{{user.username}}" class="btn btn-xs btn-danger glyphicon glyphicon-remove"
+                        ng-click="removeUser($index);"></button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <button id="create-user-btn" class="btn btn-primary" ng-click="addUser('lg')">Create user</button>
+</div>

@@ -1,0 +1,30 @@
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">beendu</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/#/appstudio/">App Studio</a></li>
+                <li><a href="/#/terminal/">Terminal</a></li>
+                <li ng-show="loggedIn()"><a href="#/users">Users</a></li>
+                <li ng-show="loggedIn()"><a href="#/roles">Roles</a></li>
+                <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
+                <li ng-show="!loggedIn()"><a href="/#/login?redirect=/appstudio/">Login</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div ng-init="init()" class="container theme-showcase" role="main">
+    <div ng-show="hasError" class="bg-warning">
+        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+        <div><label>Error code:</label><span ng-bind="status" /></div>
+        <div ng-bind="status_data"></div>
+    </div>
+
+    <h3>Available Applications</h3>
+    <div ng-repeat="app in apps">
+        <td><a href="#/a/{{app.path}}/">{{app.title}}</a></td>
+    </div>
+</div>

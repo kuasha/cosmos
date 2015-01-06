@@ -1,0 +1,67 @@
+/* Bar chart style */
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+/* END Bar chart style */
+
+/* Line Chart Styles*/
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+/* END Line Chart Styles*/
+
+/* Pie chart style */
+.arc path {
+  stroke: #fff;
+}
+
+/* End Pie Chart Style */
+
+.chartHolder
+{
+    width:980px;
+    height:520px;
+    border: 1px solid;
+    overflow: auto;
+}
+.chart{
+    width:970px;
+    height:510px;
+}
+
