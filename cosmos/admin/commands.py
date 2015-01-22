@@ -19,9 +19,6 @@ from cosmos.dataservice.objectservice import *
 class CommandHandler():
     def __init__(self, *args, **kwargs):
         self.db = kwargs.get("db", None)
-        if not self.db:
-            raise ArgumentError("db", "Database object must be set while creating CommandHandler object.")
-
         self.settings = kwargs.get("settings", None)
 
     def handle_command(self, *args, **kwarg):
@@ -53,6 +50,9 @@ class CommandHandler():
         return input
 
     def create_user(self, username, password, email, roles):
+        if not self.db:
+            raise ArgumentError("db", "Database object must be set while creating CommandHandler object.")
+
         data = {"username": username, "password": password, "email": email, "roles": roles}
         object_service = ObjectService(db=self.db)
         result = object_service.save(SYSTEM_USER, COSMOS_USERS_OBJECT_NAME, data)
@@ -106,10 +106,16 @@ def admin_main():
         except:
             pass
 
-        print "Importing settings.py from directory: "+ current_directory
-        sys.path.insert(0, current_directory)
-        import settings
-        sync_db = get_sync_db(settings.DATABASE_URI, settings.DB_NAME)
+        sync_db = None
+        settings = None
+        if command == "new-project":
+            pass
+        else:
+            print "Importing settings.py from directory: "+ current_directory
+            sys.path.insert(0, current_directory)
+            import settings
+            sync_db = get_sync_db(settings.DATABASE_URI, settings.DB_NAME)
+
         handler = CommandHandler(db=sync_db, settings=settings)
         handler.handle_command(current_directory, command, {"arg0": arg0, "arg1": arg1, "arg2": arg2})
 

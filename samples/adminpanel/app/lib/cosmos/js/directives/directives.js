@@ -367,7 +367,7 @@ var directives = angular.module('cosmosUI.directives', []).
 
                     $scope.browseFile = function(){
                         var modalInstance = $modal.open({
-                            templateUrl: 'partials/browsefile.html',
+                            templateUrl: 'lib/cosmos/partials/browsefile.html',
                             controller: "BrowseFileController",
                             size: 'lg',
                             backdrop: 'static',
