@@ -19,7 +19,7 @@ def init_observers(db, object_service, observers):
     loader = BootLoader()
     loader.init_observers(object_service, observers)
     loader.load_roles(object_service)
-    loader.load_role_groups(db)
+    loader.load_role_groups(object_service)
 
 def start_web_service(options):
 
