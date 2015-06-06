@@ -43,7 +43,8 @@ def start_web_service(options):
                 github_oauth=options.github_oauth,
                 directory_listing_allowed=options.directory_listing_allowed,
                 object_service=object_service,
-                source_root=options.source_root
+                source_root=options.source_root,
+                facebook_redirect_uri=options.facebook_redirect_uri
             )
 
     application = tornado.web.Application(

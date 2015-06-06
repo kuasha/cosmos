@@ -33,7 +33,25 @@ HMAC_KEY = "+8/YqtEUQfiYLUdO2iJ2OyzHIFSAKEuKvKYwFqemFas="
 
 facebook_client_id='000000000000000'
 facebook_client_secret='00000000000000000000000000000000'
-facebook_scope =  "email,read_stream,offline_access"
+facebook_scope =  "email,public_profile,user_friends"
+facebook_redirect_uri = None
+
+
+"""
+# pip install pycrypto for Crypto
+# then from python console generate private_pem and public_pen and assign to SERVICE_PRIVATE_KEY and SERVICE_PUBLIC_KEY
+import  Crypto.PublicKey.RSA as RSA
+key = RSA.generate(2048)
+private_pem = key.exportKey()
+public_pem = key.publickey().exportKey()
+
+"""
+# TODO: set both keys below. Private key backup must be kept in a secure place and should never be shared
+# If private key is compromised, this service and all other services that trust this will be compromised
+# Public key is to share publicly for verification
+
+SERVICE_PRIVATE_KEY = None
+SERVICE_PUBLIC_KEY = None
 
 directory_listing_allowed = True
 
@@ -48,6 +66,10 @@ GOOGLE_OAUTH2_REDIRECT_URI = None
 GITHUB_CLIENT_ID = None
 GITHUB_CLIENT_SECRET = None
 GITHUB_OAUTH2_CALLBACK_URI = None
+
+USERS_IDENTITY_COL_NAME = "cosmos.users.identity"
+USERS_PROFILE_FB_COL_NAME = "cosmos.users.profile.facebook"
+USERS_FB_FRIENDS_COL_NAME = "cosmos.users.facebook.friends"
 
 login_url = "/login/"
 

@@ -193,6 +193,7 @@ def get_options(sync_db, port):
         facebook_api_key=settings.facebook_client_id,
         facebook_secret=settings.facebook_client_secret,
         facebook_scope=settings.facebook_scope,
+        facebook_redirect_uri=settings.facebook_redirect_uri,
         google_oauth=settings.GOOGLE_OAUTH2_SETTINGS,
         github_oauth=settings.GITHUB_OAUTH_SETTINGS,
         start_db_monitor=settings.START_OBJECT_CHANGE_MONITOR,
