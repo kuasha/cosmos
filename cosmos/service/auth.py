@@ -272,8 +272,9 @@ class FacebookGraphLoginHandler(CosmosAuthHandler, tornado.auth.FacebookGraphMix
     @tornado.web.asynchronous
     @gen.coroutine
     def get(self):
-        nextpg = self.get_argument("next", '/')
-        params = {'next':nextpg}
+        default_next = self.settings.get("default_login_next_uri", "/")
+        nextpg = self.get_argument("next", default_next)
+        params = {'next': nextpg}
         callback_uri = self.request.uri
 
         redirect_uri_base = self.settings.get("facebook_redirect_uri", self.request.full_url())

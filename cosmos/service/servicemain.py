@@ -44,7 +44,8 @@ def start_web_service(options):
                 directory_listing_allowed=options.directory_listing_allowed,
                 object_service=object_service,
                 source_root=options.source_root,
-                facebook_redirect_uri=options.facebook_redirect_uri
+                facebook_redirect_uri=options.facebook_redirect_uri,
+                default_login_next_uri=options.default_login_next_uri
             )
 
     application = tornado.web.Application(

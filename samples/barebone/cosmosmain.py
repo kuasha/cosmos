@@ -190,6 +190,7 @@ def get_options(sync_db, port):
         xheaders=True,
         template_path=settings.TEMPLATE_PATH,
         debug=settings.DEBUG,
+        default_login_next_uri=settings.DEFAULT_LOGIN_NEXT_URI,
         facebook_api_key=settings.facebook_client_id,
         facebook_secret=settings.facebook_client_secret,
         facebook_scope=settings.facebook_scope,
