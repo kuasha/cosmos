@@ -35,7 +35,7 @@ facebook_client_id='000000000000000'
 facebook_client_secret='00000000000000000000000000000000'
 facebook_scope =  "email,public_profile,user_friends"
 facebook_redirect_uri = None
-
+DEFAULT_LOGIN_NEXT_URI = "/"
 
 """
 # pip install pycrypto for Crypto
