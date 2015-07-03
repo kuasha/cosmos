@@ -68,7 +68,17 @@ services = angular.module('cosmosUI.services', [])
 
                 localStorageService.set(name, objects);
             },
-
+            
+            removeAt: function (name, index) {           
+                var objects = this.getCollection(name);
+                if (!objects || objects.length<=index) {
+                    return -1;
+                }
+                objects.splice(index, 1);    
+                localStorageService.set(name, objects);
+                return index;
+            },
+            
             removeById: function (name, _id) {
                 var foundIndex = -1;
                 var objects = this.getCollection(name);
