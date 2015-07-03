@@ -92,6 +92,11 @@ if __name__ == "__main__":
 
     package_sample(path, sample_def_path, [])
 
+    path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../samples/angularbasic"))
+    sample_def_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "samples/angularbasicdef.py")
+
+    package_sample(path, sample_def_path, [])
+
     path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../samples/adminpanel"))
     sample_def_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "samples/adminpaneldef.py")
 
