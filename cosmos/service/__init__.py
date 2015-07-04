@@ -55,7 +55,7 @@ class BootLoader():
             if observer_type == OBSERVER_PRE_PROCESSOR:
                 object_service.add_operation_preprocessor(func, object_name, access)
             elif observer_type == OBSERVER_POST_PROCESSOR:
-                object_service.add_operation_postprocessor(func, object_name, [access])
+                object_service.add_operation_postprocessor(func, object_name, access)
 
     @gen.coroutine
     def load_roles(self, object_service):
