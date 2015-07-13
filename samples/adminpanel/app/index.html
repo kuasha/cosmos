@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html xmlns:ng="http://angularjs.org" lang="en" ng-app="cosmosUI" ng-controller="AdminMainCtrl" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html xmlns:ng="http://angularjs.org" lang="en" ng-app="cosmosUI" ng-controller="AdminMainCtrl" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html xmlns:ng="http://angularjs.org" lang="en" ng-app="cosmosUI" ng-controller="AdminMainCtrl" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html xmlns:ng="http://angularjs.org" lang="en" ng-app="cosmosUI" ng-controller="AdminMainCtrl" class="no-js"> <!--<![endif]-->
+<!--[if lt IE 7]>      <html xmlns:ng="http://angularjs.org" lang="en" ng-app="cosmosUIDemo" ng-controller="AdminMainCtrl" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html xmlns:ng="http://angularjs.org" lang="en" ng-app="cosmosUIDemo" ng-controller="AdminMainCtrl" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html xmlns:ng="http://angularjs.org" lang="en" ng-app="cosmosUIDemo" ng-controller="AdminMainCtrl" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html xmlns:ng="http://angularjs.org" lang="en" ng-app="cosmosUIDemo" ng-controller="AdminMainCtrl" class="no-js"> <!--<![endif]-->
 
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Cosmos Admin App</title>
+  <title>Beendu</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/css/normalize.css">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/css/main.css">
-  <link rel="stylesheet" href="css/app.css"/>
-  <link rel="stylesheet" href="css/charts.css"/>
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="lib/cosmos/css/app.css"/>
+  <link rel="stylesheet" href="lib/cosmos/css/charts.css"/>
+  <link rel="stylesheet" href="lib/css/bootstrap.min.css" />
   <style>
       body {
           padding-top: 50px;
@@ -43,10 +43,12 @@
 
     <script src="bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-    <script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js"></script>
+    <script src="lib/js/jquery.min.js"></script>
+    <script src="lib/js/bootstrap.min.js"></script>
+    <script src="lib/js/jquery-ui.js"></script>
+    <script src="lib/js/d3.min.js"></script>
+
+    <script type="text/javascript" src="lib/js/notify.min.js"></script>
 
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
@@ -58,43 +60,47 @@
     <script type="text/javascript" src="bower_components/ace-builds/src-min-noconflict/ace.js"></script>
     <script type="text/javascript" src="bower_components/angular-ui-ace/ui-ace.js"></script>
 
-    <script data-require="lodash.js@2.4.1" data-semver="2.4.1" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+    <script data-require="lodash.js@2.4.1" data-semver="2.4.1" src="lib/js/lodash.js"></script>
     <script type="text/javascript" src="bower_components/angular-json-human/dist/angular-json-human.min.js"></script>
     <link rel="stylesheet" href="bower_components/angular-json-human/dist/angular-json-human.min.css" />
 
     <script type="text/javascript" src="bower_components/angular-ui-select/dist/select.min.js"></script>
     <link rel="stylesheet" href="bower_components/angular-ui-select/dist/select.min.css" />
-    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.8.5/css/selectize.bootstrap3.css">
+    <link rel="stylesheet" href="lib/css/selectize.bootstrap3.css">
 
-    <script src="js/utils.js"></script>
-    <script src="js/charthelper.js"></script>
+    <script src="lib/cosmos/js/utils.js"></script>
+    <script src="lib/cosmos/js/charthelper.js"></script>
+    <script src="lib/cosmos/js/services/services.js"></script>
+    <script src="lib/cosmos/js/controllers/controllers.js"></script>
+    <script src="lib/cosmos/js/filters.js"></script>
+    <script src="lib/cosmos/js/directives/directives.js"></script>
+
+    <script src="lib/cosmos/js/controllers/LoginCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/IndexCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/TerminalCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/UsersCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/RolesCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/ListCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/ListDetailCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/FileUploadCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/FormDesignCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/PageDesignCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/FormViewCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/PageViewCtrl.js"></script>
+
+    <script src="lib/cosmos/js/controllers/AppStudioCtrl.js"></script>
+    <script src="lib/cosmos/js/controllers/ItemDesignCtrl.js"></script>
+
+    <script src="lib/cosmos/js/directives/field.js"></script>
+    <script src="lib/cosmos/js/directives/filter.js"></script>
+
+    <script src="lib/cosmos/js/services/http.js"></script>
+    <script src="lib/cosmos/js/services/cachedloader.js"></script>
+    <script src="lib/cosmos/js/services/settings.js"></script>
+    <script src="lib/cosmos/js/services/constants.js"></script>
+    <script src="lib/cosmos/js/services/utils.js"></script>
+
     <script src="js/app.js"></script>
-    <script src="js/services/services.js"></script>
-    <script src="js/controllers/controllers.js"></script>
-    <script src="js/filters.js"></script>
-    <script src="js/directives/directives.js"></script>
-
-    <script src="js/controllers/LoginCtrl.js"></script>
-    <script src="js/controllers/IndexCtrl.js"></script>
-    <script src="js/controllers/TerminalCtrl.js"></script>
-    <script src="js/controllers/UsersCtrl.js"></script>
-    <script src="js/controllers/RolesCtrl.js"></script>
-    <script src="js/controllers/ListCtrl.js"></script>
-    <script src="js/controllers/ListDetailCtrl.js"></script>
-    <script src="js/controllers/FileUploadCtrl.js"></script>
-    <script src="js/controllers/FormDesignCtrl.js"></script>
-    <script src="js/controllers/PageDesignCtrl.js"></script>
-    <script src="js/controllers/FormViewCtrl.js"></script>
-    <script src="js/controllers/PageViewCtrl.js"></script>
-
-    <script src="js/controllers/AppStudioCtrl.js"></script>
-    <script src="js/controllers/ItemDesignCtrl.js"></script>
-
-    <script src="js/directives/field.js"></script>
-
-    <script src="js/services/http.js"></script>
-    <script src="js/services/cachedloader.js"></script>
-    <script src="js/services/settings.js"></script>
 
 </body>
 </html>

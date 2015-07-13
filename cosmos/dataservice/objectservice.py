@@ -205,23 +205,32 @@ class ObjectService():
 
         properties = ['body', 'content_type', 'filename', 'collection_name', 'createtime', 'owner']
 
-        self.check_access(user, collection_name, properties, AccessType.INSERT, True)
+        if file_id:
+            self.check_access(user, collection_name, properties, AccessType.UPDATE, True)
+        else:
+            self.check_access(user, collection_name, properties, AccessType.INSERT, True)
 
-        self.create_access_log(user, collection_name, AccessType.INSERT)
+        if file_id:
+            self.create_access_log(user, collection_name, AccessType.UPDATE)
+        else:
+            self.create_access_log(user, collection_name, AccessType.INSERT)
 
         return save_file_in_gridfs(self.db, user, collection_name, file_object, properties, file_id)
 
-    def load_file(self, user, collection_name, file_id):
+    def load_file(self, user, collection_name, file_id, ignore_col_name=False):
         logging.debug("ObjectService::load_file::{0}".format(collection_name))
 
         properties = ['body', 'content_type']
 
-        allowed_access_type = self.check_access(user, collection_name, properties, AccessType.READ, True)
+        if not ignore_col_name:
+            allowed_access_type = self.check_access(user, collection_name, properties, AccessType.READ, True)
 
-        if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
-            return read_gridfs_owned_file(user, self.db, collection_name, file_id, properties)
+            if allowed_access_type == ACCESS_TYPE_OWNER_ONLY:
+                return read_gridfs_owned_file(user, self.db, collection_name, file_id, properties)
 
-        self.create_access_log(user, collection_name, AccessType.READ)
+            self.create_access_log(user, collection_name, AccessType.READ)
+        else:
+            self.create_access_log(user, "gridfile:"+file_id, AccessType.READ)
 
         return read_gridfs_file(self.db, collection_name, file_id, properties)
 
@@ -356,6 +365,9 @@ class ObjectService():
 def save_file_in_gridfs(db, user, collection_name, file_object, properties, file_id=None):
     fs = motor.MotorGridFS(db)
     if file_id:
+        #TODO: Verify: As of today mongodb does not allow replacing file- so delete and create
+        #TODO: non atomic operation
+        yield delete_gridfs_file(db, file_id)
         oid = ObjectId(str(file_id))
         gridin = yield fs.new_file(_id=oid)
     else:
@@ -428,7 +440,7 @@ def read_gridfs_owned_file(user, db, collection_name, file_id, properties):
         raise tornado.web.HTTPError(404, "File not found")
 
 @gen.coroutine
-def read_gridfs_file(db, collection_name, file_id, properties):
+def read_gridfs_file(db, collection_name, file_id, properties, ignore_col_name=False):
     fs = motor.MotorGridFS(db)
     try:
         gridout = yield fs.get(ObjectId(file_id))
@@ -438,11 +450,11 @@ def read_gridfs_file(db, collection_name, file_id, properties):
 
         content_type = gridout.content_type
 
-        got_col_name = gridout.collection_name
+        if not ignore_col_name:
+            got_col_name = gridout.collection_name
 
-        if got_col_name != collection_name:
-            raise tornado.web.HTTPError(404, "File not found")
-
+            if got_col_name != collection_name:
+                raise tornado.web.HTTPError(404, "File not found")
 
         content = yield gridout.read()
 

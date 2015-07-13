@@ -272,14 +272,18 @@ class FacebookGraphLoginHandler(CosmosAuthHandler, tornado.auth.FacebookGraphMix
     @tornado.web.asynchronous
     @gen.coroutine
     def get(self):
-        nextpg = self.get_argument("next", '/')
-        params = {'next':nextpg}
+        default_next = self.settings.get("default_login_next_uri", "/")
+        nextpg = self.get_argument("next", default_next)
+        params = {'next': nextpg}
         callback_uri = self.request.uri
-        url = urlparse.urljoin(self.request.full_url(), callback_uri)
+
+        redirect_uri_base = self.settings.get("facebook_redirect_uri", self.request.full_url())
+
+        url = urlparse.urljoin(redirect_uri_base, callback_uri)
 
         redirect_uri = add_params(url, params)
 
-        redirect_uris = redirect_uri  # redirect_uri.replace('http','https')
+        redirect_uris = redirect_uri #redirect_uri.replace('http','https')
 
         if self.get_argument("code", False):
             user = yield self.get_authenticated_user(
@@ -308,6 +312,7 @@ class LoginHandler(RequestHandler):
     def post(self):
         username = self.get_argument("username", None)
         password = self.get_argument("password", None)
+        redirect_url = self.get_argument("next", '/')
 
         if not username or len(username) < 1:
             data = json.loads(self.request.body)
@@ -333,7 +338,7 @@ class LoginHandler(RequestHandler):
             validate_password(password, loaded_password_hash, hmac_key)
             del user["password"]
             self.set_current_user(user)
-            self.redirect('/')
+            self.redirect(redirect_url)
 
 
 def validate_password(password, saved_password_hash, hmac_key):

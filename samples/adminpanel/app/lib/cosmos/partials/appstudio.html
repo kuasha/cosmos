@@ -1,0 +1,262 @@
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/#/appstudio/">App Studio</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/#/appstudio/">Home</a></li>
+                <li><a href="/#/terminal/">Terminal</a></li>
+                <li ng-show="loggedIn()"><a href="#/users">Users</a></li>
+                <li ng-show="loggedIn()"><a href="#/roles">Roles</a></li>
+                <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
+                <li ng-show="!loggedIn()"><a href="/#/login?redirect=/appstudio/">Login</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="container theme-showcase" role="main" ng-init="init()">
+    <error-banner></error-banner>
+    <div>
+        <label ng-bind="getCurrentApplicationTitle()"></label>
+        <button id="close_app_btn" ng-show="isAppOpened()" ng-click="closeApp()" class="btn btn-danger btn-xs">Close App</button>
+        <button id="refresh_app_btn" ng-show="isAppOpened()" ng-click="loadAppItemsForSelectedApp()" class="btn btn-success btn-xs">Refresh</button>
+    </div>
+
+    <div ng-hide="isAppOpened()">
+        <div ng-show="!loggedIn()">
+            <p>You should login (as admin) to install an application.</p>
+        </div>
+
+        <div ng-show="loggedIn()">
+            <h2>Install application</h2>
+
+            <form enctype="multipart/form-data" method="POST" action="/application/install/">
+                Application package: <input name="application" type="file"/><br/>
+                <input class="btn btn-primary" type="submit" value="       Install Application      "/>
+            </form>
+        </div>
+
+        <h2>Applications</h2>
+
+        <div id="app">
+            <table class="table">
+                <tr ng-repeat="capp in applications">
+                    <td>
+                        {{capp.title}}
+                    </td>
+                    <td>
+                        <button id="open_{{capp.id}}" ng-click="openApp(capp)" class="btn btn-success btn-sm">Open App</button>
+                    </td>
+                    <td>
+                        <a id="browse_{{capp.id}}" href="/#/a/{{capp.path}}/" class="btn btn-primary btn-sm">Browse App</a>
+                    </td>
+                    <td>
+                        <button id="set_default_{{capp.id}}" ng-hide="capp.id === globalSettings.defaultappid"  ng-click="setAsDefault(capp)" class="btn btn-success btn-sm">Set default</button>
+                        <span id="default_txt_{{capp.id}}" ng-show="capp.id === globalSettings.defaultappid">Default</span>
+                    </td>
+                    <td>
+                        <a id="settings_{{capp.id}}" ng-href="#/appstudio/app/cosmosapp/{{capp._id}}" class="btn btn-primary btn-sm">Settings</a>
+                    </td>
+                    <td>
+                        <a id="export_{{capp.id}}" ng-href="/application/package/{{capp.id}}" class="btn btn-info btn-sm">Export App</a>
+                    </td>
+                    <td>
+                        <button id="delete_{{capp.id}}" ng-click="deleteApp(capp);" class="btn btn-danger btn-sm">Delete</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <a id="create_app_btn" ng-href="#/appstudio/app/cosmosapp" class="btn btn-primary">Create Application</a>
+        </div>
+
+    </div>
+
+    <div ng-show="isAppOpened()">
+
+        <tabset>
+            <tab heading="Pages" id="pages_tab">
+                <div id="pages">
+                    <table class="table">
+                        <tr>
+                            <td>Control</td>
+                            <td>View</td>
+                        </tr>
+                        <tr ng-repeat="page in selectedApplication.pages">
+                            <td>
+                                <a id="edit_pg_{{page._id}}" ng-href="#/appstudio/page/{{selectedApplication.path}}/{{page._id}}">[Edit {{page.title}}]</a>
+                            </td>
+                            <td>
+                                <a id="view_pg_{{page._id}}" ng-href="#/a/{{selectedApplication.path}}/page/{{page._id}}">[View {{page.title}}]</a>
+                            </td>
+                            <td>
+                                <button id="set_default_pg_{{page._id}}" ng-hide="page._id === selectedApplication.settings.indexPageId"  ng-click="setPageAsDefault(page)" class="btn btn-success btn-xs">Set default</button>
+                                <span id="default_txt_{{page._id}}" ng-show="page._id === selectedApplication.settings.indexPageId">Default</span>
+                            </td>
+                            <td>
+                                <button id="delete_pg_{{page._id}}" ng-click="deleteItem(null, 'page', page.title, 'pageconfigobject' , page._id)" class="btn btn-danger btn-xs">Delete</button>
+                            </td>
+                        </tr>
+                    </table>
+                    <a id="create_page_btn" ng-href="#/appstudio/page/{{selectedApplication.path}}/" class="btn btn-primary">Create page</a>
+                </div>
+            </tab>
+            <tab heading="Forms" id="forms_tab">
+                <div id="forms">
+                    <table class="table">
+                        <tr ng-repeat="form in selectedApplication.forms">
+                            <td>
+                                <a id="edit_form_{{form._id}}" ng-href="#/appstudio/form/{{selectedApplication.path}}/{{form._id}}">[{{form.title}}]</a>
+                            </td>
+                            <td>
+                                <button id="delete_form_{{form._id}}" ng-click="deleteItem(null, 'form', form.title, 'formconfigobject' , form._id)" class="btn btn-danger btn-xs">Delete</button>
+                            </td>
+                        </tr>
+                    </table>
+                    <a id="create_form_btn" ng-href="#/appstudio/form/{{selectedApplication.path}}/" class="btn btn-primary">Create form</a>
+                </div>
+            </tab>
+            <tab heading="Lists" id="lists_tab">
+                <div id="lists">
+                    <table class="table">
+                        <tr ng-repeat="list in selectedApplication.lists">
+                            <td>
+                                <a id="edit_list_{{list._id}}" ng-href="#/appstudio/list/{{selectedApplication.path}}/{{list._id}}">[{{list.title}}]</a>
+                            </td>
+                            <td>
+                                <button id="delete_list_{{list._id}}" ng-click="deleteItem(null, 'list', list.title, 'listconfigobject' , list._id)" class="btn btn-danger btn-xs">Delete</button>
+                            </td>
+                        </tr>
+                    </table>
+                    <a id="create_list_btn" ng-href="#/appstudio/list/{{selectedApplication.path}}/" class="btn btn-primary">Create List</a>
+                </div>
+            </tab>
+            <tab heading="Charts" id="charts_tab">
+                <div id="charts">
+                    <table class="table">
+                        <tr ng-repeat="chart in selectedApplication.charts">
+                            <td>
+                                {{chart.title}}
+                            </td>
+                            <td>
+                                {{chart.chartType}}
+                            </td>
+                            <td><a id="edit_chart_{{chart._id}}" class="btn btn-xs btn-info" ng-href="#/appstudio/chart/{{selectedApplication.path}}/{{chart._id}}">Edit</a></td>
+                            <td>
+                                <button id="delete_chart_{{chart._id}}" ng-click="deleteItem(null, 'chart', chart.title, 'chartconfigobject' , chart._id)" class="btn btn-danger btn-xs">Delete</button>
+                            </td>
+
+                        </tr>
+                    </table>
+                    <a id="create_chart_btn" ng-href="#/appstudio/chart/{{selectedApplication.path}}/" class="btn btn-primary">Create Chart</a>
+                </div>
+            </tab>
+            <tab heading="Item Views" id="itemviews_tab">
+                <div id="singleitemviews">
+                    <table class="table">
+                        <tr ng-repeat="siv in selectedApplication.singleitemviews">
+                            <td>
+                                <a id="edit_item_view_{{siv._id}}" ng-href="#/appstudio/singleitemview/{{selectedApplication.path}}/{{siv._id}}">[{{siv.objectName}}]</a>
+                            </td>
+                            <td>
+                                <button id="delete_item_view_{{siv._id}}" ng-click="deleteItem(null, 'item view of ', siv.objectName, 'singleitemconfigobject' , siv._id)" class="btn btn-danger btn-xs">Delete</button>
+                            </td>
+                        </tr>
+                    </table>
+                    <a id="create_itemview_btn" ng-href="#/appstudio/singleitemview/{{selectedApplication.path}}/" class="btn btn-primary">Create Item View</a>
+                </div>
+            </tab>
+            <tab heading="Widgets" id="widgets_tab">
+                <div id="widgets">
+                    <table class="table">
+                        <tr ng-repeat="widget in selectedApplication.widgets">
+                            <td>
+                                <a id="edit_widget_{{widget._id}}" ng-href="#/appstudio/widget/{{selectedApplication.path}}/{{widget._id}}">[{{widget.name}}]</a>
+                            </td>
+                            <td>
+                                <button id="delete_widget_{{widget._id}}" ng-click="deleteItem(null, 'widget', widget.name, 'widgetobject' , widget._id)" class="btn btn-danger btn-xs">Delete</button>
+                            </td>
+                        </tr>
+                    </table>
+                    <a id="create_widget_btn" ng-href="#/appstudio/widget/{{selectedApplication.path}}/" class="btn btn-primary">Create widget</a>
+                </div>
+            </tab>
+            <tab heading="Menus" id="menus_tab">
+                <div id="menus">
+                    <table class="table">
+                        <tr ng-repeat="menu in selectedApplication.menus">
+                            <td>
+                                <a id="edit_menu_{{menu._id}}" ng-href="#/appstudio/menu/{{selectedApplication.path}}/{{menu._id}}">[{{menu.brandtitle}}]</a>
+                            </td>
+                            <td>
+                                <button id="delete_menu_{{menu._id}}" ng-click="deleteItem(null, 'menu', menu.brandtitle, 'menuconfigobject' , menu._id)" class="btn btn-danger btn-xs">Delete</button>
+                            </td>
+                        </tr>
+                    </table>
+                    <a id="create_menu_btn" ng-href="#/appstudio/menu/{{selectedApplication.path}}/" class="btn btn-primary">Create menu</a>
+                </div>
+            </tab>
+            <tab heading="Source Code" id="source_code_tab">
+                <div id="sourcecode">
+                    <table class="table">
+                        <tr ng-repeat="sourcefile in selectedApplication.sourcefiles">
+                            <td>
+                                {{sourcefile.filename}}
+                            </td>
+                            <td>
+                                {{sourcefile.fullname}}
+                            </td>
+                            <td>{{sourcefile.type}}</td>
+                            <td><a id="edit_source_{{sourcefile._id}}" class="btn btn-xs btn-primary" ng-href="#/appstudio/sourcefiles/{{selectedApplication.path}}/{{sourcefile._id}}">Edit</a></td>
+                            <td><button id="delete_source_{{sourcefile._id}}" class="btn btn-xs btn-danger" ng-click="deleteSourceFile(sourcefile);">Delete</button></td>
+                        </tr>
+                    </table>
+                    <a id="create_source_btn" ng-href="#/appstudio/sourcefiles/{{selectedApplication.path}}/" class="btn btn-primary">New source</a>
+                </div>
+            </tab>
+            <tab heading="Interceptors" id="inceptors_tab">
+                <div id="interceptors">
+                    <table class="table">
+                        <tr ng-repeat="interceptor in selectedApplication.interceptors">
+                            <td>
+                                <a ng-href="#/appstudio/interceptor/{{selectedApplication.path}}/{{interceptor._id}}">{{interceptor.object_name}}</a>
+                            </td>
+                            <td>
+                                {{interceptor.access}}
+                            </td>
+                            <td>{{interceptor.interceptor_name}}</td>
+                            <td><a id="edit_interceptor_{{interceptor._id}}" class="btn btn-xs btn-info" ng-href="#/appstudio/interceptor/{{selectedApplication.path}}/{{interceptor._id}}">Edit</a></td>
+                            <td>
+                                <button id="delete_interceptor_{{interceptor._id}}" ng-click="deleteItem(null, 'interceptor for  ', interceptor.object_name, 'interceptorconigobject' , interceptor._id)" class="btn btn-danger btn-xs">Delete</button>
+                            </td>
+                        </tr>
+                    </table>
+                    <a id="create_interceptor_btn" ng-href="#/appstudio/interceptor/{{selectedApplication.path}}/" class="btn btn-primary">New interceptor</a>
+                </div>
+            </tab>
+            <tab heading="Endpoints" id="endpoints_tab">
+                <div id="endpoints">
+                    <table class="table">
+                        <tr ng-repeat="endpoint in selectedApplication.appendpoints">
+                            <td>
+                                <a id="edit_endpoint_{{endpoint._id}}" ng-href="#/appstudio/appendpoint/{{selectedApplication.path}}/{{endpoint._id}}">{{endpoint.uri_pattern}}</a>
+                            </td>
+                            <td>
+                                {{endpoint.handler_module}}.{{endpoint.handler_name}}
+                            </td>
+                            <td>{{interceptor.interceptor_name}}</td>
+                            <td><a class="btn btn-xs btn-info" ng-href="#/appstudio/appendpoint/{{selectedApplication.path}}/{{endpoint._id}}">Edit</a></td>
+                            <td>
+                                <button id="delete_endpoint_{{endpoint._id}}" ng-click="deleteItem(null, 'endpoint for', endpoint.uri_pattern, 'appendpointconigobject' , endpoint._id)" class="btn btn-danger btn-xs">Delete</button>
+                            </td>
+
+                        </tr>
+                    </table>
+                    <a id="create_endpoint_btn" ng-href="#/appstudio/appendpoint/{{selectedApplication.path}}/" class="btn btn-primary">New endpoint</a>
+                </div>
+            </tab>
+        </tabset>
+    </div>
+</div>

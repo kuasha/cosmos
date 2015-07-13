@@ -18,7 +18,8 @@ Test coverage
 =============
 
 Currently there are 50+ test cases for backend / services and 30+ test cases for frontend. It covers about 80% of server 
-side code and 40% of front end code. Tests covers all basic functionality. Target is to get to 90% or more coverage.  
+side code and 40% of front end code. Tests covers all basic functionality. Target is to get to 90% or more coverage before 
+0.2.0 (release).  
 
 
 Prepare Mongodb
@@ -77,7 +78,7 @@ Now do rs.config() to see the status
 Index db collection for text search
 -----------------------------------
 
-Before you can builtin use search API you have to enable search in mongodb for each collection.
+Before you can use builtin search API you have to enable search in mongodb for each collection.
    
 Here is an example: 
 
@@ -97,7 +98,7 @@ How to create project
 ---------------------
 
 ```
-cosmosadmin new-project
+cosmosadmin new-project adminpanel
 ```
 
 This will create a simple demo project where you can create users/ create and assign roles to users and call GET/POST/PUT/DELETE APIs to read/insert/update/delete documents in json format.
@@ -166,3 +167,11 @@ Supporters
 
 JetBrains has generously provided us with unlimited license of the PyCharm IDE for this project.
 http://www.jetbrains.com/pycharm/
+
+
+Code Climate
+------------
+
+The environment is not setup properly yet. When done will move this to top.
+[![Code Climate](https://codeclimate.com/github/kuasha/cosmos/badges/gpa.svg)](https://codeclimate.com/github/kuasha/cosmos)
+[![Test Coverage](https://codeclimate.com/github/kuasha/cosmos/badges/coverage.svg)](https://codeclimate.com/github/kuasha/cosmos)

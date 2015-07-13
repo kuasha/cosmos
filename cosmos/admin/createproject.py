@@ -8,7 +8,7 @@
 import os
 import subprocess
 
-from cosmos.admin.samples import barebonedef, simpledef, angulardef, adminpaneldef
+from cosmos.admin.samples import barebonedef, simpledef, angulardef, angularbasicdef, adminpaneldef
 
 def new_project(path, type=None):
     file_data_list = barebonedef.file_data_list
@@ -18,6 +18,8 @@ def new_project(path, type=None):
 
     if type == "angular":
         file_data_list.extend(angulardef.file_data_list)
+    elif type == "angularbasic":
+        file_data_list.extend(angularbasicdef.file_data_list)
     elif type == "adminpanel":
         file_data_list.extend(adminpaneldef.file_data_list)
     elif type == "simple":

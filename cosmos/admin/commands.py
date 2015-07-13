@@ -9,7 +9,9 @@ import os
 import sys
 import logging
 import getpass
+from pymongo import MongoClient
 from tornado import gen
+from cosmos.service.auth import get_hmac_password
 import createproject
 
 from cosmos.dataservice.objectservice import *
@@ -17,6 +19,7 @@ from cosmos.dataservice.objectservice import *
 class CommandHandler():
     def __init__(self, *args, **kwargs):
         self.db = kwargs.get("db", None)
+        self.settings = kwargs.get("settings", None)
 
     def handle_command(self, *args, **kwarg):
         current_directory = args[0]
@@ -47,9 +50,12 @@ class CommandHandler():
         return input
 
     def create_user(self, username, password, email, roles):
+        if not self.db:
+            raise ArgumentError("db", "Database object must be set while creating CommandHandler object.")
+
         data = {"username": username, "password": password, "email": email, "roles": roles}
-        object_service = ObjectService()
-        result = object_service.save(SYSTEM_USER, self.db, COSMOS_USERS_OBJECT_NAME, data)
+        object_service = ObjectService(db=self.db)
+        result = object_service.save(SYSTEM_USER, COSMOS_USERS_OBJECT_NAME, data)
         logging.info("Admin user was created successfully.")
         return result
 
@@ -60,6 +66,8 @@ class CommandHandler():
         if password != password_re:
             print "Password mismatch"
             sys.exit(1)
+
+        password = get_hmac_password(password, self.settings.HMAC_KEY)
 
         email = self.get_input('Enter admin email: ')
         self.create_user(username, password, email, [ADMIN_USER_ROLE_SID])
@@ -77,6 +85,9 @@ def add_heroku_settings(current_directory):
     with open(req_file_path, 'w') as req_file:
             req_file.write("cosmos")
 
+def get_sync_db(db_uri, db_name):
+    client = MongoClient(db_uri)
+    return client[db_name]
 
 def admin_main():
     current_directory = os.getcwd()
@@ -95,7 +106,17 @@ def admin_main():
         except:
             pass
 
-        handler = CommandHandler()
-        handler.handle_command(current_directory, command, {"arg0":arg0, "arg1":arg1, "arg2":arg2})
+        sync_db = None
+        settings = None
+        if command == "new-project":
+            pass
+        else:
+            print "Importing settings.py from directory: "+ current_directory
+            sys.path.insert(0, current_directory)
+            import settings
+            sync_db = get_sync_db(settings.DATABASE_URI, settings.DB_NAME)
+
+        handler = CommandHandler(db=sync_db, settings=settings)
+        handler.handle_command(current_directory, command, {"arg0": arg0, "arg1": arg1, "arg2": arg2})
 
     tornado.ioloop.IOLoop.instance().start()

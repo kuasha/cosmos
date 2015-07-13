@@ -2,8 +2,8 @@
  * Created by maruf on 10/29/14.
  */
 
-describe('HomeCtrl', function() {
-    beforeEach(module('cosmosUI'));
+describe('TerminalCtrl', function() {
+    beforeEach(module('cosmosUIDemo'));
     beforeEach(module('cosmosUI.controllers'));
 
     var $scope, $rootScope, $controller, createController, $httpBackend;
@@ -16,7 +16,7 @@ describe('HomeCtrl', function() {
         $scope = $rootScope.$new();
 
         createController = function() {
-            return $controller('HomeCtrl', {
+            return $controller('TerminalCtrl', {
                 '$scope': $scope
             });
         };
@@ -28,8 +28,8 @@ describe('HomeCtrl', function() {
     });
 
     it('should be able to return single item when get is called', function () {
-        var homeCtrl = createController();
-        expect(homeCtrl).toBeDefined();
+        var terminalCtrl = createController();
+        expect(terminalCtrl).toBeDefined();
         var expectedData = {"name": "book", "value": "The Art Of Computer Programming"};
         var url = '/services/test.object/12345678';
 
@@ -46,8 +46,8 @@ describe('HomeCtrl', function() {
     });
 
     it('should be able to return array when get is called', function () {
-        var homeCtrl = createController();
-        expect(homeCtrl).toBeDefined();
+        var terminalCtrl = createController();
+        expect(terminalCtrl).toBeDefined();
         var returnArrayData = {"_cosmos_service_array_result_":true, "_d":'[{"name": "book", "value": "The Art Of Computer Programming"}]'};
         var expectedArrayData = [{"name": "book", "value": "The Art Of Computer Programming"}];
         var url = '/services/test.object/';
@@ -65,8 +65,8 @@ describe('HomeCtrl', function() {
     });
 
     it('should call $http post when post method is called', function () {
-        var homeCtrl = createController();
-        expect(homeCtrl).toBeDefined();
+        var terminalCtrl = createController();
+        expect(terminalCtrl).toBeDefined();
         var postData = {"name": "book", "value": "The Art Of Computer Programming"};
         var expectedReturnValue = '"544288458c66ab67ee4f0823"';
         var url = '/services/test.object/';
@@ -84,8 +84,8 @@ describe('HomeCtrl', function() {
     });
 
     it('should call $http delete when delete method is called', function () {
-        var homeCtrl = createController();
-        expect(homeCtrl).toBeDefined();
+        var terminalCtrl = createController();
+        expect(terminalCtrl).toBeDefined();
         var expectedReturnValue = { "n": 1, "ok": 1, "error": null};
         var url = '/services/test.object/544288458c66ab67ee4f0823/';
 

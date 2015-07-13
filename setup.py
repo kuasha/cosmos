@@ -5,9 +5,9 @@ except ImportError:
 
 setup(
     name='cosmos',
-    version='0.01.054.00',
-    packages=['cosmos', 'cosmos.admin', 'cosmos.admin.samples', 'cosmos.datamonitor', 'cosmos.dataservice', 'cosmos.rbac', 'cosmos.schema',
-              'cosmos.service', 'cosmos.processors', 'test'],
+    version='0.01.079.00',
+    packages=['cosmos', 'cosmos.common', 'cosmos.admin', 'cosmos.admin.samples', 'cosmos.datamonitor', 'cosmos.dataservice',
+              'cosmos.rbac', 'cosmos.schema', 'cosmos.service', 'cosmos.processors', 'test'],
     url='http://cosmosframework.com',
     license='MIT License',
     author='Maruf Maniruzzaman',
@@ -27,7 +27,7 @@ setup(
         'Programming Language :: Python :: 2.7'
     ],
 
-    install_requires=['tornado', 'motor', 'mongolog', 'mock', 'requests'],
+    install_requires=['tornado', 'motor', 'mongolog', 'mock', 'requests', 'python-memcached', 'pycrypto', 'python_jwt'],
 
     entry_points = {
         'console_scripts': [

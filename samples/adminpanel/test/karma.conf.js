@@ -22,11 +22,11 @@ module.exports = function(config){
       'app/bower_components/angular-local-storage/dist/angular-local-storage.min.js',
       'app/bower_components/angular-ui-select/dist/select.min.js',
 
+      'app/lib/cosmos/js/controllers/controllers.js',
+      'app/lib/cosmos/js/services/services.js',
+      'app/lib/cosmos/js/directives/directives.js',
+      'app/lib/cosmos/js/**/*.js',
       'app/js/app.js',
-      'app/js/controllers/controllers.js',
-      'app/js/services/services.js',
-      'app/js/directives/directives.js',
-      'app/js/**/*.js',
       'test/unit/**/*.js'
     ],
 

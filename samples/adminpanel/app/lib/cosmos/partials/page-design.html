@@ -1,0 +1,348 @@
+<style>
+    .list {
+        list-style: none outside none;
+        padding-left: 0;
+    }
+
+    .apps-container {
+        border: 1px dashed lightgray;
+        min-height: 24px;
+        min-width: 128px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .page {
+        min-width: 800px;
+        min-height: 64px;
+    }
+
+    .page ul {
+        list-style-type: none;
+        padding-left: 0px;
+    }
+
+    .floatleft {
+        float: left;
+    }
+
+    .floatright {
+        float: right;
+    }
+
+    .clear {
+        clear: both;
+    }
+
+    .gen-dynamic-directive {
+        display: block;
+    }
+
+    .beingDragged {
+        height: 32px;
+        margin-bottom: .5em !important;
+        border: 1px dashed #ccc !important;
+    }
+
+    .properties{
+        margin-left: 10px;
+    }
+
+    .settings-tab-container{
+        min-width: 300px;
+        width:300px;
+    }
+
+    .tools-tab-container{
+        min-width: 150px;
+        width:150px;
+    }
+
+</style>
+
+<script type="text/ng-template" id="menuref-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-bind="field.type"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="formref-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-bind="field.type"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="pageref-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-bind="field.type"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="widgethost-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-bind="field.type"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="htmlblock-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-if="field.blocktype">
+            <field item="field" />
+        </div>
+        <div ng-if="!field.blocktype">&nbsp;</div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="listref-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-bind="field.type"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="cssref-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-bind="field.type"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="jsref-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div>Internal JS File {{item.src}}</div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="extjsref-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div>External JS File {{item.src}}</div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="chartref-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-bind="field.type"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="twocolumn-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-show="selectedItem == field">&nbsp;</div>
+        <div class="container-fluid" >
+            <div class="row">
+                <ul class="apps-container col-md-6 column0" ng-init="field.leftcolumn = field.leftcolumn || []"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.leftcolumn">
+                    <li class="innerCont" ng-repeat="field in field.leftcolumn">
+                        <button ng-show="selectedItem == field" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.leftcolumn, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+                <ul class="apps-container col-md-6 column1" ng-init="field.rightcolumn = field.rightcolumn || []"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.rightcolumn">
+                    <li class="innerCont" ng-repeat="field in field.rightcolumn">
+                        <button ng-show="selectedItem == field" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.rightcolumn, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="threecolumn-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <div ng-show="selectedItem == field">&nbsp;</div>
+        <div class="container-fluid" >
+            <div class="row">
+                <ul class="apps-container col-md-4  column0" ng-init="field.leftcolumn = field.leftcolumn || []"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.leftcolumn">
+                    <li class="innerCont" ng-repeat="field in field.leftcolumn">
+                        <button ng-show="selectedItem == field" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.leftcolumn, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+                <ul class="apps-container col-md-4 column1" ng-init="field.midcolumn = field.midcolumn || []"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.midcolumn">
+                    <li class="innerCont" ng-repeat="field in field.midcolumn">
+                        <button ng-show="selectedItem == field" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.midcolumn, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+                <ul class="apps-container col-md-4 column2" ng-init="field.rightcolumn = field.rightcolumn || []"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.rightcolumn">
+                    <li class="innerCont" ng-repeat="field in field.rightcolumn">
+                        <button ng-show="selectedItem == field" class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.rightcolumn, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="condition-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{field.label}}</label>
+        <ul>
+            <li>
+                <label class="control-label">IF</label>
+                <ul class="apps-container"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.fields">
+                    <li class="innerCont" ng-repeat="field in field.fields">
+                        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.fields, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <label class="control-label">ELSE</label>
+                <ul class="apps-container"
+                    ui-sortable="sortableOptions"
+                    ng-model="field.elsefields">
+                    <li class="innerCont" ng-repeat="field in field.elsefields">
+                        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem($parent.field.elsefields, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script type="text/ng-template" id="array-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{field.label}} [ ]</label>
+        <ul class="apps-container" ui-sortable="sortableOptions" ng-model="field.fields">
+            <li class="innerCont" ng-repeat="field in field.fields">
+                <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="removeItem($parent.field.fields, $index);"></button>
+                <div ng-include="field.type+'-field.html'"></div>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script type="text/ng-template" id="field-options.html">
+    <div>
+
+    </div>
+</script>
+
+<script type="text/ng-template" id="control-tab-tools.html">
+    <div>
+        <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
+            <li ng-repeat="comp in components">
+                 {{comp.label}}
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script type="text/ng-template" id="form-options.html">
+    <div>
+        <label>Action</label>
+        <input type="text" ng-model="selectedItem.action" />
+    </div>
+    <div>
+        <label>On success</label>
+        <div>
+            <div>
+                <label>Type</label>
+                <select ng-model="selectedItem.onsuccess.type" ng-options="otype.name as otype.label for otype in onsuccess_types"></select>
+            </div>
+            <div>
+                <label>Value</label>
+                <input type="text" ng-model="selectedItem.onsuccess.value" />
+            </div>
+        </div>
+    </div>
+</script>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/appstudio/">App Studio</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/#/appstudio/">Home</a></li>
+                <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
+                <li ng-show="!loggedIn()"><a href="/#/login/">Login</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div ng-init="init()" class="container-fluid">
+
+    <div ng-show="hasError" class="bg-warning">
+        <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right" ng-click="clearError();"></button>
+        <div><label>Error code:</label><span ng-bind="status"/></div>
+        <div ng-bind="status_data"></div>
+    </div>
+    <div class="row">
+        <label>Page Id: </label><label ng-if="page._id" id="page_id_label">{{page._id}}</label><br/>
+    </div>
+    <div class="row">
+        <div id="toolbar" class="col-sm-2">
+            <ul class="apps-container first" ui-sortable="sortableToolsOptions" ng-model="components">
+                <li ng-repeat="comp in components" id="tool_{{comp.type}}">
+                    {{comp.label}}
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-8 page">
+            <div ng-click="selectItem(page); $event.stopPropagation();">
+                <label id="design_title_label" class="control-label">{{page.title}}</label>
+                <ul id="design_canvas" class="apps-container" ui-sortable="sortableOptions" ng-model="page.fields">
+                    <li class="innerCont" ng-repeat="field in page.fields">
+                        <button ng-show="selectedItem == field"
+                                class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                                ng-click="removeItem(page.fields, $index);"></button>
+                        <div ng-include="field.type+'-field.html'"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div ng-if="selectedItem">
+                <div>
+                    <label>{{optionsform.title}}</label>
+                </div>
+                <ul>
+                    <li ng-repeat="field in optionsform.fields">
+                        <field item="field" val="selectedItem[field.name]"></field>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <div>
+        <button id="save_page_button" class="btn btn-success" ng-click="savePage()">Save Page</button>
+    </div>
+    <div>
+        <label>Data</label>
+
+        <p>{{page}}</p>
+    </div>
+
+    <div>
+        <label>Result</label>
+
+        <p>{{result}}</p>
+    </div>
+
+</div>

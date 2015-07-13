@@ -1,6 +1,13 @@
 language: python
 python:
   - "2.7"
+
+before_install:
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - sleep 3
+
+
 # command to install dependencies
 install:
   - pip install tornado
@@ -16,6 +23,8 @@ install:
   - npm install karma-chrome-launcher
   - npm install karma-firefox-launcher
   - npm install karma-junit-reporter
+  - npm install protractor
+  - webdriver-manager update
 
 
 services:
@@ -23,8 +32,15 @@ services:
 
 before_script: 
  - mongo 127.0.0.1/cosmos --eval 'db.cosmos.users.insert({ "username":"admin","roles":["43425097-e630-41ea-88eb-17b339339706"],"email":"admin@cosmosframework.com","password":"hmac:1ddb4e6b0b810f59018babbb5dc0eed4"});'
+ - echo "import os" >> samples/barebone/local_settings.py
+ - echo "STATIC_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../adminpanel/app/')" >> samples/barebone/local_settings.py
+ - echo "INDEX_HTML_PATH = os.path.join(STATIC_PATH, 'index.html')" >> samples/barebone/local_settings.py
+ - nohup bash -c "webdriver-manager start 2>&1 &"
+ - python startbarebone.py &
+ - sleep 10
 
 # command to run tests
 script:
   - python setup.py test
   - karma start --single-run --browsers PhantomJS samples/adminpanel/test/karma.conf.js
+  #- protractor --browser firefox samples/adminpanel/test/protractor-conf.js

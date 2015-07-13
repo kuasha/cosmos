@@ -19,7 +19,7 @@ def init_observers(db, object_service, observers):
     loader = BootLoader()
     loader.init_observers(object_service, observers)
     loader.load_roles(object_service)
-    loader.load_role_groups(db)
+    loader.load_role_groups(object_service)
 
 def start_web_service(options):
 
@@ -43,7 +43,9 @@ def start_web_service(options):
                 github_oauth=options.github_oauth,
                 directory_listing_allowed=options.directory_listing_allowed,
                 object_service=object_service,
-                source_root=options.source_root
+                source_root=options.source_root,
+                facebook_redirect_uri=options.facebook_redirect_uri,
+                default_login_next_uri=options.default_login_next_uri
             )
 
     application = tornado.web.Application(
