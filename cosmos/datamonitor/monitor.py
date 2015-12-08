@@ -31,6 +31,11 @@ In /etc/mongodb.conf add the following line to enable replication
 
 replSet = rs0
 
+For newer version of mongodb:
+
+replication:
+  replSetName: rs0
+
 Then from mongo console do rs.initiate()
 
 > rs.initiate()
@@ -40,7 +45,16 @@ Then from mongo console do rs.initiate()
 	"info" : "Config now saved locally.  Should come online in about a minute.",
 	"ok" : 1
 }
-Now do er.config() to see the status
+
+If you see an error like :
+
+    "errmsg" : "No host described in new configuration 1 for replica set rs0 maps to this node",
+
+Try following (use right name and host/port configuration- you should fix the host configuration in production servert):
+
+>rs.initiate({_id:"rs0", members: [{"_id":1, "host":"127.0.0.1:27017"}]})
+
+Now do rs.config() to see the status
 
 > rs.config()
 {
