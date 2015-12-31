@@ -27,7 +27,7 @@ setup(
         'Programming Language :: Python :: 2.7'
     ],
 
-    install_requires=['tornado', 'motor', 'mongolog', 'mock', 'requests', 'python-memcached', 'pycrypto', 'python_jwt'],
+    install_requires=['tornado', 'motor', 'mongolog', 'mock', 'requests', 'python-memcached', 'pycrypto', 'python_jwt', 'funcsigs', 'pbr'],
 
     entry_points = {
         'console_scripts': [
