@@ -19,11 +19,10 @@ from cosmos.dataservice.objectservice import *
 
 class GridFSServiceHandler(requesthandler.RequestHandler):
 
-    @tornado.web.asynchronous
     @gen.coroutine
     def get(self, object_path):
         params = object_path.split('/')
-        params = filter(len, params)
+        params = list(filter(len, params))
         if len(params) < 1 or len(params)>2:
             raise tornado.web.HTTPError(404, "Not found")
 
@@ -77,11 +76,10 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
 
         self.finish()
 
-    @tornado.web.asynchronous
     @gen.coroutine
     def post(self, object_path):
         params = object_path.split('/')
-        params = filter(len, params)
+        params = list(filter(len, params))
         object_name = params[0]
 
         object_full_name = object_name
@@ -109,11 +107,10 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
         self.write(data)
         self.finish()
 
-    @tornado.web.asynchronous
     @gen.coroutine
     def put(self, object_path):
         params = object_path.split('/')
-        params = filter(len, params)
+        params = list(filter(len, params))
         object_name = params[0]
 
         if not object_name or len(object_name) < 1:
@@ -154,11 +151,10 @@ class GridFSServiceHandler(requesthandler.RequestHandler):
         self.write(MongoObjectJSONEncoder().encode(result))
         self.finish()
 
-    @tornado.web.asynchronous
     @gen.coroutine
     def delete(self, object_path):
         params = object_path.split('/')
-        params = filter(len, params)
+        params = list(filter(len, params))
         object_name = params[0]
 
         if not object_name or len(object_name) < 1:

@@ -41,7 +41,7 @@ class RequestHandler(tornado.web.RequestHandler):
     def set_current_user(self, user):
         json_user = MongoObjectJSONEncoder().encode(user)
         self.set_secure_cookie(USER_COOKIE_NAME, json_user)
-        encoded_json = base64.b64encode(json_user)
+        encoded_json = base64.b64encode(json_user.encode("utf-8"))
         self.set_cookie(USER_PLAINTEXT_COOKIE_NAME, encoded_json)
 
     def logout_current_user(self):

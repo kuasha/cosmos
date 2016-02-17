@@ -8,6 +8,17 @@ from unittest import skip
 import unittest
 from cosmos.service.auth import get_hmac_password, validate_password, add_params, get_jwt_payload_json
 
+try:
+    import urlparse  # py2
+except ImportError:
+    import urllib.parse as urlparse  # py3
+
+try:
+    import urllib.parse as urllib_parse  # py3
+except ImportError:
+    import urllib as urllib_parse  # py2
+
+
 from test import LoggedTestCase
 
 class RoleItemTest(LoggedTestCase):
@@ -31,7 +42,10 @@ class RoleItemTest(LoggedTestCase):
 
     def test_add_params(self):
         result = add_params("http://example.com", {"name":"id", "value": "123"})
-        self.failUnlessEqual(result,'http://example.com?name=id&value=123')
+        parsed = urlparse.urlparse(result)
+        query = urlparse.parse_qs(parsed.query)
+        self.failUnlessEqual(query["name"], ["id"])
+        self.failUnlessEqual(query["value"], ["123"])
 
 if __name__ == "__main__":
     unittest.main()

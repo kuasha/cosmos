@@ -118,7 +118,7 @@ class AppInstallHandler(requesthandler.RequestHandler):
 
         object_data = object_data_file.read()
 
-        object_data_json = json.loads(object_data)
+        object_data_json = json.loads(object_data.decode("utf-8"))
 
         object_service = self.settings['object_service']
 
@@ -133,7 +133,7 @@ class AppInstallHandler(requesthandler.RequestHandler):
             raise tornado.web.HTTPError(400, COSMOS_APPLICATION_FILE_NAME + " not present in archive.")
 
         application_data = application_data_file.read()
-        application_data_json = json.loads(application_data)
+        application_data_json = json.loads(application_data.decode("utf-8"))
 
         self.import_bootstrap_objects(object_service, COSMOS_APPLICATION_OBJECT_NAME, [application_data_json])
 

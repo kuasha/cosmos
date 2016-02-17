@@ -41,7 +41,7 @@ def new_project(path, type=None):
         print("-----------Cloning angular seed project--------------\n")
         try:
             subprocess.check_call(['git', "clone", "https://github.com/angular/angular-seed.git"])
-            print ('----------- You should run "npm install" from angular-seed directory now -------------\n')
+            print('----------- You should run "npm install" from angular-seed directory now -------------\n')
         except subprocess.CalledProcessError:
             print ("Clone failed (is git installed?). You may try to clone manually using 'git clone https://github.com/angular/angular-seed.git'")
     elif type == "adminpanel":

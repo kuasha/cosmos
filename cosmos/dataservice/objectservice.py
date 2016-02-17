@@ -273,7 +273,7 @@ class ObjectService():
         return delete_gridfs_file(self.db, file_id)
 
     def get_properties(self, data, namespace=None):
-        properties = data.keys()
+        properties = list(data.keys())
         child_props = []
 
         for prop in properties:

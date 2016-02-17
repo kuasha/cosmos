@@ -4,9 +4,8 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
-
+from builtins import bytes
 from cosmos.rbac.object import AccessType, COSMOS_USERS_OBJECT_NAME, SYSTEM_USER, COSMOS_USERS_IDENTITY_OBJECT_NAME
-import urllib
 
 __author__ = 'Maruf Maniruzzaman'
 
@@ -44,7 +43,7 @@ def get_jwt_payload_json(id_token):
     pads=["", "=", "==", "===", ""]
     id_values = base64.b64decode(jwt_parts[1]+pads[pad])
 
-    return json.loads(id_values)
+    return json.loads(id_values.decode("utf-8"))
 
 
 class CosmosAuthHandler(RequestHandler):
@@ -265,7 +264,7 @@ def add_params(url, params):
     url_parts = list(urlparse.urlparse(url))
     query = dict(urlparse.parse_qsl(url_parts[4]))
     query.update(params)
-    url_parts[4] = urllib.urlencode(query)
+    url_parts[4] = urllib_parse.urlencode(query)
     return urlparse.urlunparse(url_parts)
 
 class FacebookGraphLoginHandler(CosmosAuthHandler, tornado.auth.FacebookGraphMixin):
@@ -351,7 +350,7 @@ def validate_password(password, saved_password_hash, hmac_key):
         raise tornado.web.HTTPError(401, "Unauthorized")
 
 def get_hmac_password(password, hmac_key):
-    hmac_hex = hmac.new(hmac_key, password).hexdigest()
+    hmac_hex = hmac.new(hmac_key.encode("utf-8"), password.encode("utf-8")).hexdigest()
     hmac_password = "{0}{1}".format(PASSWORD_HMAC_SIGNATURE, hmac_hex)
     return hmac_password
 

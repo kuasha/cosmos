@@ -212,7 +212,7 @@ class ServiceAPITests(LoggedTestCase):
 
     def failUnlessEquals(self, value1, value2, msg=None):
         self.logger.info("{}. Comparing {} and {}".format(msg, value1, value2))
-        self.failUnless(value1 == value2)
+        self.failUnlessEqual(value1, value2)
 
     def test_can_create_new_role(self):
         cookies = self.admin_login()
@@ -656,7 +656,7 @@ class ServiceAPITests(LoggedTestCase):
         self.failUnlessEquals(result.get("length"), len(file_content),
                               "file content length must match uploaded content")
 
-        md5_dig = hashlib.md5(file_content).hexdigest()
+        md5_dig = hashlib.md5(file_content.encode("utf-8")).hexdigest()
 
         self.failUnlessEquals(result.get("md5"), md5_dig, "file md5 length must match uploaded content md5")
         file_id = result.get("file_id")
@@ -791,7 +791,7 @@ class ServiceAPITests(LoggedTestCase):
         self.failUnlessEquals(result.get("length"), len(file_content),
                               "file content length must match uploaded content")
 
-        md5_dig = hashlib.md5(file_content).hexdigest()
+        md5_dig = hashlib.md5(file_content.encode("utf-8")).hexdigest()
 
         self.failUnlessEquals(result.get("md5"), md5_dig, "file md5 length must match uploaded content md5")
         file_id = result.get("file_id")
@@ -861,7 +861,7 @@ class ServiceAPITests(LoggedTestCase):
         path = "coolapp" + str(random.randint(1000, 9999))
         app_name = "com.example." + path
         m = hashlib.md5()
-        m.update(app_name)
+        m.update(app_name.encode("utf-8"))
         app_id = m.hexdigest()
         app_def = {
             "id": app_id,
@@ -1024,13 +1024,13 @@ class ServiceAPITests(LoggedTestCase):
             zip_file_path = mod_def["collection_name"] + "/" + mod_def["file_id"] + "/" + mod_def["filename"]
             source_module_content_h = app_zip_file.open(zip_file_path)
             file_content = source_module_content_h.read()
-            self.failUnlessEquals(file_content, "coolvalue=128374972361487")
+            self.failUnlessEquals(file_content.decode("utf-8"), "coolvalue=128374972361487")
 
     def _verify_exported_app(self, app_zip_file, obj_defs):
         object_data_file = app_zip_file.open(COSMOS_OBJECT_DATA_FILE_NAME)
         object_data = object_data_file.read()
 
-        object_data_json = json.loads(object_data)
+        object_data_json = json.loads(object_data.decode("utf-8"))
         found_objects = []
         for setting in object_data_json["settings"]:
             setting_name = setting["name"]
@@ -1097,7 +1097,7 @@ class ServiceAPITests(LoggedTestCase):
         files = {'application': ('app.xapp', content, content_type, {'Expires': '0'})}
 
         response = requests.post(url, files=files, cookies=cookies)
-        self.failUnless(response.status_code == 200)
+        self.failUnlessEqual(response.status_code, 200)
 
     def test_application_import_works(self):
         cookies = self.admin_login()

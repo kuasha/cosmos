@@ -92,10 +92,10 @@ class ServiceHandler(requesthandler.RequestHandler):
     @gen.coroutine
     def post(self, object_path):
         params = object_path.split('/')
-        params = filter(len, params)
+        params = list(filter(len, params))
         object_name = params[0]
         try:
-            data = json.loads(self.request.body)
+            data = json.loads(self.request.body.decode("utf-8"))
             assert isinstance(data, dict)
         except ValueError as ve:
             raise tornado.web.HTTPError(400, ve.message)
@@ -124,11 +124,11 @@ class ServiceHandler(requesthandler.RequestHandler):
     @gen.coroutine
     def put(self, object_path):
         params = object_path.split('/')
-        params = filter(len, params)
+        params = list(filter(len, params))
         object_name = params[0]
         id = params[1]
         try:
-            data = json.loads(self.request.body)
+            data = json.loads(self.request.body.decode("utf-8"))
             assert isinstance(data, dict)
         except ValueError as ve:
             raise tornado.web.HTTPError(400, ve.message)
@@ -158,7 +158,7 @@ class ServiceHandler(requesthandler.RequestHandler):
     @gen.coroutine
     def delete(self, object_path):
         params = object_path.split('/')
-        params = filter(len, params)
+        params = list(filter(len, params))
         object_name = params[0]
         id = params[1]
 

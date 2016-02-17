@@ -19,12 +19,19 @@ from cosmos.admin.commands import CommandHandler
 from cosmos.common.constants import *
 import cosmos.datamonitor.monitor
 from cosmos.rbac.service import RbacService
-import settings
 import cosmos.service.servicemain
-import endpoints
+
 from cosmos.service import *
 from cosmos.service.utils import *
 import cosmos.datamonitor.monitor as monitor
+
+try:
+    import settings
+    import endpoints
+except ImportError as ie:
+    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+    import settings
+    import endpoints
 
 
 monitor_worker = None
@@ -229,6 +236,8 @@ def prepare(port):
 
 def main():
     current_directory = os.getcwd()
+    print ("Python version: " + str(sys.version_info))
+    print ("Running from directory: " + current_directory)
 
     port = settings.WEB_SERVER_LISTEN_PORT
 

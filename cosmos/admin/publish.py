@@ -4,19 +4,20 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
+from __future__ import print_function
 
 import os
 import base64
 
 def get_files(rootdir, excludes):
-    print "Excludes: ", excludes
+    print ("Excludes: ", excludes)
     file_list = []
     for root, subFolders, files in os.walk(rootdir):
         skip = False
         for exclude in excludes:
             if root.find(exclude) > -1:
                 skip = True
-                print "Exclude "+root
+                print("Exclude "+root)
                 break
         if skip:
             continue
@@ -26,7 +27,7 @@ def get_files(rootdir, excludes):
             skip = False
             for exclude in excludes:
                 if filename.find(exclude) > -1:
-                    print "Skip "+filename
+                    print ("Skip "+filename)
                     skip = True
                     break
 
@@ -40,15 +41,15 @@ def get_files(rootdir, excludes):
 
 
 def package_sample(path, sample_def_path, exclude=["local_settings.py"]):
-    print "----------------------------------------------------------------------"
-    print "Packaging application from [{0}] to [{1}]".format(path, sample_def_path)
-    print "----------------------------------------------------------------------"
+    print ("----------------------------------------------------------------------")
+    print ("Packaging application from [{0}] to [{1}]".format(path, sample_def_path))
+    print ("----------------------------------------------------------------------")
     file_list = get_files(path, exclude)
     root_len = len(path)
     file_data_list = []
     for filename in file_list:
         relative = filename[root_len:]
-        print filename, " ", relative
+        print (filename, " ", relative)
 
         with open(filename, 'r') as content_file:
             content = content_file.read()

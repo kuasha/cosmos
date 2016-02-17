@@ -5,6 +5,8 @@
  License :: OSI Approved :: MIT License
 """
 
+from builtins import input
+
 import os
 import sys
 import logging
@@ -12,7 +14,7 @@ import getpass
 from pymongo import MongoClient
 from tornado import gen
 from cosmos.service.auth import get_hmac_password
-import createproject
+import cosmos.admin.createproject as createproject
 
 from cosmos.dataservice.objectservice import *
 
@@ -26,7 +28,7 @@ class CommandHandler():
         command = args[1]
         command_args = args[2]
 
-        print command
+        print(command)
 
         if command == "new-admin":
             self.create_admin_user()
@@ -43,11 +45,11 @@ class CommandHandler():
             sys.exit(0)
 
     def get_input(self, prompt):
-        input = None
-        while not input or len(input)==0:
-            input = raw_input(prompt).strip()
+        resp = None
+        while not resp or len(resp)==0:
+            resp = raw_input(prompt).strip()
 
-        return input
+        return resp
 
     def create_user(self, username, password, email, roles):
         if not self.db:
@@ -64,7 +66,7 @@ class CommandHandler():
         password = getpass.getpass('Enter admin password: ')
         password_re = getpass.getpass('Repeat admin password: ')
         if password != password_re:
-            print "Password mismatch"
+            print ("Password mismatch")
             sys.exit(1)
 
         password = get_hmac_password(password, self.settings.HMAC_KEY)
@@ -74,7 +76,7 @@ class CommandHandler():
         sys.exit(0)
 
 def print_usage():
-    print "Unknown command.\ncosmos new-admin\ncosmos new-project [angular]\ncosmos add-herokusettings\n"
+    print ("Unknown command.\ncosmos new-admin\ncosmos new-project [angular]\ncosmos add-herokusettings\n")
 
 def add_heroku_settings(current_directory):
     proc_file_path = os.path.join(current_directory, "Procfile")
@@ -111,7 +113,7 @@ def admin_main():
         if command == "new-project":
             pass
         else:
-            print "Importing settings.py from directory: "+ current_directory
+            print ("Importing settings.py from directory: "+ current_directory)
             sys.path.insert(0, current_directory)
             import settings
             sync_db = get_sync_db(settings.DATABASE_URI, settings.DB_NAME)
