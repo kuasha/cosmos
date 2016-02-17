@@ -214,13 +214,13 @@ if __name__ == "__main__":
     serv = RbacService()
 
     for role in serv.get_all_roles():
-        print role.to_JSON()
+        print (role.to_JSON())
 
     role = serv.get_role_object(sample_role)
     role_json = role.to_JSON()
     role_def = json.loads(role_json)
     role2 = serv.get_role_object(sample_role)
-    print role2.to_JSON()
+    print (role2.to_JSON())
     serv.update_role_cache(sample_role)
     serv.update_role_group_cache(sample_role_group)
     group = serv.get_role_group(sample_role_group["sid"])

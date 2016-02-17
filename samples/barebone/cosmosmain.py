@@ -70,7 +70,7 @@ def start_service(options):
 
 def load_python_module(fullname, code):
     py_module = imp.new_module(fullname)
-    exec code in py_module.__dict__
+    exec(code in py_module.__dict__)
     sys.modules[fullname] = py_module
     return py_module
 
@@ -84,8 +84,8 @@ def load_source_module(db, source_module):
     module_name = source_module.get("fullname")
     module_type = source_module.get("type")
     try:
-        print "Loading source module " + module_name + " " + module_type + "\n"
-        print "--------------------------------------\n"
+        print("Loading source module " + module_name + " " + module_type + "\n")
+        print( "--------------------------------------\n")
         source_code = None
 
         if module_type == COSMOS_SOURCE_MODULES_TYPE_EMBEDDED:
@@ -96,12 +96,12 @@ def load_source_module(db, source_module):
             source_code = get_grid_file_content(db, file_id)
 
         if(source_code):
-            print source_code
+            print(source_code)
             load_python_module(module_name, source_code)
     except Exception as ex:
-        print "Could not load source module " + str(module_name) +": " + str(ex)
+        print("Could not load source module " + str(module_name) +": " + str(ex))
 
-    print "--------------------------------------\n"
+    print("--------------------------------------\n")
 
 
 def load_source_modules(db):
@@ -113,7 +113,7 @@ def load_source_modules(db):
         try:
             source_modules.append(source_module)
         except Exception as ex:
-            print "Unable to load app request handler." + str(ex)
+            print("Unable to load app request handler." + str(ex))
 
     return source_modules
 
@@ -130,13 +130,13 @@ def load_app_endpoints(db):
     cursor = db[collection_name].find()
     for endpoint_def in cursor:
         try:
-            print "Loading " + endpoint_def["handler_module"] + "." +endpoint_def["handler_name"]
+            print("Loading " + endpoint_def["handler_module"] + "." +endpoint_def["handler_name"])
             app_module = importlib.import_module(endpoint_def["handler_module"])
             globals().update(app_module.__dict__)
             handler_func = getattr(app_module, endpoint_def["handler_name"])
             app_enfpoints.append((str(endpoint_def["uri_pattern"]), handler_func))
         except Exception as ex:
-            print "Unable to load app request handler." + str(ex)
+            print("Unable to load app request handler." + str(ex))
 
     return app_enfpoints
 
@@ -148,7 +148,7 @@ def load_interceptors(db):
     cursor = db[collection_name].find()
     for interceptor_def in cursor:
         try:
-            print "Loading interceptor" + interceptor_def["interceptor_module"] + "." + interceptor_def["interceptor_name"]
+            print("Loading interceptor" + interceptor_def["interceptor_module"] + "." + interceptor_def["interceptor_name"])
 
             app_module = importlib.import_module(interceptor_def["interceptor_module"])
             interceptor_func = getattr(app_module, interceptor_def["interceptor_name"])
@@ -166,7 +166,7 @@ def load_interceptors(db):
                 }
             )
         except Exception as ex:
-            print "Unable to load interceptor." + str(ex)
+            print("Unable to load interceptor." + str(ex))
 
     return interceptors
 
@@ -214,7 +214,7 @@ def get_options(sync_db, port):
 def prepare(port):
         sync_db = get_sync_db(settings.DATABASE_URI, settings.DB_NAME)
 
-        print "Loading source modules"
+        print("Loading source modules")
         source_modules = load_source_modules(sync_db)
         for source_module in source_modules:
             load_source_module(sync_db, source_module)

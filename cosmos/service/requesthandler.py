@@ -8,7 +8,7 @@
 import logging
 from tornado.web import *
 from cosmos.rbac.service import RbacService
-from constants import *
+from cosmos.service.constants import *
 from cosmos.service.utils import MongoObjectJSONEncoder
 
 class RequestHandler(tornado.web.RequestHandler):

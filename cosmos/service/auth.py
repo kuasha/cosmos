@@ -14,7 +14,7 @@ import tornado.web
 from tornado import gen
 from cosmos.service.requesthandler import *
 import json
-from constants import *
+from cosmos.service.constants import *
 import tornado.auth
 from tornado.concurrent import return_future
 

@@ -119,7 +119,7 @@ def report_change(report_server, doc):
         url = url_concat(report_server, params)
         http_client = tornado.httpclient.HTTPClient()
         http_client.fetch(url)
-    except Exception, ex:
+    except Exception as ex:
         logging.exception(ex)
 
 

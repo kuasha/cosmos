@@ -55,3 +55,6 @@ docs/_build/
 
 #Ide
 .idea
+
+# Node
+node_modules

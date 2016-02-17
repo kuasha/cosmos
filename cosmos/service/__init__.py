@@ -71,7 +71,7 @@ class BootLoader():
             try:
                 logging.debug(role)
                 object_service.rbac_service.update_role_cache(role)
-            except ValueError, ve:
+            except ValueError as ve:
                 logging.exception("Role {0} could not be loaded.".format(role.get("name")))
 
     @gen.coroutine
@@ -87,7 +87,7 @@ class BootLoader():
             role_group_def = rg_cursor.next_object()
             try:
                 object_service.rbac_service.update_role_group_cache(role_group_def)
-            except ValueError, ve:
+            except ValueError as ve:
                 logging.exception("Role group {0} could not be loaded.".format(role_group_def.get("name")))
 
     def config_mongolog(self, db_uri, db_name, log_col_name, log_level):

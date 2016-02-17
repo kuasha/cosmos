@@ -21,11 +21,11 @@ from cosmos.dataservice.objectservice import *
 
 class ServiceHandler(requesthandler.RequestHandler):
 
-    @tornado.web.asynchronous
     @gen.coroutine
     def get(self, object_path):
         params = object_path.split('/')
-        params = filter(len, params)
+        params = list(filter(len, params))
+
         if len(params) < 1 or len(params)>2:
             raise tornado.web.HTTPError(404, "Not found")
 
@@ -89,7 +89,6 @@ class ServiceHandler(requesthandler.RequestHandler):
             if word in data:
                 del data[word]
 
-    @tornado.web.asynchronous
     @gen.coroutine
     def post(self, object_path):
         params = object_path.split('/')
@@ -98,7 +97,7 @@ class ServiceHandler(requesthandler.RequestHandler):
         try:
             data = json.loads(self.request.body)
             assert isinstance(data, dict)
-        except ValueError, ve:
+        except ValueError as ve:
             raise tornado.web.HTTPError(400, ve.message)
 
         # It is important that _id is not passed to save method, insert method is ok to use.
@@ -123,7 +122,6 @@ class ServiceHandler(requesthandler.RequestHandler):
         self.finish()
 
     @gen.coroutine
-    @tornado.web.asynchronous
     def put(self, object_path):
         params = object_path.split('/')
         params = filter(len, params)
@@ -132,7 +130,7 @@ class ServiceHandler(requesthandler.RequestHandler):
         try:
             data = json.loads(self.request.body)
             assert isinstance(data, dict)
-        except ValueError, ve:
+        except ValueError as ve:
             raise tornado.web.HTTPError(400, ve.message)
 
         self.clean_data(data)
@@ -142,6 +140,7 @@ class ServiceHandler(requesthandler.RequestHandler):
         data['modifytime'] = str(datetime.datetime.now())
 
         preprocessor_list = obj_serv.get_operation_preprocessor(object_name, AccessType.UPDATE)
+
         for preprocessor in preprocessor_list:
             yield preprocessor(obj_serv, object_name, data, AccessType.UPDATE)
 
@@ -156,7 +155,6 @@ class ServiceHandler(requesthandler.RequestHandler):
         self.write(data)
         self.finish()
 
-    @tornado.web.asynchronous
     @gen.coroutine
     def delete(self, object_path):
         params = object_path.split('/')

@@ -38,16 +38,16 @@ def new_project(path, type=None):
             content_file.write(data)
 
     if type == "angular":
-        print "-----------Cloning angular seed project--------------\n"
+        print("-----------Cloning angular seed project--------------\n")
         try:
             subprocess.check_call(['git', "clone", "https://github.com/angular/angular-seed.git"])
-            print '----------- You should run "npm install" from angular-seed directory now -------------\n'
+            print ('----------- You should run "npm install" from angular-seed directory now -------------\n')
         except subprocess.CalledProcessError:
-            print "Clone failed (is git installed?). You may try to clone manually using 'git clone https://github.com/angular/angular-seed.git'"
+            print ("Clone failed (is git installed?). You may try to clone manually using 'git clone https://github.com/angular/angular-seed.git'")
     elif type == "adminpanel":
-        print "---------------------------------------------------------------------------------------\n"
-        print '----------- You should run "bower install" from the project directory now -------------\n'
-        print 'Bower or any other npm package is NOT required on production. Only for development purpose.\n'
+        print("---------------------------------------------------------------------------------------\n")
+        print('----------- You should run "bower install" from the project directory now -------------\n')
+        print('Bower or any other npm package is NOT required on production. Only for development purpose.\n')
 
 
 if __name__ == "__main__":
