@@ -52,9 +52,14 @@ def package_sample(path, sample_def_path, exclude=["local_settings.py"]):
         print (filename, " ", relative)
 
         with open(filename, 'r') as content_file:
-            content = content_file.read()
-            file_data = {"name": relative, "data": content}
-            file_data_list.append(file_data)
+            try:
+                content = content_file.read()
+                file_data = {"name": relative, "data": content}
+                file_data_list.append(file_data)
+            except UnicodeDecodeError as ude:
+                print("Load file {} failed".format(filename))
+                print(ude)
+
     with open(sample_def_path, 'w') as content_file:
         content_file.write("# ------------------------------------------------- #\n")
         content_file.write("# Auto generated. Modification will be overwritten. #\n")
@@ -70,8 +75,8 @@ def package_sample(path, sample_def_path, exclude=["local_settings.py"]):
             content_file.write("{\n")
             name = file_data["name"]
             content_file.write("'name': '{0}', ".format(name))
-            data = base64.b64encode(file_data["data"])
-            content_file.write("'data': base64.b64decode('{0}')".format(data))
+            data = base64.b64encode(bytearray(file_data["data"], "utf-8"))
+            content_file.write("'data': base64.b64decode({0})".format(data))
             content_file.write("\n}")
 
         content_file.write("]\n")

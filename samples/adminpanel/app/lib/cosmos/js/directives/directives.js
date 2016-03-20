@@ -392,7 +392,70 @@ var directives = angular.module('cosmosUI.directives', []).
 
                     $scope.getTemplate = function () {
                          var template = '<label>{{label}}<span ng-if="required">&nbsp;*&nbsp;</span></label>' +
-                                '<input readonly class="form-control" type="\'text\'}}" ng-model="val" title="{{fileName}}"/>'+
+                                '<input readonly class="form-control" type="\'text\'" ng-model="val" title="{{fileName}}"/>'+
+                                '<button ng-click="browseFile()" class="btn btn-sm btn-primary">Brwose</button>';
+                         return template;
+                    };
+                }
+            ],
+
+            link: function (scope, element, attributes) {
+                var template = scope.getTemplate();
+
+                console.log("File ctrl template" + template);
+                var newElement = angular.element(template);
+                element.replaceWith(newElement);
+                $compile(newElement)(scope);
+            }
+
+        }
+    })
+
+    .directive('fileview', function ($compile) {
+        return {
+            restrict: 'E',
+            scope: {
+                label: '=',
+                objectName: '=',
+                ngModel: '=',
+                required: '=',
+                rootPath: '=?'
+            },
+
+            controller: ['$scope', '$location', '$routeParams', '$modal', 'message', 'CosmosService', 'cosmos.settings',
+                function ($scope, $location, $routeParams, $modal, message, CosmosService, settings) {
+                    $scope.routeParams = $routeParams;
+
+
+                    $scope.browseFile = function(){
+                        var modalInstance = $modal.open({
+                            templateUrl: 'lib/cosmos/partials/browsefile.html',
+                            controller: "BrowseFileController",
+                            size: 'lg',
+                            backdrop: 'static',
+                            resolve: {
+                                objectName: function () {
+                                    return $scope.objectName;
+                                }
+                            }
+                        });
+
+                        modalInstance.result.then(
+                            function (selectedFile) {
+                                $scope.fileName = '/gridfs/'+selectedFile.collection_name + '/'+selectedFile.file_id +' ['+selectedFile.filename+']';
+                                $scope.selectedFile = selectedFile;
+                                $scope.ngModel = '/gridfs/'+selectedFile.collection_name + '/'+selectedFile.file_id;
+                            },
+                            function () {
+                                //$log.info('Modal dismissed at: ' + new Date());
+                            }
+                        );
+                    };
+
+                    $scope.getTemplate = function () {
+                         var template = '<label>{{label}}<span ng-if="required">&nbsp;*&nbsp;</span></label>' +
+                                "<iframe name='submit-iframe' id='submit-iframe' style='display: none;'></iframe>" +
+                                '<input readonly class="form-control" type="\'text\'" ng-model="ngModel" title="{{fileName}}"/>'+
                                 '<button ng-click="browseFile()" class="btn btn-sm btn-primary">Brwose</button>';
                          return template;
                     };
@@ -410,6 +473,7 @@ var directives = angular.module('cosmosUI.directives', []).
 
         }
     });
+
 
 controllers.controller('BrowseFileController', ['$scope', '$modalInstance', 'CosmosService', 'objectName',
     function ($scope, $modalInstance, CosmosService, objectName) {

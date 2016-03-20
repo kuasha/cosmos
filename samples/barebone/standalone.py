@@ -128,6 +128,6 @@ application = tornado.web.Application(
     db=db
 )
 
-print 'Listening on http://localhost:8080'
+print('Listening on http://localhost:8080')
 application.listen(8080)
 tornado.ioloop.IOLoop.instance().start()

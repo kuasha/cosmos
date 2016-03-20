@@ -47,7 +47,7 @@ class CommandHandler():
     def get_input(self, prompt):
         resp = None
         while not resp or len(resp)==0:
-            resp = raw_input(prompt).strip()
+            resp = input(prompt).strip()
 
         return resp
 

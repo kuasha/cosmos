@@ -5,10 +5,19 @@
  License :: OSI Approved :: MIT License
 """
 
-import importlib
-
 import sys
 import os
+
+try:
+    import endpoints
+    import settings
+except ImportError as ie:
+    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+    import settings
+    import endpoints
+
+import importlib
+
 import signal
 import imp
 import motor
@@ -24,14 +33,6 @@ import cosmos.service.servicemain
 from cosmos.service import *
 from cosmos.service.utils import *
 import cosmos.datamonitor.monitor as monitor
-
-try:
-    import settings
-    import endpoints
-except ImportError as ie:
-    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-    import settings
-    import endpoints
 
 
 monitor_worker = None
@@ -234,6 +235,7 @@ def prepare(port):
 
         return options
 
+
 def main():
     current_directory = os.getcwd()
     print ("Python version: " + str(sys.version_info))
@@ -252,27 +254,16 @@ def main():
     options = prepare(port)
 
     if command == "start-service":
+
         if options.start_web_service:
             start_service(options)
         if options.start_db_monitor:
-            start_monitor(options)
+           start_monitor(options)
+
+        signal.signal(signal.SIGINT, int_signal_handler)
+        tornado.ioloop.IOLoop.instance().start()
     else:
-        arg0 = None
-        arg1 = None
-        arg2 = None
-        try:
-            arg0 = sys.argv[2]
-            arg1 = sys.argv[3]
-            arg2 = sys.argv[4]
-        except:
-            pass
-
-        handler = CommandHandler(db=options.db)
-        handler.handle_command(current_directory, command, {"arg0": arg0, "arg1": arg1, "arg2": arg2})
-
-    signal.signal(signal.SIGINT, int_signal_handler)
-    tornado.ioloop.IOLoop.instance().start()
-
+        cosmos.admin.commands.admin_main()
 
 if __name__ == "__main__":
     main()

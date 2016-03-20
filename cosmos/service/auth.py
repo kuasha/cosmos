@@ -314,7 +314,11 @@ class LoginHandler(RequestHandler):
         redirect_url = self.get_argument("next", '/')
 
         if not username or len(username) < 1:
-            data = json.loads(self.request.body)
+            body = self.request.body
+            if type(body) is bytes:
+                body = body.decode('utf-8')
+
+            data = json.loads(body)
             assert isinstance(data, dict)
             username = data.get("username")
             password = data.get("password")
