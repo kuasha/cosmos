@@ -11,7 +11,7 @@ import tornado
 import logging
 import pymongo
 import cosmos
-import cosmos.dataservice.objectservice;
+import cosmos.dataservice.objectservice
 from cosmos.dataservice.objectservice import ObjectService
 from cosmos.rbac.object import *
 import cosmos.rbac.service
@@ -23,6 +23,7 @@ import json
 
 OBSERVER_PRE_PROCESSOR = 0
 OBSERVER_POST_PROCESSOR = 1
+OBSERVER_PROCESSOR = 2
 
 class BootLoader():
 
@@ -52,10 +53,14 @@ class BootLoader():
             observer_type = observer.get("type", OBSERVER_PRE_PROCESSOR)
             assert isinstance(access, collections.Iterable)
 
+            logging.info("Adding observer {}, {},{},{}".format(observer_type, func, object_name, access))
+
             if observer_type == OBSERVER_PRE_PROCESSOR:
                 object_service.add_operation_preprocessor(func, object_name, access)
             elif observer_type == OBSERVER_POST_PROCESSOR:
                 object_service.add_operation_postprocessor(func, object_name, access)
+            elif observer_type == OBSERVER_PROCESSOR:
+                object_service.add_operation_processor(func, object_name, access)
 
     @gen.coroutine
     def load_roles(self, object_service):

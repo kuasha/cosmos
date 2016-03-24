@@ -1,5 +1,11 @@
 import os
 import logging
+from collections import namedtuple
+
+from tornado import gen
+from tornado import concurrent
+from cosmos.rbac.object import *
+from cosmos.service import OBSERVER_PROCESSOR
 
 DEBUG = True
 DB_HOST = "127.0.0.1"
@@ -73,7 +79,42 @@ USERS_FB_FRIENDS_COL_NAME = "cosmos.users.facebook.friends"
 
 login_url = "/login/"
 
-observers = []
+#TODO: You should remove this processon in production environment
+def test_observer(user, object_service, object_name, data, access_type, columns = None, *args, **kwargs):
+    assert object_name == "test"
+    assert access_type == AccessType.READ or access_type == AccessType.INSERT or access_type == AccessType.UPDATE or access_type == AccessType.DELETE
+    logging.info("Test object observer is called with [{}, {}, {}, {}, {}, {}].".format(user, object_service, object_name, data, access_type, columns))
+
+    if AccessType.INSERT == access_type:
+        val = concurrent.Future()
+        val.set_result(data)
+        return (val)
+
+    if AccessType.UPDATE == access_type or AccessType.DELETE == access_type:
+        r = ({"error": None, "n": 1, "ok": 1, "updatedExisting": 1})
+        val = concurrent.Future()
+        val.set_result({"_id":r})
+        return (val)
+
+    find_one = kwargs.get("find_one", False)
+    if find_one:
+        val = concurrent.Future()
+        val.set_result({"_id":data})
+        return (val)
+    else:
+        Result = namedtuple("CosmosEmptyResultSet", "fetch_next")
+        val = concurrent.Future()
+        val.set_result(False)
+        return (Result(fetch_next=val))
+
+observers = [
+    {
+        "object_name": "test",
+        "function": test_observer,
+        "access": [AccessType.READ, AccessType.INSERT, AccessType.UPDATE, AccessType.DELETE],
+        "type": OBSERVER_PROCESSOR
+    }
+]
 
 try:
     from local_settings import *

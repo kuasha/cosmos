@@ -5,7 +5,7 @@ except ImportError:
 
 setup(
     name='cosmos',
-    version='0.01.081.00',
+    version='0.01.082.00',
     packages=['cosmos', 'cosmos.common', 'cosmos.admin', 'cosmos.admin.samples', 'cosmos.datamonitor', 'cosmos.dataservice',
               'cosmos.rbac', 'cosmos.schema', 'cosmos.service', 'cosmos.processors', 'test'],
     url='http://cosmosframework.com',
@@ -15,7 +15,7 @@ setup(
     description='Thin server application framework',
 
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
@@ -24,7 +24,11 @@ setup(
         # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: MIT License',
 
-        'Programming Language :: Python :: 2.7'
+        'Programming Language :: Python :: 2.7',
+
+        'Programming Language :: Python :: 3.5',
+
+        'Programming Language :: JavaScript'
     ],
 
     install_requires=['tornado', 'motor', 'mongolog', 'mock', 'requests', 'python-memcached', 'pycrypto', 'python_jwt', 'funcsigs', 'pbr'],

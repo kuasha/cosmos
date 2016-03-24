@@ -28,6 +28,7 @@ class ObjectService():
             raise ArgumentError("db", "Database object must be set while creating ObjectService.")
 
         self._preprocessors = {}
+        self._processors = {}
         self._postprocessors = {}
 
     def check_access(self, user, object_name, properties, access, check_owner=False):
@@ -182,6 +183,7 @@ class ObjectService():
         self.create_access_log(user, object_name, AccessType.UPDATE)
 
         result = self.db[object_name].update(query, {'$set': data})
+
         return result
 
     def delete(self, user, object_name, id):
@@ -315,6 +317,25 @@ class ObjectService():
             if not preprocessor in object_acctyp_preprocessor:
                 object_acctyp_preprocessor.append(preprocessor)
 
+    def add_operation_processor(self, processor, object_name, access_types):
+        assert isinstance(access_types, collections.Iterable)
+
+        assert len(object_name) > 0
+
+        object_processor =self._processors.get(object_name)
+        if not object_processor:
+            object_processor = {}
+            self._processors[object_name] = object_processor
+
+        for access_type in access_types:
+            object_acctyp_processor = object_processor.get(access_type)
+            if not object_acctyp_processor:
+                object_acctyp_processor = []
+                object_processor[access_type] = object_acctyp_processor
+
+            if not processor in object_acctyp_processor:
+                object_acctyp_processor.append(processor)
+
     def add_operation_postprocessor(self, postprocessor, object_name, access_types):
         #assert inspect.ismethod(preprocessor)
         assert isinstance(access_types, collections.Iterable)
@@ -347,6 +368,19 @@ class ObjectService():
             return []
 
         return preprocessor_list
+
+    def get_operation_processor(self, object_name, access_type):
+        assert len(object_name) > 0
+        object_processor = self._processors.get(object_name)
+
+        if not object_processor:
+            return []
+
+        processor_list = object_processor.get(access_type)
+        if not processor_list:
+            return []
+
+        return processor_list
 
     def get_operation_postprocessor(self, object_name, access_type):
         assert len(object_name) > 0

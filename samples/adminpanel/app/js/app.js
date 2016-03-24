@@ -56,7 +56,7 @@ cosmosUIDemo.config(function (localStorageServiceProvider) {
   localStorageServiceProvider.setPrefix('cosmosUI');
 });
 
-cosmosUIDemo.factory('$templateCache', function($cacheFactory, $http, $injector) {
+cosmosUIDemo.factory('$templateCache', function($cacheFactory, $http, $injector, $log) {
     var cache = $cacheFactory('templates');
     var widgetPromise;
 
@@ -87,6 +87,9 @@ cosmosUIDemo.factory('$templateCache', function($cacheFactory, $http, $injector)
                             return response;
                         });
                     }
+                }, function(response) {
+                    $log.error("Could not load widgets:");
+                    $log.error(response);
                 });
             }
 
