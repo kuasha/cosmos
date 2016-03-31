@@ -59,27 +59,6 @@ def authorize(user, response_type, client_id, redirect_uri, **kwargs):
     return result
 
 
-"""
-
-Claim type	Description
-----------  -----------
-aud         Audience of the token. When the token is issued to a client application, the audience is the client_id of the client.
-exp         Expiration time. The time when the token expires. For the token to be valid, the current date/time must be less than or equal to the exp value. The time is represented as the number of seconds from January 1, 1970 (1970-01-01T0:0:0Z) UTC until the time the token was issued.
-family_name User’s last name or surname. The application can display this value.
-given_name  User’s first name. The application can display this value.
-iat         Issued at time. The time when the JWT was issued. The time is represented as the number of seconds from January 1, 1970 (1970-01-01T0:0:0Z) UTC until the time the token was issued.
-iss         Identifies the token issuer
-nbf         Not before time. The time when the token becomes effective. For the token to be valid, the current date/time must be greater than or equal to the Nbf value. The time is represented as the number of seconds from January 1, 1970 (1970-01-01T0:0:0Z) UTC until the time the token was issued.
-oid         Object identifier (ID) of the user object in system.
-sub         Token subject identifier. This is a persistent and immutable identifier for the user that the token describes. Use this value in caching logic.
-tid         Tenant identifier (ID) of the tenant that issued the token.
-unique_name A unique identifier for that can be displayed to the user. This is usually a user principal name (UPN).
-upn         User principal name of the user.
-ver         Version. The version of the JWT token, typically 1.0.
-
-"""
-
-
 def get_token(**kwargs):
     aud = kwargs.get("aud", None)
     exp = kwargs.get("exp", None)
@@ -130,6 +109,7 @@ def get_token(**kwargs):
     token = jwt.generate_jwt(token_payload, priv_key, 'RS256', exp)
 
     return token
+
 
 def verify_token(token, public_key_pem, alg_list):
     try:
