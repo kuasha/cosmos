@@ -105,7 +105,7 @@ class RoleItemTest(LoggedTestCase):
         try:
             cosmos.auth.oauth2.verify_token(token, pub_pem, ['RS256'])
             self.fail("Should throw exception")
-        except cosmos.auth.oauth2.ValidationException as ve:
+        except cosmos.auth.oauth2.ValidationError as ve:
             pass
 
 

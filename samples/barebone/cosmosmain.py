@@ -207,8 +207,15 @@ def get_options(sync_db, port):
         github_oauth=settings.GITHUB_OAUTH_SETTINGS,
         start_db_monitor=settings.START_OBJECT_CHANGE_MONITOR,
         start_web_service=settings.START_WEB_SERVER,
+        oauth2_service_url=settings.OAUTH2_SERVICE_URL,
+        oauth2_private_key_pem=settings.OAUTH2_PRIVATE_KEY_PEM,
+        oauth2_private_key_handler=settings.OAUTH2_PRIVATE_KEY_HANDLER,
+        oauth2_public_key_handler=settings.OAUTH2_PUBLIC_KEY_HANDLER,
+        oauth2_token_expiry_seconds=settings.OAUTH2_TOKEN_EXPIRY_SECONDS,
+        oauth2_public_key_pem=settings.OAUTH2_PUBLIC_KEY_PEM,
         directory_listing_allowed=settings.directory_listing_allowed,
-        source_root=source_root
+        source_root=source_root,
+        tenant_id=settings.TENANT_ID,
     ))
 
     options.db = init_database(options)

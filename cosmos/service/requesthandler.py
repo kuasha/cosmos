@@ -4,6 +4,16 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
+import uuid
+
+try:
+    import urlparse  # py2
+    from urllib import urlencode
+    import urllib as urllib_parse
+except ImportError:
+    import urllib.parse as urlparse  # py3
+    from urllib.parse import urlencode
+    import urllib.parse as urllib_parse
 
 import logging
 from tornado.web import *
@@ -38,7 +48,20 @@ class RequestHandler(tornado.web.RequestHandler):
 
         return None #{ "username": "Guest", "roles":[ANONYMOUS_USER_ROLE_SID]}
 
+    def initiate_login(self, redirect_uri):
+        login_url = self.settings.get('login_url', "/login/")
+
+        parts = list(urlparse.urlparse(login_url))
+        query = dict(urlparse.parse_qsl(parts[4]))
+        query.update({"next":redirect_uri})
+        parts[4] = urlencode(query)
+        login_url = urlparse.urlunparse(parts)
+        self.redirect(login_url)
+
     def set_current_user(self, user):
+        session_user = {}
+        session_user.update(user)
+        session_user["session_id"] = str(uuid.uuid4())
         json_user = MongoObjectJSONEncoder().encode(user)
         self.set_secure_cookie(USER_COOKIE_NAME, json_user)
         encoded_json = base64.b64encode(json_user.encode("utf-8"))

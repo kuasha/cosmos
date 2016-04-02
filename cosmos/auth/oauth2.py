@@ -9,7 +9,7 @@ import jwt, Crypto.PublicKey.RSA as RSA, datetime
 import uuid
 
 
-class ValidationException(Exception):
+class ValidationError(ValueError):
     pass
 
 """
@@ -43,15 +43,14 @@ class ValidationException(Exception):
 
 CLIENT_APPLICATIONS_TABLE = "cosmos.auth.apps"
 
+
 def authorize(user, response_type, client_id, redirect_uri, **kwargs):
     state = kwargs.get("state", None)
     resource = kwargs.get("resource", "id")
 
-    admin_consent = False
-
     session_state = str(uuid.uuid4())
     code = {"resource": resource, }
-    result = {"code": code, "session_state": session_state, "admin_consent": admin_consent}
+    result = {"code": code, "session_state": session_state}
 
     if state:
         result["state"] = state
@@ -60,6 +59,10 @@ def authorize(user, response_type, client_id, redirect_uri, **kwargs):
 
 
 def get_token(**kwargs):
+    service_private_pem = kwargs.get("service_private_pem")
+    if not service_private_pem:
+        raise ValueError("service_private_pem is not defined")
+
     aud = kwargs.get("aud", None)
     exp = kwargs.get("exp", None)
     family_name = kwargs.get("family_name", None)
@@ -101,10 +104,6 @@ def get_token(**kwargs):
     if upn:
         token_payload["upn"] = upn
 
-    service_private_pem = kwargs.get("service_private_pem")
-    if not service_private_pem:
-        raise SystemError("service_private_pem is not defined")
-
     priv_key = RSA.importKey(service_private_pem)
     token = jwt.generate_jwt(token_payload, priv_key, 'RS256', exp)
 
@@ -116,6 +115,6 @@ def verify_token(token, public_key_pem, alg_list):
         header, claims = jwt.verify_jwt(token, public_key_pem, alg_list)
         return header, claims
     except Exception as ex:
-        raise ValidationException(ex)
+        raise ValidationError(ex)
 
 

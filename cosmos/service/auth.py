@@ -5,6 +5,9 @@
  License :: OSI Approved :: MIT License
 """
 from builtins import bytes
+
+from tornado.template import Template
+
 from cosmos.rbac.object import AccessType, COSMOS_USERS_OBJECT_NAME, SYSTEM_USER, COSMOS_USERS_IDENTITY_OBJECT_NAME
 
 __author__ = 'Maruf Maniruzzaman'
@@ -27,6 +30,34 @@ try:
 except ImportError:
     import urllib as urllib_parse  # py2
 
+
+LOGIN_PAGE_TEMPLATE = """
+    <div class="container theme-showcase" role="main">
+          <div class="jumbotron">
+            <div class="row">
+                <div ng-bind="error"></div>
+                <form action="." method="POST">
+                    <input type="hidden" name="next" value="{{ next }}" />
+                    <div class="col-xs-4">
+                        <div class="form-group">
+                            <label>User name</label>
+                            <input class="form-control" id="username" type="text" name="username" />
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input class="form-control" type="password" id="password" name="password" />
+                        </div>
+                        <div class="form-group">
+                            <input id="loginbtn" type="submit" value="Login" class="btn btn-primary" ng-click="login()"></input>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+          </div>
+        <div id="status"></div>
+    </div>
+"""
 
 hmac_key = None
 
@@ -306,6 +337,15 @@ class FacebookGraphLoginHandler(CosmosAuthHandler, tornado.auth.FacebookGraphMix
 
 
 class LoginHandler(RequestHandler):
+    @gen.coroutine
+    def get(self):
+        next = self.get_argument("next", '/')
+        login_template = self.settings.get('login_template', LOGIN_PAGE_TEMPLATE)
+        t = Template(login_template)
+        html = t.generate(next=next)
+        self.write(html)
+        self.finish()
+
     @tornado.web.asynchronous
     @gen.coroutine
     def post(self):
