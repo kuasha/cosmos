@@ -21,6 +21,7 @@ install:
   - pip install requests
   - pip install future
   - pip install pycrypto
+  - pip install python_jwt
   - npm install karma
   - npm install karma-cli
   - npm install karma-jasmine
