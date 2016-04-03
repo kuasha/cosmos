@@ -7,7 +7,7 @@ from cosmos.service.search import SearchHandler
 from cosmos.service.servicehandler import *
 from cosmos.service.gridfsservice import *
 from cosmos.service.appservice import *
-from views import IndexHandler
+from views import IndexHandler, LoginHandler
 import settings
 
 from views import OAuth2DummyClientHandler

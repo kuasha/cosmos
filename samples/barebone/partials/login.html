@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Login</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        html {
+            display: table;
+            margin: auto;
+        }
+
+        body {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .loginicon{
+            height:32px;
+            width:32px;
+        }
+    </style>
+</head>
+<body ng-app="loginApp" ng-cloak>
+    <form action="." method="POST">
+        <md-content class="md-padding" layout-xs="column" layout="row">
+            <div layout="column">
+                <md-card>
+                    <md-card-title>
+                        <md-card-title-text>
+                            <span class="md-headline">Login with</span>
+                        </md-card-title-text>
+                        <md-card-title-media>
+                        </md-card-title-media>
+                    </md-card-title>
+                    <md-card-content>
+                        <a href="/login/facebookgraph/"><img class="loginicon" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGhlaWdodD0iNDMuMzQ5Mm1tIiBzdHlsZT0ic2hhcGUtcmVuZGVyaW5nOmdlb21ldHJpY1ByZWNpc2lvbjsgdGV4dC1yZW5kZXJpbmc6Z2VvbWV0cmljUHJlY2lzaW9uOyBpbWFnZS1yZW5kZXJpbmc6b3B0aW1pemVRdWFsaXR5OyBmaWxsLXJ1bGU6ZXZlbm9kZDsgY2xpcC1ydWxlOmV2ZW5vZGQiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI1OCAyNTgiIHdpZHRoPSI0My4zNDkybW0iIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+CiAgIDwhW0NEQVRBWwogICAgLmZpbDIge2ZpbGw6IzMwNDg3Q30KICAgIC5maWwwIHtmaWxsOiMzQjU5OTl9CiAgICAuZmlsMSB7ZmlsbDp3aGl0ZX0KICAgXV0+CiAgPC9zdHlsZT48L2RlZnM+PGcgaWQ9IkxheWVyX3gwMDIwXzEiPjxnIGlkPSJfNDQ0MjMzNTI4Ij48cmVjdCBjbGFzcz0iZmlsMCIgaGVpZ2h0PSIyNTgiIHJ4PSIyOCIgcnk9IjI4IiB3aWR0aD0iMjU4Ii8+PHBhdGggY2xhc3M9ImZpbDEiIGQ9Ik04NCAxMDZsMjcgMCAwIC01YzAsLTggLTEsLTE4IDAsLTI2IDEsLTE5IDExLC0zMSAzNywtMzJsMjYgMSAwIDI4Yy0xMSwwIC0zMCwtNCAtMzIsMTBsMCAyNCAzMCAwIC0zIDMxIC0yNyAwIDAgNzggLTMxIDAgMCAtNzggLTI3IC0xIDAgLTMweiIvPjxwYXRoIGNsYXNzPSJmaWwyIiBkPSJNMjU4IDEyOGwtODQgLTg0IDAgMjhjLTExLDAgLTMwLC00IC0zMiwxMGwwIDI0IDMwIDAgLTMgMzEgLTI3IDAgMCA3OCAtMzEgMCA0MyA0MyA3NiAwIDI4IC0yOCAwIC0xMDJ6Ii8+PC9nPjwvZz48L3N2Zz4=" /></a>
+                        <a href="/login/google/"><img class="loginicon" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMC8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvVFIvMjAwMS9SRUMtU1ZHLTIwMDEwOTA0L0RURC9zdmcxMC5kdGQnPjxzdmcgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzIgMzIiIGhlaWdodD0iMzJweCIgaWQ9IkxheWVyXzEiIHZlcnNpb249IjEuMCIgdmlld0JveD0iMCAwIDMyIDMyIiB3aWR0aD0iMzJweCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PGc+PHBhdGggY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMzIsMzBjMCwxLjEwNC0wLjg5NiwyLTIsMkgyYy0xLjEwNCwwLTItMC44OTYtMi0yVjIgICBjMC0xLjEwNCwwLjg5Ni0yLDItMmgyOGMxLjEwNCwwLDIsMC44OTYsMiwyVjMweiIgZmlsbD0iI0UwMkYyRiIgZmlsbC1ydWxlPSJldmVub2RkIi8+PGc+PHBhdGggZD0iTTE5LDZjMCwwLTQuNTkyLDAtNi4xNjQsMGMtMi44MiwwLTUuNDc1LDEuOTc5LTUuNDc1LDQuNDUzYzAsMi41MjgsMS45MjIsNC40OTQsNC43OTEsNC40OTQgICAgYzAuMiwwLDAuMzk0LTAuMDQ1LDAuNTg0LTAuMDU5Yy0wLjE4OCwwLjM1NS0wLjMxOCwwLjczNy0wLjMxOCwxLjE1NGMwLDAuNzAzLDAuMzc3LDEuMjY0LDAuODU0LDEuNzI5ICAgIGMtMC4zNTgsMC0wLjcwOSwwLjAwNS0xLjA5LDAuMDA1QzguNjg5LDE3Ljc3Nyw2LDIwLDYsMjIuMzA3YzAsMi4yNzIsMi45NDgsMy42OTUsNi40NDEsMy42OTVjMy45ODMsMCw2LjE4My0yLjI2Miw2LjE4My00LjUzNCAgICBjMC0xLjgyMS0wLjUzOC0yLjkxMy0yLjE5OS00LjA5MWMtMC41NjktMC40MDEtMS42NTYtMS4zOC0xLjY1Ni0xLjk1NmMwLTAuNjc0LDAuMTkyLTEuMDA2LDEuMjA4LTEuOCAgICBjMS4wMzktMC44MTIsMS43NzYtMS43ODEsMS43NzYtMy4xMTFjMC0xLjU4MS0wLjY4LTMuNTEtMi4wMDMtMy41MUgxOEwxOSw2eiBNMTYuOTMxLDIxLjA3NGMwLjA0OCwwLjIxMiwwLjA3NywwLjQyOSwwLjA3NywwLjY0OSAgICBjMCwxLjgzNi0xLjE4NSwzLjI3MS00LjU4LDMuMjcxYy0yLjQxNSwwLTQuMTU4LTEuNTI4LTQuMTU4LTMuMzY0YzAtMS43OTksMi4xNjMtMy4yOTgsNC41NzktMy4yNzEgICAgYzAuNTYyLDAuMDA2LDEuMDg4LDAuMDk3LDEuNTY0LDAuMjQ5QzE1LjcyNCwxOS41MjEsMTYuNjY0LDIwLjAzNiwxNi45MzEsMjEuMDc0eiBNMTMuMDYzLDE0LjIyNSAgICBjLTEuNjIxLTAuMDQ3LTMuMTYyLTEuODEzLTMuNDQxLTMuOTRjLTAuMjc5LTIuMTMsMC44MDgtMy43NTksMi40MjgtMy43MTFjMS42MiwwLjA1LDMuMTYyLDEuNzU4LDMuNDQxLDMuODg2ICAgIEMxNS43NzEsMTIuNTg4LDE0LjY4NCwxNC4yNzMsMTMuMDYzLDE0LjIyNXoiIGZpbGw9IiNGRkZGRkYiLz48cG9seWdvbiBmaWxsPSIjRkZGRkZGIiBwb2ludHM9IjI0LDEzLjk5MyAyNCwxMC45OTMgMjIsMTAuOTkzIDIyLDEzLjk5MyAxOSwxMy45OTMgMTksMTUuOTkzIDIyLDE1Ljk5MyAyMiwxOC45OTMgMjQsMTguOTkzICAgICAyNCwxNS45OTMgMjcsMTUuOTkzIDI3LDEzLjk5MyAgICIvPjwvZz48L2c+PGcvPjxnLz48Zy8+PGcvPjxnLz48Zy8+PC9zdmc+" /></a>
+                        <a href="/login/github/"><img class="loginicon" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDUwIDUwIiBpZD0iTGF5ZXJfMSIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNTAgNTAiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxwYXRoIGQ9Ik0zMC40LDQwaC00aC00YzAsMCwwLTIuNCwwLTRjLTUuNSwxLjItNy0zLTctM2MtMS0yLTItMy0yLTNjLTItMS4yLDAtMSwwLTFjMiwwLDMsMiwzLDIgIGMxLjgsMyw0LjksMi41LDYsMmMwLTEsMC40LTIuNSwxLTNjLTQuNC0wLjUtOC0zLTgtOHMxLTYsMi03Yy0wLjItMC41LTEtMi4zLDAtNWMwLDAsMiwwLDQsM2MxLTEsNC0xLDUtMWMxLDAsNCwwLDUsMWMyLTMsNC0zLDQtMyAgYzEuMSwyLjcsMC4yLDQuNSwwLDVjMSwxLDIsMiwyLDdzLTMuNiw3LjUtOCw4YzAuNiwwLjUsMSwyLjIsMSwzTDMwLjQsNDBMMzAuNCw0MHoiIGZpbGw9IiMyODI4MjgiIGlkPSJDYXRfMl8iLz48cGF0aCBkPSJNMjUsMUMxMS43LDEsMSwxMS43LDEsMjVzMTAuNywyNCwyNCwyNHMyNC0xMC43LDI0LTI0UzM4LjMsMSwyNSwxeiBNMjUsNDRDMTQuNSw0NCw2LDM1LjUsNiwyNVMxNC41LDYsMjUsNiAgczE5LDguNSwxOSwxOVMzNS41LDQ0LDI1LDQ0eiIgZmlsbD0iIzI4MjgyOCIvPjwvc3ZnPg==" /></a>
+                        <img class="loginicon" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMC8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvVFIvMjAwMS9SRUMtU1ZHLTIwMDEwOTA0L0RURC9zdmcxMC5kdGQnPjxzdmcgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzIgMzIiIGhlaWdodD0iMzJweCIgaWQ9IkxheWVyXzEiIHZlcnNpb249IjEuMCIgdmlld0JveD0iMCAwIDMyIDMyIiB3aWR0aD0iMzJweCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggZD0iTTMxLjk5Myw2LjA3N0MzMC44MTYsNi42LDI5LjU1Miw2Ljk1MywyOC4yMjMsNy4xMWMxLjM1NS0wLjgxMiwyLjM5Ni0yLjA5OCwyLjg4Ny0zLjYzICBjLTEuMjY5LDAuNzUxLTIuNjczLDEuMjk5LTQuMTY4LDEuNTkyQzI1Ljc0NCwzLjc5NywyNC4wMzgsMywyMi4xNDksM2MtMy42MjUsMC02LjU2MiwyLjkzOC02LjU2Miw2LjU2MyAgYzAsMC41MTQsMC4wNTcsMS4wMTYsMC4xNjksMS40OTZDMTAuMzAxLDEwLjc4NSw1LjQ2NSw4LjE3MiwyLjIyNyw0LjIwMWMtMC41NjQsMC45Ny0wLjg4OCwyLjA5Ny0wLjg4OCwzLjMgIGMwLDIuMjc4LDEuMTU5LDQuMjg2LDIuOTE5LDUuNDY0Yy0xLjA3NS0wLjAzNS0yLjA4Ny0wLjMyOS0yLjk3Mi0wLjgyMWMtMC4wMDEsMC4wMjctMC4wMDEsMC4wNTYtMC4wMDEsMC4wODIgIGMwLDMuMTgxLDIuMjYyLDUuODM0LDUuMjY1LDYuNDM3Yy0wLjU1LDAuMTQ5LTEuMTMsMC4yMy0xLjcyOSwwLjIzYy0wLjQyNCwwLTAuODM0LTAuMDQxLTEuMjM0LTAuMTE3ICBjMC44MzQsMi42MDYsMy4yNTksNC41MDQsNi4xMyw0LjU1OGMtMi4yNDUsMS43Ni01LjA3NSwyLjgxMS04LjE1LDIuODExYy0wLjUzLDAtMS4wNTMtMC4wMzEtMS41NjYtMC4wOTIgIEMyLjkwNSwyNy45MTMsNi4zNTUsMjksMTAuMDYyLDI5YzEyLjA3MiwwLDE4LjY3NS0xMC4wMDEsMTguNjc1LTE4LjY3NWMwLTAuMjg0LTAuMDA4LTAuNTY4LTAuMDItMC44NSAgQzMwLDguNTUsMzEuMTEyLDcuMzk1LDMxLjk5Myw2LjA3N3oiIGZpbGw9IiM1NUFDRUUiLz48Zy8+PGcvPjxnLz48Zy8+PGcvPjxnLz48L3N2Zz4=" />
+                        <hr />
+                        <div class="md-title"> Or on this site</div>
+
+                        {% if message %}
+                        <span>{{message}}</span>
+                        {% end %}
+                        <input type="hidden" name="next" value="{{ next }}"/>
+                        <md-input-container class="md-block">
+                            <label>Username</label>
+                            <input required id="username" type="text" name="username"/>
+                        </md-input-container>
+                        <md-input-container class="md-block">
+                            <label>Password</label>
+                            <input required type="password" id="password" name="password"/>
+                        </md-input-container>
+                    </md-card-content>
+                    <md-card-actions layout="row" layout-align="end center">
+                        <input id="loginbtn" type="submit" value="Login" class="md-button md-raised md-primary" />
+                    </md-card-actions>
+                </md-card>
+            </div>
+        </md-content>
+    </form>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+
+    <!-- Angular Material Library -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
+
+    <!-- Your application bootstrap  -->
+    <script type="text/javascript">
+        angular.module('loginApp', ['ngMaterial']);
+    </script>
+</body>
+</html>

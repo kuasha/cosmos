@@ -1,6 +1,7 @@
 import settings
 
 import cosmos
+from cosmos.service.auth import BasicLoginHandler
 
 __author__ = 'Maruf Maniruzzaman'
 
@@ -17,6 +18,18 @@ class IndexHandler(RequestHandler):
         try:
             with open(settings.INDEX_HTML_PATH) as f:
                 self.write(f.read())
+        except IOError as e:
+            raise tornado.web.HTTPError(404, "File not found")
+
+
+class LoginHandler(BasicLoginHandler):
+    @gen.coroutine
+    def get(self):
+        next = self.get_argument("next", '/')
+        try:
+            with open(settings.LOGIN_HTML_PATH) as f:
+                login_template = f.read()
+                self._show_login_window(next, login_template=login_template)
         except IOError as e:
             raise tornado.web.HTTPError(404, "File not found")
 
@@ -42,3 +55,5 @@ class OAuth2DummyClientHandler(RequestHandler):
         self.write("<a href='/tenant/oauth2/token/?code={}&state=mystate&grant_type=code&redirect_uri=/oauth2client/authorize/?tag=2'>Request Token</a><br />".format(code))
 
         self.finish()
+
+
