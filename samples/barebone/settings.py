@@ -29,7 +29,7 @@ LOG_DB_USER_PASSWORD = None
 STATIC_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "app")
 TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates")
 INDEX_HTML_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "app/index.html")
-LOGIN_HTML_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "partials/login.html")
+LOGIN_HTML_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates/login.html")
 WEB_SERVER_LISTEN_PORT = 8080
 
 DB_CHANGE_PROCESSOR_ENDPOINT_FORMAT = "http://localhost:{0}/handlechange"
