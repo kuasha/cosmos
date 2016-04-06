@@ -17,6 +17,7 @@ var cosmosUIDemo = angular.module('cosmosUIDemo', [
 ]).
 config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/terminal', {templateUrl: 'lib/cosmos/partials/terminal.html', controller: 'TerminalCtrl'});
+    $routeProvider.when('/filemanager', {templateUrl: 'lib/cosmos/partials/filemanager.html', controller: 'FileManagerCtrl'});
 
     $routeProvider.when('/install', {templateUrl: 'lib/cosmos/partials/install.html', controller: 'TerminalCtrl'});
     $routeProvider.when('/message', {templateUrl: 'lib/cosmos/partials/message.html', controller: 'MessageViewCtrl'});

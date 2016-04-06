@@ -1,0 +1,92 @@
+<style>
+    .file-list {
+        padding-bottom: 10px;
+    }
+
+    .file-selector {
+        margin: 5px;
+    }
+
+    .selected {
+        background-color: #DDD;
+    }
+
+</style>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/#/filemanager/">File Manager</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/#/terminal/">Terminal</a></li>
+                <li><a href="/#/appstudio/">App Studio</a></li>
+                <li ng-show="loggedIn()"><a href="#/users">Users</a></li>
+                <li ng-show="loggedIn()"><a href="#/roles">Roles</a></li>
+                <li ng-show="loggedIn()"><a href="/logout/">Logout [{{userName}}]</a></li>
+                <li ng-show="!loggedIn()"><a href="/#/login/?redirect=/terminal/">Login</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container theme-showcase" role="main" ng-init="init();">
+    <p></p>
+    <div>
+        <div ng-show="hasError" class="bg-warning">
+            <button class="btn btn-xs btn-danger glyphicon glyphicon-remove pull-right"
+                    ng-click="clearError();"></button>
+            <div><label>Error code:</label><span ng-bind="status"></span></div>
+            <div ng-bind="status_data"></div>
+        </div>
+        <div class = row>
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="fileObjectName" placeholder="File object name like anniversary.photos"/>
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="button" ng-click="refresh();">Refresh</button>
+                    </span>
+                </div><!-- /input-group -->
+            </div><!-- /.col-lg-6 -->
+        </div>
+        <div id="iFramePlaceholder"></div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>File Id</th>
+                <th>File size</th>
+                <th>File name</th>
+                <th>File MD5</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="file in uploaded_files" ng-click="selectFile(file)"
+                ng-class="(file.file_id == selectedFile.file_id)?'selected':''">
+                <td>{{file.file_id}}</td>
+                <td>{{file.length}}</td>
+                <td>{{file.filename}}</td>
+                <td>{{file.md5}}</td>
+                <td>
+                    <a class="btn btn-xs btn-success glyphicon glyphicon-download"
+                       href="{{rootPath}}{{file.fileObjectName}}/{{file.file_id}}/"></a>
+                </td>
+                <td>
+                    <button class="btn btn-xs btn-danger glyphicon glyphicon-remove"
+                            ng-click="removeFile($index)"></button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <form ng-init="setAction()" id="uploadForm" name="uploadForm" method='POST' enctype='multipart/form-data'
+              target='submit-iframe' action="{{rootPath}}">
+            <div class="file-list" id="fileList">
+                <input class="file-selector" name="uploadedfile" type="file"
+                       onchange="angular.element(this).scope().fileNameChanged(this)"/>
+            </div>
+            <button class="btn btn-primary glyphicon glyphicon-cloud-upload" ng-click="uploadFile()"> Upload</button>
+        </form>
+    </div>
+</div>
