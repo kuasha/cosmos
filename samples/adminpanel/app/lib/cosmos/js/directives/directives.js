@@ -29,7 +29,8 @@ var directives = angular.module('cosmosUI.directives', []).
         return {
             restrict: 'E',
             scope: {
-                pageId: '=pageid'  // because pageId will translate to page-id
+                pageId: '=pageid',  // because pageId will translate to page-id
+                appPath: '=?apppath'
             },
 
             controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
@@ -61,7 +62,8 @@ var directives = angular.module('cosmosUI.directives', []).
                             return;
                         }
 
-                        $scope.appPath = $routeParams.appPath;
+                        if(!$scope.appPath)
+                            $scope.appPath = $routeParams.appPath;
 
                         settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
                                 var url = '/service/' + objectName + '/' + $scope.pageId + '/';
