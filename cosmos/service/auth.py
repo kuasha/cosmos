@@ -5,6 +5,9 @@
  License :: OSI Approved :: MIT License
 """
 from builtins import bytes
+
+from tornado.template import Template
+
 from cosmos.rbac.object import AccessType, COSMOS_USERS_OBJECT_NAME, SYSTEM_USER, COSMOS_USERS_IDENTITY_OBJECT_NAME
 
 __author__ = 'Maruf Maniruzzaman'
@@ -27,6 +30,78 @@ try:
 except ImportError:
     import urllib as urllib_parse  # py2
 
+
+LOGIN_PAGE_TEMPLATE = """
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Login</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+        html {
+            display: table;
+            margin: auto;
+        }
+        body {
+            display: table-cell;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body ng-app="loginApp" ng-cloak>
+<form action="." method="POST">
+    <md-content class="md-padding" layout-xs="column" layout="row">
+    <div layout="column">
+      <md-card>
+        <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">Login</span>
+          </md-card-title-text>
+          <md-card-title-media>
+          </md-card-title-media>
+        </md-card-title>
+        <md-card-content>
+            {% if message %}
+            <span>{{message}}</span>
+            {% end %}
+            <input type="hidden" name="next" value="{{ next }}" />
+            <md-input-container class="md-block">
+                    <label>Username</label>
+                    <input required id="username" type="text" name="username" />
+            </md-input-container>
+            <md-input-container class="md-block">
+                    <label>Password</label>
+                    <input required type="password" id="password" name="password" />
+            </md-input-container>
+        </md-card-content>
+        <md-card-actions layout="row" layout-align="end center">
+          <input id="loginbtn" type="submit" value="Login" class="md-button md-raised md-primary"></input>
+        </md-card-actions>
+      </md-card>
+    <md-content>
+    </form>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+
+    <!-- Angular Material Library -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
+
+    <!-- Your application bootstrap  -->
+    <script type="text/javascript">
+        angular.module('loginApp', ['ngMaterial']);
+    </script>
+</body>
+</html>
+"""
 
 hmac_key = None
 
@@ -305,23 +380,40 @@ class FacebookGraphLoginHandler(CosmosAuthHandler, tornado.auth.FacebookGraphMix
                               extra_params={"scope": self.settings["facebook_scope"]})
 
 
-class LoginHandler(RequestHandler):
-    @tornado.web.asynchronous
+class BasicLoginHandler(RequestHandler):
+    @gen.coroutine
+    def get(self):
+        next = self.get_argument("next", '/')
+        self._show_login_window(next)
+
+    def _show_login_window(self, next="/", message=None, login_template=None):
+        if not login_template:
+            login_template = self.settings.get('login_template', LOGIN_PAGE_TEMPLATE)
+        t = Template(login_template)
+        html = t.generate(next=next, message=message)
+        self.write(html)
+        self.finish()
+
     @gen.coroutine
     def post(self):
-        username = self.get_argument("username", None)
-        password = self.get_argument("password", None)
-        redirect_url = self.get_argument("next", '/')
+        username = self.get_argument("username", default=None)
+        password = self.get_argument("password", default=None)
+        redirect_url = self.get_argument("next", default='/')
 
         if not username or len(username) < 1:
             body = self.request.body
             if type(body) is bytes:
                 body = body.decode('utf-8')
+            if body and len(body) > 32:
+                data = json.loads(body)
+                assert isinstance(data, dict)
+                username = data.get("username")
+                password = data.get("password")
+                redirect_url = data.get("next", "/")
 
-            data = json.loads(body)
-            assert isinstance(data, dict)
-            username = data.get("username")
-            password = data.get("password")
+        if not username or not password:
+            self._show_login_window(message="Missing required values.")
+            return
 
         object_name = COSMOS_USERS_OBJECT_NAME
         obj_serv = self.settings['object_service']

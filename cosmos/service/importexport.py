@@ -30,7 +30,7 @@ class ImportHandler(requesthandler.RequestHandler):
         try:
             data = json.loads(self.request.body)
             assert isinstance(data, dict)
-        except ValueError, ve:
+        except ValueError as ve:
             raise tornado.web.HTTPError(400, ve.message)
 
         object_service = self.settings['object_service']
