@@ -266,42 +266,42 @@ class OAuth2ServiceHandler(RequestHandler):
         obj_serv = self.settings['object_service']
         promise = obj_serv.insert(SYSTEM_USER, OAUTH2_REQUESTS_OBJECT_NAME, params)
         req_id = yield promise
-        return req_id
+        raise gen.Return(req_id)
 
     @gen.coroutine
     def load_auth_request(self, req_id):
         obj_serv = self.settings['object_service']
         cursor = obj_serv.load(SYSTEM_USER, OAUTH2_REQUESTS_OBJECT_NAME, req_id, [])
         request = yield cursor
-        return request
+        raise gen.Return(request)
 
     @gen.coroutine
     def insert_code_status(self, response):
         obj_serv = self.settings['object_service']
         promise = obj_serv.insert(SYSTEM_USER, OAUTH2_CODE_STATUS_OBJECT_NAME, response)
         code_status_id = yield promise
-        return code_status_id
+        raise gen.Return(code_status_id)
 
     @gen.coroutine
     def update_code_status(self, code_status):
         obj_serv = self.settings['object_service']
         promise = obj_serv.save(SYSTEM_USER, OAUTH2_CODE_STATUS_OBJECT_NAME, code_status)
         code_status_id = yield promise
-        return code_status_id
+        raise gen.Return(code_status_id)
 
     @gen.coroutine
     def load_code_status(self, code_status_id):
         obj_serv = self.settings['object_service']
         promise = obj_serv.load(SYSTEM_USER, OAUTH2_CODE_STATUS_OBJECT_NAME, code_status_id, [])
         code_status = yield promise
-        return code_status
+        raise gen.Return(code_status)
 
     @gen.coroutine
     def load_user(self, user_id):
         obj_serv = self.settings['object_service']
         cursor = obj_serv.load(SYSTEM_USER, COSMOS_USERS_OBJECT_NAME, user_id, [])
         user = yield cursor
-        return user
+        raise gen.Return(user)
 
     def get_private_key_pem(self):
         return self.settings.get("oauth2_private_key_pem")
