@@ -7,14 +7,17 @@
  This service handler follows the style found in Azure (https://msdn.microsoft.com/en-us/library/azure/dn645542.aspx)
  Also for more information look at The OAuth 2.0 Authorization Framework (http://tools.ietf.org/html/rfc6749)
 """
+
 import ast
 import base64
 import json
 
 import datetime
+import time
 import uuid
 
 import tornado.web
+from Crypto.PublicKey import RSA
 from tornado import gen
 import logging
 
@@ -35,6 +38,7 @@ from cosmos.service.requesthandler import RequestHandler
 
 OAUTH2_REQUESTS_OBJECT_NAME = "cosmos.auth.oauth2.requests"
 OAUTH2_TOKENS_OBJECT_NAME = "cosmos.auth.oauth2.tokens"
+OAUTH2_CODE_STATUS_OBJECT_NAME = "cosmos.auth.oauth2.codestatus"
 OAUTH2_MAX_CODE_RESPONSE_LENGTH = 200
 
 class OAuth2RequestException(Exception):
@@ -43,26 +47,17 @@ class OAuth2RequestException(Exception):
 #TODO: security check for entire class
 
 class OAuth2ServiceHandler(RequestHandler):
+
     @gen.coroutine
     def get(self, tenant_id, function):
-
         try:
-            obj_serv = self.settings['object_service']
             req_id = None
-            params = None
+            auth_request = None
             serve_request = self.get_argument("serve_request", None)
             if not (serve_request):
-                params = {k: self.get_argument(k) for k in self.request.arguments}
-                params["function"] = function
-                params["tenant_id"] = tenant_id
-                params["request_protocol"] = self.request.protocol
-                params["request_host"] = self.request.host
-                params["request_uri"] = self.request.uri
-                params["tenant_id"] = self.settings.get("tenant_id")
+                auth_request = self._collect_auth_request_parameters(tenant_id, function)
 
-                promise = obj_serv.insert(SYSTEM_USER, OAUTH2_REQUESTS_OBJECT_NAME, params)
-
-                req_id = yield promise
+                req_id = yield self.insert_auth_request(auth_request)
 
                 if not req_id:
                     logging.critical("Could not save OAuth2 request to database.")
@@ -71,10 +66,9 @@ class OAuth2ServiceHandler(RequestHandler):
                 logging.debug("Request saved in db {0}".format(str(req_id)))
             else:
                 req_id = self.get_argument("serve_request")
-                cursor = obj_serv.load(SYSTEM_USER, OAUTH2_REQUESTS_OBJECT_NAME, req_id, [])
-                params = yield cursor
-                if not params:
-                    self.write("Could not find request. Correlation id {}".format(req_id))
+                auth_request = yield self.load_auth_request(req_id)
+                if not auth_request:
+                    self.write("Could not find auth request. Correlation id {}".format(req_id))
                     self.finish()
                     return
 
@@ -91,14 +85,13 @@ class OAuth2ServiceHandler(RequestHandler):
                 self.initiate_login(redirect_url)
 
             if function == "authorize":
-                yield self._do_authorize(user, params)
+                yield self._do_authorize(user, auth_request)
                 return
             elif function == "token":
-                yield self._do_token(user, params)
+                yield self._do_token(user, auth_request)
                 return
             else:
                 raise tornado.web.HTTPError(404, "Not found")
-
         except OAuth2RequestException as re:
             self.clear()
             self.set_status(400)
@@ -115,19 +108,37 @@ class OAuth2ServiceHandler(RequestHandler):
         state = params.get("state", None)
         resource = params.get("resource", None)
 
-        oauth2_public_key_handler = self.settings.get("oauth2_public_key_handler")
+        trusted = yield self.is_trusted_redirect_url(redirect_uri)
+
+        if not trusted:
+            raise OAuth2RequestException("Redirect URL is not trusted.")
+
+        code_attributes = ["user_id", "client_id", "resource", "iat", "code_status_id"]
+
+        current_utc_time = self.get_current_utc_time()
 
         response = {}
         response.update({"user_id": user["_id"]})
         response["client_id"] = client_id
         response["resource"] = resource
-        response["iat"] = int(datetime.datetime.utcnow().timestamp())
-        str_response = json.dumps(response)
+        response["iat"] = current_utc_time
+
+        code_status_id = yield self.insert_code_status(response)
+        if not code_status_id:
+            logging.critical("Could not save [OAuth2 Code] to database.")
+            raise tornado.web.HTTPError(500, "Server error")
+
+        response["code_status_id"] = str(code_status_id)
+
+        code_response = { k: response.get(k) for k in code_attributes }
+
+        str_response = json.dumps(code_response)
         bytes_resp = str_response.encode()
 
         if(len(bytes_resp) > OAUTH2_MAX_CODE_RESPONSE_LENGTH):
             raise tornado.web.HTTPError(414, "Request-URI Too Long")
 
+        oauth2_public_key_handler = self.get_public_key_handler()
         enc_response = oauth2_public_key_handler.encrypt(bytes_resp, 32)
 
         b64_enc_response_bytes = base64.urlsafe_b64encode(enc_response[0])
@@ -149,24 +160,8 @@ class OAuth2ServiceHandler(RequestHandler):
 
         self.redirect(redirect_url)
 
-    """
-        TODO:
-        4.1.2.  Authorization Respons (rfc6749)
-        code
-        REQUIRED.  The authorization code generated by the
-        authorization server.  The authorization code MUST expire
-        shortly after it is issued to mitigate the risk of leaks.  A
-        maximum authorization code lifetime of 10 minutes is
-        RECOMMENDED.  The client MUST NOT use the authorization code
-
-        more than once. If an authorization code is used more than
-        once, the authorization server MUST deny the request and SHOULD
-        revoke (when possible) all tokens previously issued based on
-        that authorization code.  The authorization code is bound to
-        the client identifier and redirection URI.
-    """
     @gen.coroutine
-    def _do_token(self, req_user, params):
+    def _do_token(self, requesting_user, params):
         code = params.get("code", None)
         grant_type = params.get("grant_type", None)
         redirect_uri = params.get("redirect_uri", None)
@@ -189,42 +184,65 @@ class OAuth2ServiceHandler(RequestHandler):
         else:
             raise OAuth2RequestException("Value of grant_type must be either code or refresh_token")
 
-
         request_host = params.get("request_host")
-        oauth2_token_issuer = self.settings.get("oauth2_token_issuer", request_host)
-        oauth2_token_expiry_seconds = self.settings.get("oauth2_token_expiry_seconds")
+
+        oauth2_settings = self.settings['oauth2_settings']
+        oauth2_token_issuer = oauth2_settings.get("oauth2_token_issuer", request_host)
+        oauth2_token_expiry_seconds = oauth2_settings.get("oauth2_token_expiry_seconds")
+
         exp = datetime.timedelta(seconds=oauth2_token_expiry_seconds)
 
         enc_code = base64.urlsafe_b64decode(code.encode())
-        oauth2_private_key_handler = self.settings.get("oauth2_private_key_handler")
+
+        oauth2_private_key_handler = self.get_private_key_handler()
+
         code_json_bytes = oauth2_private_key_handler.decrypt(enc_code)
         code_json = code_json_bytes.decode()
         code_dict = json.loads(code_json)
+
         user_id = code_dict.get("user_id")
         code_iat = code_dict.get("iat")
 
         if not user_id or not code_iat:
             raise OAuth2RequestException("Invalid code")
 
-        #TODO: allow use of secret - otherwise its not secure
-        #TODO: make sure the code was not used earlier - otherwise its not secure
-
-        obj_serv = self.settings['object_service']
-        cursor = obj_serv.load(SYSTEM_USER, COSMOS_USERS_OBJECT_NAME, user_id, [])
-        user = yield cursor
+        user = yield self.load_user(user_id)
         if not user:
             raise OAuth2RequestException("Invalid code")
 
+        #TODO: allow use of secret - otherwise its not secure
+
+        #Make sure the code was not used earlier - otherwise its not secure
+        code_status_id = code_dict.get("code_status_id")
+        if not code_status_id:
+            raise OAuth2RequestException("Invalid code")
+
+        code_status = yield self.load_code_status(code_status_id)
+        if not code_status:
+            raise OAuth2RequestException("Invalid code. Possibly server error.")
+
+        if code_status.get("used_at"):
+            code_status["duplicate_attempt"] = True
+            yield self.update_code_status(code_status)
+            raise OAuth2RequestException("Code already used")
+
+        current_utc_time = self.get_current_utc_time()
+
+        code_status["used_at"] = current_utc_time
+        saved = yield self.update_code_status(code_status)
+        if not saved:
+            logging.error("Could not save code status Id={}".format(code_status_id))
+
         resource = code_dict.get("resource")
-        oauth2_private_key_pem = self.settings.get("oauth2_private_key_pem")
+        oauth2_private_key_pem = self.get_private_key_pem()
 
         response = get_token(aud=client_id,
                                      exp=exp,
                                      family_name=user.get("family_name"),
                                      given_name=user.get("given_name"),
-                                     iat=str(int(datetime.datetime.utcnow().timestamp())),
+                                     iat=str(current_utc_time),
                                      iss=oauth2_token_issuer,
-                                     nbf=str(int(datetime.datetime.utcnow().timestamp())),
+                                     nbf=str(current_utc_time),
                                      oid=str(user.get("_id")),
                                      sub=str(user.get("_id")),
                                      tid=tid,
@@ -235,6 +253,7 @@ class OAuth2ServiceHandler(RequestHandler):
         session_state = user.get("session_id", str(uuid.uuid4()))
         response_type = "access_token"
         params = {response_type: response, "session_state": session_state, "token_type": token_type, "resource": resource}
+
         if state:
             params["state"] = state
 
@@ -246,3 +265,88 @@ class OAuth2ServiceHandler(RequestHandler):
         redirect_url = urlparse.urlunparse(parts)
 
         self.redirect(redirect_url)
+
+
+    def get_current_utc_time(self):
+        return int(time.time())
+
+    def get_public_key_handler(self):
+        oauth2_settings = self.settings['oauth2_settings']
+        oauth2_public_key_pem = oauth2_settings.get("oauth2_public_key_pem")
+        oauth2_public_key_handler = RSA.importKey(oauth2_public_key_pem)
+        return oauth2_public_key_handler
+
+    def get_private_key_handler(self):
+        oauth2_settings = self.settings['oauth2_settings']
+        oauth2_private_key_pem = oauth2_settings.get("oauth2_private_key_pem")
+        oauth2_private_key_handler = RSA.importKey(oauth2_private_key_pem)
+        return oauth2_private_key_handler
+
+    def _collect_auth_request_parameters(self, tenant_id, function):
+        params = {k: self.get_argument(k) for k in self.request.arguments}
+        params["request_protocol"] = self.request.protocol
+        params["request_host"] = self.request.host
+        params["request_uri"] = self.request.uri
+        params["tenant_id"] = tenant_id
+        params["function"] = function
+
+        return params
+
+    @gen.coroutine
+    def insert_auth_request(self, params):
+        obj_serv = self.settings['object_service']
+        promise = obj_serv.insert(SYSTEM_USER, OAUTH2_REQUESTS_OBJECT_NAME, params)
+        req_id = yield promise
+        raise gen.Return(req_id)
+
+    @gen.coroutine
+    def load_auth_request(self, req_id):
+        obj_serv = self.settings['object_service']
+        cursor = obj_serv.load(SYSTEM_USER, OAUTH2_REQUESTS_OBJECT_NAME, req_id, [])
+        request = yield cursor
+        raise gen.Return(request)
+
+    @gen.coroutine
+    def insert_code_status(self, response):
+        obj_serv = self.settings['object_service']
+        promise = obj_serv.insert(SYSTEM_USER, OAUTH2_CODE_STATUS_OBJECT_NAME, response)
+        code_status_id = yield promise
+        raise gen.Return(code_status_id)
+
+    @gen.coroutine
+    def update_code_status(self, code_status):
+        obj_serv = self.settings['object_service']
+        promise = obj_serv.save(SYSTEM_USER, OAUTH2_CODE_STATUS_OBJECT_NAME, code_status)
+        code_status_id = yield promise
+        raise gen.Return(code_status_id)
+
+    @gen.coroutine
+    def load_code_status(self, code_status_id):
+        obj_serv = self.settings['object_service']
+        promise = obj_serv.load(SYSTEM_USER, OAUTH2_CODE_STATUS_OBJECT_NAME, code_status_id, [])
+        code_status = yield promise
+        raise gen.Return(code_status)
+
+    @gen.coroutine
+    def load_user(self, user_id):
+        obj_serv = self.settings['object_service']
+        cursor = obj_serv.load(SYSTEM_USER, COSMOS_USERS_OBJECT_NAME, user_id, [])
+        user = yield cursor
+        raise gen.Return(user)
+
+    @gen.coroutine
+    def is_trusted_redirect_url(self, full_redirect_url):
+        parts = list(urlparse.urlparse(full_redirect_url))
+        parts[3] = ''
+        parts[4] = ''
+
+        redirect_url = urlparse.urlunparse(parts)
+
+        oauth2_settings = self.settings['oauth2_settings']
+        trusted_redirect_urls = oauth2_settings.get("oauth2_trusted_redirect_urls", [])
+
+        raise gen.Return(redirect_url in trusted_redirect_urls)
+
+    def get_private_key_pem(self):
+        oauth2_settings = self.settings['oauth2_settings']
+        return oauth2_settings.get("oauth2_private_key_pem")

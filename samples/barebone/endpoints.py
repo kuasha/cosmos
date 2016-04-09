@@ -7,10 +7,8 @@ from cosmos.service.search import SearchHandler
 from cosmos.service.servicehandler import *
 from cosmos.service.gridfsservice import *
 from cosmos.service.appservice import *
-from views import IndexHandler, LoginHandler
 import settings
-
-from views import OAuth2DummyClientHandler
+from views import *
 
 END_POINTS = [
     (r"/login/google/", GoogleOAuth2LoginHandler),
@@ -20,6 +18,7 @@ END_POINTS = [
     (r"/login/", LoginHandler),
     (r"/logout/", LogoutHandler),
     (settings.OAUTH2_SERVICE_URL, OAuth2ServiceHandler),
+    (settings.AUTH_PUBLIC_KEY_PEM_URL, AuthPublicKeyHandler),
     (r"/oauth2client/(?P<function>[^\/]+)/", OAuth2DummyClientHandler),
     (r"/service/(.*)", ServiceHandler),
     (r"/search/(.*)/", SearchHandler),
