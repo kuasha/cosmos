@@ -87,7 +87,9 @@ OAUTH2_TOKEN_EXPIRY_SECONDS = 600
 OAUTH2_PRIVATE_KEY_HANDLER = RSA.importKey(OAUTH2_PRIVATE_KEY_PEM)
 OAUTH2_PUBLIC_KEY_HANDLER = RSA.importKey(OAUTH2_PUBLIC_KEY_PEM)
 
-TENANT_ID = ''
+TENANT_ID = 'cosmosframework.com'
+
+AUTH_PUBLIC_KEY_PEM_URL = r"/(?P<tenant_id>[^\/]+)/auth/key/"
 
 #TODO: You should remove this processon in production environment
 def test_observer(user, object_service, object_name, data, access_type, columns = None, *args, **kwargs):

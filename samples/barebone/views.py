@@ -1,4 +1,7 @@
+import logging
+
 import settings
+from tornado.httpclient import AsyncHTTPClient
 
 import cosmos
 from cosmos.service.auth import BasicLoginHandler
@@ -34,26 +37,39 @@ class LoginHandler(BasicLoginHandler):
             raise tornado.web.HTTPError(404, "File not found")
 
 
+class AuthPublicKeyHandler(RequestHandler):
+    @gen.coroutine
+    def get(self, tenant_id):
+        self.set_header("Content-Type", 'application/x-pem-file')
+        self.set_header('Content-Disposition', 'attachment; filename=%s_pub.pem' % tenant_id)
+        self.write(settings.OAUTH2_PUBLIC_KEY_PEM)
+
 class OAuth2DummyClientHandler(RequestHandler):
     @gen.coroutine
     def get(self, function):
+        tenant_id = settings.TENANT_ID
         self.write(self.request.uri + " <br />" + function + "<br />")
-        params = json.dumps({ k: self.get_argument(k) for k in self.request.arguments })
+        params = json.dumps({k: self.get_argument(k) for k in self.request.arguments})
         self.write(params)
-        pub_pem = self.settings.get("oauth2_public_key_pem")
         code = self.get_argument("code", "temp")
         token = self.get_argument("access_token", default=None)
         if token:
-            header, claims = cosmos.auth.oauth2.verify_token(token, pub_pem, ['RS256'])
-            self.write("<br /><hr />")
-            self.write(json.dumps(header))
-            self.write("<br /><hr />")
-            self.write(json.dumps(claims))
+            http_client = AsyncHTTPClient()
+            resp = yield http_client.fetch("{0}://{1}/{2}/auth/key/".format(self.request.protocol, self.request.host,tenant_id))
+
+            if not resp or not resp.code == 200 or resp.body is None:
+                self.write("Could not get auth server public key")
+            else:
+                pub_pem = resp.body
+                logging.debug("Public key: {0}".format(pub_pem))
+                header, claims = cosmos.auth.oauth2.verify_token(token, pub_pem, ['RS256'])
+                self.write("<br /><hr />")
+                self.write(json.dumps(header))
+                self.write("<br /><hr />")
+                self.write(json.dumps(claims))
 
         self.write("<br /><hr />")
-        self.write("<a href='/tenant/oauth2/authorize/?response_type=code&state=mystate&resource=myresource.com/test&redirect_uri=/oauth2client/authorize/?tag=2'>Request Code</a><br />")
-        self.write("<a href='/tenant/oauth2/token/?code={}&state=mystate&grant_type=code&redirect_uri=/oauth2client/authorize/?tag=2'>Request Token</a><br />".format(code))
+        self.write("<a href='/{}/oauth2/authorize/?response_type=code&state=mystate&resource=myresource.com/test&redirect_uri={}://{}/oauth2client/authorize/?tag=2'>Request Code</a><br />".format(settings.TENANT_ID, self.request.protocol, self.request.host))
+        self.write("<a href='/{}/oauth2/token/?code={}&state=mystate&grant_type=code&redirect_uri={}://{}/oauth2client/authorize/?tag=2'>Request Token</a><br />".format(tenant_id, code, self.request.protocol, self.request.host))
 
         self.finish()
-
-
