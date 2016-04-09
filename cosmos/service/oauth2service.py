@@ -13,9 +13,11 @@ import base64
 import json
 
 import datetime
+import time
 import uuid
 
 import tornado.web
+from Crypto.PublicKey import RSA
 from tornado import gen
 import logging
 
@@ -106,15 +108,20 @@ class OAuth2ServiceHandler(RequestHandler):
         state = params.get("state", None)
         resource = params.get("resource", None)
 
-        oauth2_public_key_handler = self.settings.get("oauth2_public_key_handler")
+        trusted = yield self.is_trusted_redirect_url(redirect_uri)
+
+        if not trusted:
+            raise OAuth2RequestException("Redirect URL is not trusted.")
 
         code_attributes = ["user_id", "client_id", "resource", "iat", "code_status_id"]
+
+        current_utc_time = self.get_current_utc_time()
 
         response = {}
         response.update({"user_id": user["_id"]})
         response["client_id"] = client_id
         response["resource"] = resource
-        response["iat"] = int(datetime.datetime.utcnow().timestamp())
+        response["iat"] = current_utc_time
 
         code_status_id = yield self.insert_code_status(response)
         if not code_status_id:
@@ -131,6 +138,7 @@ class OAuth2ServiceHandler(RequestHandler):
         if(len(bytes_resp) > OAUTH2_MAX_CODE_RESPONSE_LENGTH):
             raise tornado.web.HTTPError(414, "Request-URI Too Long")
 
+        oauth2_public_key_handler = self.get_public_key_handler()
         enc_response = oauth2_public_key_handler.encrypt(bytes_resp, 32)
 
         b64_enc_response_bytes = base64.urlsafe_b64encode(enc_response[0])
@@ -177,12 +185,17 @@ class OAuth2ServiceHandler(RequestHandler):
             raise OAuth2RequestException("Value of grant_type must be either code or refresh_token")
 
         request_host = params.get("request_host")
-        oauth2_token_issuer = self.settings.get("oauth2_token_issuer", request_host)
-        oauth2_token_expiry_seconds = self.settings.get("oauth2_token_expiry_seconds")
+
+        oauth2_settings = self.settings['oauth2_settings']
+        oauth2_token_issuer = oauth2_settings.get("oauth2_token_issuer", request_host)
+        oauth2_token_expiry_seconds = oauth2_settings.get("oauth2_token_expiry_seconds")
+
         exp = datetime.timedelta(seconds=oauth2_token_expiry_seconds)
 
         enc_code = base64.urlsafe_b64decode(code.encode())
-        oauth2_private_key_handler = self.settings.get("oauth2_private_key_handler")
+
+        oauth2_private_key_handler = self.get_private_key_handler()
+
         code_json_bytes = oauth2_private_key_handler.decrypt(enc_code)
         code_json = code_json_bytes.decode()
         code_dict = json.loads(code_json)
@@ -213,7 +226,9 @@ class OAuth2ServiceHandler(RequestHandler):
             yield self.update_code_status(code_status)
             raise OAuth2RequestException("Code already used")
 
-        code_status["used_at"] = int(datetime.datetime.utcnow().timestamp())
+        current_utc_time = self.get_current_utc_time()
+
+        code_status["used_at"] = current_utc_time
         saved = yield self.update_code_status(code_status)
         if not saved:
             logging.error("Could not save code status Id={}".format(code_status_id))
@@ -225,9 +240,9 @@ class OAuth2ServiceHandler(RequestHandler):
                                      exp=exp,
                                      family_name=user.get("family_name"),
                                      given_name=user.get("given_name"),
-                                     iat=str(int(datetime.datetime.utcnow().timestamp())),
+                                     iat=str(current_utc_time),
                                      iss=oauth2_token_issuer,
-                                     nbf=str(int(datetime.datetime.utcnow().timestamp())),
+                                     nbf=str(current_utc_time),
                                      oid=str(user.get("_id")),
                                      sub=str(user.get("_id")),
                                      tid=tid,
@@ -250,6 +265,22 @@ class OAuth2ServiceHandler(RequestHandler):
         redirect_url = urlparse.urlunparse(parts)
 
         self.redirect(redirect_url)
+
+
+    def get_current_utc_time(self):
+        return int(time.time())
+
+    def get_public_key_handler(self):
+        oauth2_settings = self.settings['oauth2_settings']
+        oauth2_public_key_pem = oauth2_settings.get("oauth2_public_key_pem")
+        oauth2_public_key_handler = RSA.importKey(oauth2_public_key_pem)
+        return oauth2_public_key_handler
+
+    def get_private_key_handler(self):
+        oauth2_settings = self.settings['oauth2_settings']
+        oauth2_private_key_pem = oauth2_settings.get("oauth2_private_key_pem")
+        oauth2_private_key_handler = RSA.importKey(oauth2_private_key_pem)
+        return oauth2_private_key_handler
 
     def _collect_auth_request_parameters(self, tenant_id, function):
         params = {k: self.get_argument(k) for k in self.request.arguments}
@@ -303,5 +334,19 @@ class OAuth2ServiceHandler(RequestHandler):
         user = yield cursor
         raise gen.Return(user)
 
+    @gen.coroutine
+    def is_trusted_redirect_url(self, full_redirect_url):
+        parts = list(urlparse.urlparse(full_redirect_url))
+        parts[3] = ''
+        parts[4] = ''
+
+        redirect_url = urlparse.urlunparse(parts)
+
+        oauth2_settings = self.settings['oauth2_settings']
+        trusted_redirect_urls = oauth2_settings.get("oauth2_trusted_redirect_urls", [])
+
+        raise gen.Return(redirect_url in trusted_redirect_urls)
+
     def get_private_key_pem(self):
-        return self.settings.get("oauth2_private_key_pem")
+        oauth2_settings = self.settings['oauth2_settings']
+        return oauth2_settings.get("oauth2_private_key_pem")

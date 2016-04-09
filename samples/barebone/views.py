@@ -47,6 +47,11 @@ class AuthPublicKeyHandler(RequestHandler):
 class OAuth2DummyClientHandler(RequestHandler):
     @gen.coroutine
     def get(self, function):
+        protocol = self.request.protocol
+        host = self.request.host
+        oauth2_service_host = protocol + "://"+ host
+        #oauth2_service_host = "https://authp.com"
+
         tenant_id = settings.TENANT_ID
         self.write(self.request.uri + " <br />" + function + "<br />")
         params = json.dumps({k: self.get_argument(k) for k in self.request.arguments})
@@ -55,7 +60,7 @@ class OAuth2DummyClientHandler(RequestHandler):
         token = self.get_argument("access_token", default=None)
         if token:
             http_client = AsyncHTTPClient()
-            resp = yield http_client.fetch("{0}://{1}/{2}/auth/key/".format(self.request.protocol, self.request.host,tenant_id))
+            resp = yield http_client.fetch("{0}/{1}/auth/key/".format(oauth2_service_host, tenant_id))
 
             if not resp or not resp.code == 200 or resp.body is None:
                 self.write("Could not get auth server public key")
@@ -69,7 +74,7 @@ class OAuth2DummyClientHandler(RequestHandler):
                 self.write(json.dumps(claims))
 
         self.write("<br /><hr />")
-        self.write("<a href='/{}/oauth2/authorize/?response_type=code&state=mystate&resource=myresource.com/test&redirect_uri={}://{}/oauth2client/authorize/?tag=2'>Request Code</a><br />".format(settings.TENANT_ID, self.request.protocol, self.request.host))
-        self.write("<a href='/{}/oauth2/token/?code={}&state=mystate&grant_type=code&redirect_uri={}://{}/oauth2client/authorize/?tag=2'>Request Token</a><br />".format(tenant_id, code, self.request.protocol, self.request.host))
+        self.write("<a href='{}/{}/oauth2/authorize/?response_type=code&state=mystate&resource=myresource.com/test&redirect_uri={}://{}/oauth2client/authorize/?tag=2'>Request Code</a><br />".format(oauth2_service_host, settings.TENANT_ID, protocol, host))
+        self.write("<a href='{}/{}/oauth2/token/?code={}&state=mystate&grant_type=code&redirect_uri={}://{}/oauth2client/authorize/?tag=2'>Request Token</a><br />".format(oauth2_service_host, tenant_id, code, protocol, host))
 
         self.finish()

@@ -46,13 +46,8 @@ def start_web_service(options):
                 source_root=options.source_root,
                 facebook_redirect_uri=options.facebook_redirect_uri,
                 default_login_next_uri=options.default_login_next_uri,
-                oauth2_service_url=options.oauth2_service_url,
-                oauth2_private_key_pem=options.oauth2_private_key_pem,
-                oauth2_private_key_handler=options.oauth2_private_key_handler,
-                oauth2_public_key_handler=options.oauth2_public_key_handler,
-                oauth2_token_expiry_seconds=options.oauth2_token_expiry_seconds,
-                oauth2_public_key_pem=options.oauth2_public_key_pem,
-                tenant_id=options.tenant_id
+                tenant_id=options.tenant_id,
+                oauth2_settings=options.oauth2_settings,
             )
 
     application = tornado.web.Application(
