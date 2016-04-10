@@ -49,8 +49,8 @@ class OAuth2DummyClientHandler(RequestHandler):
     def get(self, function):
         protocol = self.request.protocol
         host = self.request.host
-        oauth2_service_host = protocol + "://"+ host
-        #oauth2_service_host = "https://authp.com"
+        #oauth2_service_host = protocol + "://"+ host
+        oauth2_service_host = "http://authp.com"
 
         tenant_id = settings.TENANT_ID
         self.write(self.request.uri + " <br />" + function + "<br />")

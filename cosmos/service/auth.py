@@ -6,9 +6,11 @@
 """
 from builtins import bytes
 
+from tornado.httpclient import AsyncHTTPClient
 from tornado.template import Template
 
-from cosmos.rbac.object import AccessType, COSMOS_USERS_OBJECT_NAME, SYSTEM_USER, COSMOS_USERS_IDENTITY_OBJECT_NAME
+import cosmos
+from cosmos.rbac.object import *
 
 __author__ = 'Maruf Maniruzzaman'
 
@@ -30,6 +32,7 @@ try:
 except ImportError:
     import urllib as urllib_parse  # py2
 
+USER_STATE_COOKIE_NAME = "user_state"
 
 LOGIN_PAGE_TEMPLATE = """
 <!DOCTYPE html>
@@ -129,9 +132,14 @@ class CosmosAuthHandler(RequestHandler):
         identity_type = user_identity.get("identity_type", None)
 
         #TODO: define methods and override in subclasses so we do not require these ifs and in functions below
-        if identity_type == IDENTITY_TYPE_FB_GRAPH:
+        if identity_type == IDENTITY_TYPE_AUTHP_OAUTH2:
+            iss = user_identity.get("iss")
+            sub = user_identity.get("sub")
+            query = {"identity_type": IDENTITY_TYPE_AUTHP_OAUTH2, "sub": sub, "iss": iss}
+            columns = ["identity_type", "iss", "sub", "user_id"]
+        elif identity_type == IDENTITY_TYPE_FB_GRAPH:
             fb_userid = user_identity["id"]
-            query={"id": fb_userid, "identity_type": IDENTITY_TYPE_FB_GRAPH}
+            query={"identity_type": IDENTITY_TYPE_FB_GRAPH, "id": fb_userid}
             columns = ["identity_type", "id", "user_id"]
         elif identity_type == IDENTITY_TYPE_GOOGLE_OAUTH2:
             id_token = user_identity["id_token"]
@@ -248,10 +256,6 @@ class GoogleOAuth2LoginHandler(CosmosAuthHandler, tornado.auth.GoogleOAuth2Mixin
     @tornado.web.asynchronous
     @gen.coroutine
     def get(self):
-
-        #callback_uri = self.request.uri
-        #url = urlparse.urljoin(self.request.full_url(), callback_uri)
-        #urls = url.replace('http','https')
         urls = self.settings[self._OAUTH_SETTINGS_KEY]['redirect_uri']
 
         if self.get_argument('code', False):
@@ -273,6 +277,7 @@ class GoogleOAuth2LoginHandler(CosmosAuthHandler, tornado.auth.GoogleOAuth2Mixin
                 scope=['profile', 'email'],
                 response_type='code',
                 extra_params={'approval_prompt': 'auto'})
+
 
 class GithubOAuth2LoginHandler(CosmosAuthHandler, tornado.auth.OAuth2Mixin):
     _OAUTH_AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
@@ -309,10 +314,6 @@ class GithubOAuth2LoginHandler(CosmosAuthHandler, tornado.auth.OAuth2Mixin):
     @tornado.web.asynchronous
     @gen.coroutine
     def get(self):
-
-        #callback_uri = self.request.uri
-        #url = urlparse.urljoin(self.request.full_url(), callback_uri)
-        #urls = url.replace('http','https')
         urls = self.settings[self._OAUTH_SETTINGS_KEY]['redirect_uri']
 
         if self.get_argument('code', False):
@@ -335,12 +336,14 @@ class GithubOAuth2LoginHandler(CosmosAuthHandler, tornado.auth.OAuth2Mixin):
                 response_type='code',
                 extra_params={'approval_prompt': 'auto'})
 
-def add_params(url, params):
-    url_parts = list(urlparse.urlparse(url))
+
+def add_params(input_url, params):
+    url_parts = list(urlparse.urlparse(input_url))
     query = dict(urlparse.parse_qsl(url_parts[4]))
     query.update(params)
     url_parts[4] = urllib_parse.urlencode(query)
     return urlparse.urlunparse(url_parts)
+
 
 class FacebookGraphLoginHandler(CosmosAuthHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.asynchronous
@@ -372,12 +375,95 @@ class FacebookGraphLoginHandler(CosmosAuthHandler, tornado.auth.FacebookGraphMix
                 self.redirect(self.get_argument("next", '/'))
             else:
                 raise tornado.web.HTTPError(500, "Facebook auth failed")
-
-
         else:
             yield self.authorize_redirect(redirect_uri=redirect_uri,
                               client_id= self.settings["facebook_api_key"],
                               extra_params={"scope": self.settings["facebook_scope"]})
+
+
+class AuthpOAuth2LoginHandler(CosmosAuthHandler):
+    @gen.coroutine
+    def get(self):
+        server_root = "{}://{}".format(self.request.protocol, self.request.host)
+        tenant_id = self.settings.get("tenant_id", "common")
+        resource = self.settings.get("resource")
+
+        code = self.get_argument("code", default=None)
+        token = self.get_argument("access_token", default=None)
+
+        state = self.get_secure_cookie(USER_STATE_COOKIE_NAME)
+
+        redirect_uri = self.get_redirect_url()
+
+        if code:
+            token_url = self.get_token_url()
+            parts = list(urlparse.urlparse(token_url))
+            query = dict(urlparse.parse_qsl(parts[4]))
+            params = dict(code=code, grant_type="code", redirect_uri=redirect_uri, state=state,
+                          tenant_id=tenant_id)
+            query.update(params)
+            parts[4] = urlencode(query)
+            auth_url = urlparse.urlunparse(parts)
+            self.redirect(auth_url)
+        elif token:
+            pub_key_url = self.get_public_key_url()
+            http_client = AsyncHTTPClient()
+            resp = yield http_client.fetch(pub_key_url)
+
+            if not resp or not resp.code == 200 or resp.body is None:
+                self.write("Could not get auth server public key")
+            else:
+                pub_pem = resp.body
+                logging.debug("Public key: {0}".format(pub_pem))
+                header, user = cosmos.auth.oauth2.verify_token(token, pub_pem, ['RS256'])
+
+                if user:
+                    user['identity_type'] = IDENTITY_TYPE_AUTHP_OAUTH2
+                    yield self._authenticate_user(user)
+                    self.redirect(self.get_argument("next", '/'))
+                else:
+                    raise tornado.web.HTTPError(500, "OAuth2 auth failed")
+        else:
+            state = str(uuid.uuid4())
+            self.set_secure_cookie(USER_STATE_COOKIE_NAME, state)
+
+            auth_url = self.get_authorize_url()
+            parts = list(urlparse.urlparse(auth_url))
+            query = dict(urlparse.parse_qsl(parts[4]))
+            params = dict(response_type="code", resource=server_root, redirect_uri=redirect_uri, state=state,
+                          tenant_id=tenant_id)
+            query.update(params)
+            parts[4] = urlencode(query)
+            auth_start = urlparse.urlunparse(parts)
+            self.redirect(auth_start)
+
+    def get_redirect_url(self):
+        redirect_uri = "{}://{}/login/authp/".format(self.request.protocol, self.request.host)
+        return redirect_uri
+
+    def get_service_url(self):
+        oauth2_settings = self.settings['oauth2_settings']
+        return oauth2_settings.get("oauth2_service_url", "https://authp.com/")
+
+    def get_authorize_url(self):
+        tenant_id = self.settings.get("tenant_id", "common")
+        base_url = self.get_service_url()
+        return urlparse.urljoin(base_url, "{}/oauth2/authorize/".format(tenant_id))
+
+    def get_token_url(self):
+        tenant_id = self.settings.get("tenant_id", "common")
+        base_url = self.get_service_url()
+        return urlparse.urljoin(base_url, "{}/oauth2/token/".format(tenant_id))
+
+    def get_token_refresh_url(self):
+        tenant_id = self.settings.get("tenant_id", "common")
+        base_url = self.get_service_url()
+        return urlparse.urljoin(base_url, "{}/oauth2/refresh/".format(tenant_id))
+
+    def get_public_key_url(self):
+        tenant_id = self.settings.get("tenant_id", "common")
+        base_url = self.get_service_url()
+        return urlparse.urljoin(base_url, "{}/auth/key/".format(tenant_id))
 
 
 class BasicLoginHandler(RequestHandler):

@@ -211,6 +211,8 @@ class OAuth2ServiceHandler(RequestHandler):
             raise OAuth2RequestException("Invalid code")
 
         #TODO: allow use of secret - otherwise its not secure
+        if(user_id != requesting_user._id):
+            raise OAuth2RequestException("Invalid request. Requesting user is different than logged in user.")
 
         #Make sure the code was not used earlier - otherwise its not secure
         code_status_id = code_dict.get("code_status_id")
