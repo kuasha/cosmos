@@ -14,6 +14,22 @@ var getAppSettingsByAppImpl = function (application, settingsName) {
 
 services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "cosmos.configNames", function (CosmosService, cachedloader, configNames) {
     return{
+        _serviceRootUrl:  "/service/",
+        _gridfsRootUrl:  "/gridfs/",
+
+        setServiceRootUrl: function(url){
+            this._serviceRootUrl = url;
+        },
+        setGridFSRootUrl: function(url){
+            this._gridfsRootUrl = url;
+        },
+        getServiceRootUrl: function(){
+            return this._serviceRootUrl;
+        },
+        getGridFSRootUrl: function(){
+            return this._gridfsRootUrl;
+        },
+
         getAppSettings: function (appPath, settingsName, successCallback, errorCallback) {
 
             if(settingsName === "appconfigobject"){
@@ -65,7 +81,7 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
             }
 
             var appCache = "Application." + appPath;
-            var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
+            var appUrl = this.getServiceRootUrl() + 'cosmos.applications/?filter={"path":"' + appPath + '"}';
 
             cachedloader.get(appCache, appUrl,
                 function (applications) {
@@ -152,7 +168,7 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
 
         getApplication: function (appPath, successCallback, errorCallback) {
             var appCache = "Application." + appPath;
-            var appUrl = '/service/cosmos.applications/?filter={"path":"' + appPath + '"}';
+            var appUrl = this.getServiceRootUrl() + 'cosmos.applications/?filter={"path":"' + appPath + '"}';
 
             cachedloader.get(appCache, appUrl,
                 function (applications) {
@@ -181,7 +197,7 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
 
         getApplications : function(successCallback, errorCallback){
             var appCache = "Application._Cosmos_All_Applications_";
-            var appUrl = '/service/cosmos.applications/';
+            var appUrl = this.getServiceRootUrl() + 'cosmos.applications/';
             cachedloader.get(appCache, appUrl,
                 function (applications) {
                     successCallback(applications);
@@ -194,7 +210,7 @@ services.factory('cosmos.settings', ['CosmosService', 'cosmos.cachedloader', "co
 
         getGlobalSettings: function(onSuccess, onError){
             var cacheName = "Settings._Cosmos_Global_Settings_";
-            var url = '/service/cosmos.globalsettings/';
+            var url = this.getServiceRootUrl() + 'cosmos.globalsettings/';
             cachedloader.get(cacheName, url,
                 function (gs) {
                     if(gs && gs.length==1) {

@@ -29,7 +29,8 @@ var directives = angular.module('cosmosUI.directives', []).
         return {
             restrict: 'E',
             scope: {
-                pageId: '=pageid'  // because pageId will translate to page-id
+                pageId: '=pageid',  // because pageId will translate to page-id
+                appPath: '=?apppath'
             },
 
             controller: ['$scope', '$location', '$routeParams', 'message', 'CosmosService', 'cosmos.settings',
@@ -61,14 +62,15 @@ var directives = angular.module('cosmosUI.directives', []).
                             return;
                         }
 
-                        $scope.appPath = $routeParams.appPath;
+                        if(!$scope.appPath)
+                            $scope.appPath = $routeParams.appPath;
 
                         settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
-                                var url = '/service/' + objectName + '/' + $scope.pageId + '/';
+                                var url = settings.getServiceRootUrl() + objectName + '/' + $scope.pageId + '/';
                                 $scope.getConfigurationByUrl(url);
                             },
                             function (status, data) {
-                                var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+                                var url = settings.getServiceRootUrl() + 'cosmos.pages/' + $scope.pageId + '/';
                                 $scope.getConfigurationByUrl(url);
                             }
                         );
@@ -142,11 +144,11 @@ var directives = angular.module('cosmosUI.directives', []).
                         $scope.appPath = $routeParams.appPath;
 
                         settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
-                                var url = '/service/' + objectName + '/' + $scope.pageId + '/';
+                                var url = settings.getServiceRootUrl() + objectName + '/' + $scope.pageId + '/';
                                 $scope.getPageConfigurationByUrl(url);
                             },
                             function (status, data) {
-                                var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+                                var url = settings.getServiceRootUrl()+'cosmos.pages/' + $scope.pageId + '/';
                                 $scope.getPageConfigurationByUrl(url);
                             }
                         );
@@ -175,11 +177,11 @@ var directives = angular.module('cosmosUI.directives', []).
                         $scope.appPath = $routeParams.appPath;
 
                         settings.getAppSettings($scope.appPath, "singleitemconfigobject", function(objectName){
-                                 var url = '/service/'+objectName+'/' + $scope.configId + '/';
+                                 var url = settings.getServiceRootUrl()+objectName+'/' + $scope.configId + '/';
                                 $scope.getConfigurationByUrl(url);
                             },
                             function(status, data){
-                                var url = '/service/cosmos.singleitemconfig/' + $scope.configId + '/';
+                                var url = settings.getServiceRootUrl()+'cosmos.singleitemconfig/' + $scope.configId + '/';
                                 $scope.getConfigurationByUrl(url);
                             }
                         );
@@ -195,7 +197,7 @@ var directives = angular.module('cosmosUI.directives', []).
                             columnsCsv += column.name + ",";
                         });
 
-                        var url = '/service/' + objectName + '/' + $scope.itemId + '/?columns=' + columnsCsv;
+                        var url =settings.getServiceRootUrl() + objectName + '/' + $scope.itemId + '/?columns=' + columnsCsv;
 
                         CosmosService.get(url, function (data) {
                                 $scope.data = data;
@@ -380,9 +382,9 @@ var directives = angular.module('cosmosUI.directives', []).
 
                         modalInstance.result.then(
                             function (selectedFile) {
-                                $scope.fileName = '/gridfs/'+selectedFile.collection_name + '/'+selectedFile.file_id +' ['+selectedFile.filename+']';
+                                $scope.fileName = settings.getGridFSRootUrl() + selectedFile.collection_name + '/'+selectedFile.file_id +' ['+selectedFile.filename+']';
                                 $scope.selectedFile = selectedFile;
-                                $scope.val = '/gridfs/'+selectedFile.collection_name + '/'+selectedFile.file_id;
+                                $scope.val = settings.getGridFSRootUrl() + selectedFile.collection_name + '/'+selectedFile.file_id;
                             },
                             function () {
                                 //$log.info('Modal dismissed at: ' + new Date());
@@ -442,9 +444,9 @@ var directives = angular.module('cosmosUI.directives', []).
 
                         modalInstance.result.then(
                             function (selectedFile) {
-                                $scope.fileName = '/gridfs/'+selectedFile.collection_name + '/'+selectedFile.file_id +' ['+selectedFile.filename+']';
+                                $scope.fileName = settings.getGridFSRootUrl() + selectedFile.collection_name + '/'+selectedFile.file_id +' ['+selectedFile.filename+']';
                                 $scope.selectedFile = selectedFile;
-                                $scope.ngModel = '/gridfs/'+selectedFile.collection_name + '/'+selectedFile.file_id;
+                                $scope.ngModel = settings.getGridFSRootUrl() + selectedFile.collection_name + '/'+selectedFile.file_id;
                             },
                             function () {
                                 //$log.info('Modal dismissed at: ' + new Date());
@@ -482,7 +484,7 @@ controllers.controller('BrowseFileController', ['$scope', '$modalInstance', 'Cos
     $scope.uploaded_files = [];
 
     $scope.setAction = function () {
-        document.uploadForm.action = "/gridfs/" + $scope.fileObjectName + "/";
+        document.uploadForm.action = settings.getGridFSRootUrl() + $scope.fileObjectName + "/";
         $scope.getFiles();
     };
 
@@ -491,7 +493,7 @@ controllers.controller('BrowseFileController', ['$scope', '$modalInstance', 'Cos
     };
 
     $scope.getFiles = function () {
-        CosmosService.get('/gridfs/' + $scope.fileObjectName + '/', function (data) {
+        CosmosService.get(settings.getGridFSRootUrl() + $scope.fileObjectName + '/', function (data) {
                 $scope.uploaded_files = data;
             },
             function (data, status) {
@@ -540,7 +542,7 @@ controllers.controller('BrowseFileController', ['$scope', '$modalInstance', 'Cos
         var file = $scope.uploaded_files[index];
         if (confirm('Are you sure you want to delete the file ' + file.filename + '?')) {
             var file_id = file.file_id;
-            CosmosService.delete('/gridfs/' + $scope.fileObjectName + '/' + file_id + '/', function (data) {
+            CosmosService.delete(settings.getGridFSRootUrl() + $scope.fileObjectName + '/' + file_id + '/', function (data) {
                     $scope.uploaded_files.splice(index, 1);
                 },
                 function (data, status) {
@@ -559,5 +561,3 @@ controllers.controller('BrowseFileController', ['$scope', '$modalInstance', 'Cos
     };
 
 }]);
-
-
