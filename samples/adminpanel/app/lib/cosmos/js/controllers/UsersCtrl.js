@@ -3,7 +3,7 @@
  */
 
 
-controllers.controller('UsersCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
+controllers.controller('UsersCtrl', ['$scope', '$modal', 'CosmosService', 'cosmos.settings', function ($scope, $modal, CosmosService, settings) {
 
     $scope.clearError = function () {
         $scope.hasError = false;
@@ -35,7 +35,7 @@ controllers.controller('UsersCtrl', ['$scope', '$modal', 'CosmosService', functi
 
         modalInstance.result.then(function (user) {
             if (!user._id) {
-                CosmosService.post('/service/cosmos.users/', user, function (data) {
+                CosmosService.post(settings.getServiceRootUrl() + 'cosmos.users/', user, function (data) {
                         $scope.getUsers();
                     },
                     function (data, status) {
@@ -53,7 +53,7 @@ controllers.controller('UsersCtrl', ['$scope', '$modal', 'CosmosService', functi
                     delete user.password;
                 }
 
-                CosmosService.put('/service/cosmos.users/' + user_id + '/', user, function (data) {
+                CosmosService.put(settings.getServiceRootUrl() + 'cosmos.users/' + user_id + '/', user, function (data) {
                         $scope.getUsers();
                     },
                     function (data, status) {
@@ -75,7 +75,7 @@ controllers.controller('UsersCtrl', ['$scope', '$modal', 'CosmosService', functi
 
         if (confirm('Are you sure you want to delete the user ' + user.username + '?')) {
             var user_id = user._id;
-            CosmosService.delete('/service/cosmos.users/' + user_id + '/', function (data) {
+            CosmosService.delete(settings.getServiceRootUrl() + 'cosmos.users/' + user_id + '/', function (data) {
                     $scope.getUsers();
                 },
                 function (data, status) {
@@ -86,7 +86,7 @@ controllers.controller('UsersCtrl', ['$scope', '$modal', 'CosmosService', functi
     };
 
     $scope.getRoles = function () {
-        CosmosService.get('/service/cosmos.rbac.object.role/', function (data) {
+        CosmosService.get(settings.getServiceRootUrl() + 'cosmos.rbac.object.role/', function (data) {
                 $scope.roles = data;
             },
             function (data, status) {
@@ -97,7 +97,7 @@ controllers.controller('UsersCtrl', ['$scope', '$modal', 'CosmosService', functi
     $scope.getRoles();
 
     $scope.getUsers = function () {
-        CosmosService.get('/service/cosmos.users/', function (data) {
+        CosmosService.get(settings.getServiceRootUrl() + 'cosmos.users/', function (data) {
                 $scope.users = data;
             },
             function (data, status) {

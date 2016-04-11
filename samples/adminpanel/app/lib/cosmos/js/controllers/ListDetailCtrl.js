@@ -2,8 +2,8 @@
  * Created by maruf on 10/28/14.
  */
 
-controllers.controller('ListDetailCtrl', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService',
-    function ($scope, $routeParams, $templateCache, $modal, CosmosService) {
+controllers.controller('ListDetailCtrl', ['$scope', '$routeParams', '$templateCache', '$modal', 'CosmosService', 'cosmos.settings',
+    function ($scope, $routeParams, $templateCache, $modal, CosmosService, settings) {
 
         $scope.clearError = function () {
             $scope.hasError = false;
@@ -20,7 +20,7 @@ controllers.controller('ListDetailCtrl', ['$scope', '$routeParams', '$templateCa
         };
 
         $scope.getConfiguration = function () {
-            var url = '/service/cosmos.listconfigurations/' + $scope.listId + '/';
+            var url = settings.getServiceRootUrl() + 'cosmos.listconfigurations/' + $scope.listId + '/';
 
             CosmosService.get(url, function (data) {
                     $scope.listConfiguration = data;
@@ -37,7 +37,7 @@ controllers.controller('ListDetailCtrl', ['$scope', '$routeParams', '$templateCa
             angular.forEach($scope.listConfiguration.columns, function (column, index) {
                 columns += column.name + ",";
             });
-            var url = '/service/' + $scope.listConfiguration.objectName + '/?columns=' + columns;
+            var url = settings.getServiceRootUrl() + $scope.listConfiguration.objectName + '/?columns=' + columns;
 
             CosmosService.get(url, function (data) {
                     $scope.data = data;

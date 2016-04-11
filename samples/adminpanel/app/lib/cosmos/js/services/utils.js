@@ -10,7 +10,7 @@ services.factory('cosmos.utils', ['CosmosService', 'cosmos.cachedloader', 'cosmo
         setAppAsDefault: function (app, onSuccess, onError) {
 
             if (app && app.id) {
-                var uri = "/service/cosmos.globalsettings/";
+                var uri = settings.getServiceRootUrl() + "cosmos.globalsettings/";
                 CosmosService.get(uri, function (data) {
                         if (data && data.length > 0) {
                             var gs = data[0];
@@ -35,7 +35,7 @@ services.factory('cosmos.utils', ['CosmosService', 'cosmos.cachedloader', 'cosmo
 
         setPageAsDefault: function (app, page, onSuccess, onError) {
             if (app && app._id) {
-                var uri = "/service/cosmos.applications/"+app._id;
+                var uri = settings.getServiceRootUrl() + "cosmos.applications/"+app._id;
                 CosmosService.get(uri, function (data) {
                         if (data) {
                             var loadedApp = data;
@@ -58,7 +58,7 @@ services.factory('cosmos.utils', ['CosmosService', 'cosmos.cachedloader', 'cosmo
 
         getAllPages: function (app, successCallback, errorCallback) {
             var appCache = "Page._Cosmos_All_Pages_";
-            var appUrl = '/service/' + app.settings.objectmap.pageconfigobject + '/';
+            var appUrl = settings.getServiceRootUrl()  + app.settings.objectmap.pageconfigobject + '/';
             cachedloader.get(appCache, appUrl,
                 function (pages) {
                     successCallback(pages);

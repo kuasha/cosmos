@@ -2,7 +2,7 @@
  * Created by maruf on 10/28/14.
  */
 
-controllers.controller('RolesCtrl', ['$scope', '$modal', 'CosmosService', function ($scope, $modal, CosmosService) {
+controllers.controller('RolesCtrl', ['$scope', '$modal', 'CosmosService', 'cosmos.settings', function ($scope, $modal, CosmosService, settings) {
 
     $scope.clearError = function () {
         $scope.hasError = false;
@@ -32,7 +32,7 @@ controllers.controller('RolesCtrl', ['$scope', '$modal', 'CosmosService', functi
         modalInstance.result.then(function (role) {
             $scope.current_role = role;
             if (!role._id) {
-                CosmosService.post('/service/cosmos.rbac.object.role/', role, function (data) {
+                CosmosService.post(settings.getServiceRootUrl() + 'cosmos.rbac.object.role/', role, function (data) {
                         console.log(data);
                         $scope.getRoles();
                     },
@@ -45,7 +45,7 @@ controllers.controller('RolesCtrl', ['$scope', '$modal', 'CosmosService', functi
                 var role_id = role._id;
                 delete role._id;
                 delete role.sid;
-                CosmosService.put('/service/cosmos.rbac.object.role/' + role_id + '/', role, function (data) {
+                CosmosService.put(settings.getServiceRootUrl() + 'cosmos.rbac.object.role/' + role_id + '/', role, function (data) {
                         $scope.getRoles();
                     },
                     function (data, status) {
@@ -66,7 +66,7 @@ controllers.controller('RolesCtrl', ['$scope', '$modal', 'CosmosService', functi
         var role = $scope.roles[roleIndex];
         if (confirm('Are you sure you want to delete the role ' + role.name + '?')) {
             var role_id = role._id;
-            CosmosService.delete('/service/cosmos.rbac.object.role/' + role_id + '/', function (data) {
+            CosmosService.delete(settings.getServiceRootUrl() + 'cosmos.rbac.object.role/' + role_id + '/', function (data) {
                     $scope.getRoles();
                 },
                 function (data, status) {
@@ -77,7 +77,7 @@ controllers.controller('RolesCtrl', ['$scope', '$modal', 'CosmosService', functi
     };
 
     $scope.getRoles = function () {
-        CosmosService.get('/service/cosmos.rbac.object.role/', function (data) {
+        CosmosService.get(settings.getServiceRootUrl() + 'cosmos.rbac.object.role/', function (data) {
                 $scope.roles = data;
             },
             function (data, status) {

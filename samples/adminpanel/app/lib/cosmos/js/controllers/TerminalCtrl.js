@@ -2,8 +2,8 @@
  * Created by maruf on 10/28/14.
  */
 
-controllers.controller('TerminalCtrl', ['$scope', '$modal', '$routeParams', 'CosmosService', function ($scope, $modal, $routeParams, CosmosService) {
-    $scope.service = "/service/";
+controllers.controller('TerminalCtrl', ['$scope', '$modal', '$routeParams', 'CosmosService', 'cosmos.settings', function ($scope, $modal, $routeParams, CosmosService, settings) {
+    $scope.service = settings.getServiceRootUrl();
     $scope.columns = "";
     $scope.filter = "";
     $scope.data = "";

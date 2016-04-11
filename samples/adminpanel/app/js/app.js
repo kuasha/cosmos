@@ -70,7 +70,7 @@ cosmosUIDemo.factory('$templateCache', function($cacheFactory, $http, $injector,
             }
 
             if (!widgetPromise) {
-                var uri='/service/cosmos.widgets/';
+                var uri='/service/cosmos.widgets/'; //TODO: change to match the service endpoint
 
                 widgetPromise = $http.get(uri).then(function(response) {
                     var template_data = JSON.parse(response.data._d);

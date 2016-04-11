@@ -201,11 +201,11 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 var appPath = $scope.appPath || $scope.selectedApplication.path;
 
                 settings.getAppSettings(appPath, "pageconfigobject", function (objectName) {
-                        var url = '/service/' + objectName + '/' + $scope.pageId + '/';
+                        var url = settings.getServiceRootUrl() + objectName + '/' + $scope.pageId + '/';
                         $scope.getConfigurationByUrl(url);
                     },
                     function (status, data) {
-                        var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+                        var url = settings.getServiceRootUrl() + 'cosmos.pages/' + $scope.pageId + '/';
                         $scope.getConfigurationByUrl(url);
                     }
                 );
@@ -292,11 +292,11 @@ controllers.controller('PageDesignCtrl', ['$scope', '$routeParams', '$templateCa
         $scope.savePage = function () {
 
             settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
-                    var url = '/service/' + objectName + '/';
+                    var url = settings.getServiceRootUrl() + objectName + '/';
                     $scope.savePageWithUrl(url);
                 },
                 function (status, data) {
-                    var url = '/service/cosmos.pages/';
+                    var url = settings.getServiceRootUrl() + 'cosmos.pages/';
                     $scope.savePageWithUrl(url);
                 }
             );

@@ -2,13 +2,13 @@
  * Created by maruf on 10/28/14.
  */
 
-controllers.controller('FileUploadCtrl', ['$scope', '$modal', '$routeParams', 'CosmosService',
-    function ($scope, $modal, $routeParams, CosmosService) {
+controllers.controller('FileUploadCtrl', ['$scope', '$modal', '$routeParams', 'CosmosService','cosmos.settings',
+    function ($scope, $modal, $routeParams, CosmosService, settings) {
 
         $scope.fileObjectName = $routeParams.fileObjectName;
 
         $scope.setAction = function() {
-            document.uploadForm.action = "/gridfs/" + $scope.fileObjectName + "/";
+            document.uploadForm.action = settings.getGridFSRootUrl() + $scope.fileObjectName + "/";
         };
 
         $scope.clearError = function () {
@@ -67,7 +67,7 @@ controllers.controller('FileUploadCtrl', ['$scope', '$modal', '$routeParams', 'C
             var file = $scope.uploaded_files[index];
             if (confirm('Are you sure you want to delete the file ' + file.filename + '?')) {
                 var file_id = file.file_id;
-                CosmosService.delete('/gridfs/' + $scope.fileObjectName + '/' + file_id + '/', function (data) {
+                CosmosService.delete(settings.getGridFSRootUrl() + $scope.fileObjectName + '/' + file_id + '/', function (data) {
                         $scope.uploaded_files.splice(index, 1);
                     },
                     function (data, status) {
@@ -78,7 +78,7 @@ controllers.controller('FileUploadCtrl', ['$scope', '$modal', '$routeParams', 'C
         };
 
         $scope.getFiles = function () {
-            CosmosService.get('/gridfs/' + $scope.fileObjectName + '/', function (data) {
+            CosmosService.get(settings.getGridFSRootUrl() + $scope.fileObjectName + '/', function (data) {
                     $scope.uploaded_files = data;
                 },
                 function (data, status) {

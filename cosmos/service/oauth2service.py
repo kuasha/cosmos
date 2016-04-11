@@ -22,7 +22,7 @@ from tornado import gen
 import logging
 
 from cosmos.rbac.object import COSMOS_USERS_OBJECT_NAME
-from cosmos.auth.oauth2 import get_token
+from cosmos.auth.oauth2 import get_token, AUTH_CLIENT_APPLICATION_OBJECT_NAME
 from cosmos.rbac.object import SYSTEM_USER
 
 try:
@@ -111,7 +111,7 @@ class OAuth2ServiceHandler(RequestHandler):
         trusted = yield self.is_trusted_redirect_url(redirect_uri)
 
         if not trusted:
-            raise OAuth2RequestException("Redirect URL is not trusted.")
+            raise OAuth2RequestException("Redirect URL is not trusted. URL = {}".format(redirect_uri))
 
         code_attributes = ["user_id", "client_id", "resource", "iat", "code_status_id"]
 
@@ -211,8 +211,13 @@ class OAuth2ServiceHandler(RequestHandler):
             raise OAuth2RequestException("Invalid code")
 
         #TODO: allow use of secret - otherwise its not secure
-        if(user_id != requesting_user._id):
-            raise OAuth2RequestException("Invalid request. Requesting user is different than logged in user.")
+        if client_id and client_secret:
+            app = yield self.load_client_application(client_id)
+            if not app:
+                raise OAuth2RequestException("Invalid application (client_id/client_secret)")
+
+        if(not user_id or user_id != requesting_user.get("_id")):
+            raise OAuth2RequestException("Invalid request. Requesting user not found or is different than logged in user.")
 
         #Make sure the code was not used earlier - otherwise its not secure
         code_status_id = code_dict.get("code_status_id")
@@ -268,7 +273,6 @@ class OAuth2ServiceHandler(RequestHandler):
 
         self.redirect(redirect_url)
 
-
     def get_current_utc_time(self):
         return int(time.time())
 
@@ -307,6 +311,13 @@ class OAuth2ServiceHandler(RequestHandler):
         cursor = obj_serv.load(SYSTEM_USER, OAUTH2_REQUESTS_OBJECT_NAME, req_id, [])
         request = yield cursor
         raise gen.Return(request)
+
+    @gen.coroutine
+    def load_client_application(self, client_id):
+        obj_serv = self.settings['object_service']
+        cursor = obj_serv.load(SYSTEM_USER, AUTH_CLIENT_APPLICATION_OBJECT_NAME, client_id, [])
+        app = yield cursor
+        raise gen.Return(app)
 
     @gen.coroutine
     def insert_code_status(self, response):

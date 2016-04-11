@@ -1,7 +1,7 @@
 'use strict';
 
-controllers.controller('LoginCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', '$http',
-        function ($scope, $routeParams, $location, CosmosService, $http) {
+controllers.controller('LoginCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', '$http', 'cosmos.settings',
+        function ($scope, $routeParams, $location, CosmosService, $http, settings) {
             $scope.redirectUrl = $routeParams.redirect;
             $scope.haveAccount = true;
 
@@ -47,7 +47,7 @@ controllers.controller('LoginCtrl', ['$scope', '$routeParams', '$location', 'Cos
                     return;
                 }
 
-                var url = '/service/cosmos.users/';
+                var url = settings.getServiceRootUrl() + 'cosmos.users/';
                 var data = { "username": $scope.username, "password": $scope.password };
 
                 CosmosService.post(url, data,

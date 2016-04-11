@@ -2,7 +2,7 @@
  * Created by maruf on 10/28/14.
  */
 
-services.factory('CosmosService', ['$http', function ($http) {
+services.factory('CosmosService', ['cosmos.settings', '$http', function (settings, $http) {
     return{
         get: function (uri, callback, error_callback) {
             $http.get(uri).success(function (data) {
@@ -104,7 +104,7 @@ services.factory('CosmosService', ['$http', function ($http) {
 
             var request = new XMLHttpRequest();
 
-            var url =  "/gridfs/" + collectionName + "/" + (fileId? (fileId + "/"):'');
+            var url =  settings.getGridFSRootUrl() + collectionName + "/" + (fileId? (fileId + "/"):'');
 
             request.onload = function(event) {
                 if (request.status == 200) {

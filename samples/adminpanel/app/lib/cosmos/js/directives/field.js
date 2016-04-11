@@ -11,9 +11,9 @@ directives.directive('field', function ($compile) {
         },
 
         controller: ['$scope', '$location', '$routeParams', '$modal', 'message', 'CosmosService', 'namedcolection',
-            'calculator', 'globalhashtable', 'cosmos.settings', 'cosmos.configNames','cosmos.utils',
+            'calculator', 'globalhashtable', 'cosmos.settings', 'cosmos.configNames','cosmos.utils', 'cosmos.settings',
             function ($scope, $location, $routeParams, $modal, message, CosmosService, namedcolection, calculator,
-                      hashtable, settings, configNames, utils) {
+                      hashtable, settings, configNames, utils, settings) {
                 $scope.namedcolection = namedcolection;
                 $scope.calculator = calculator;
                 $scope.CosmosService = CosmosService;
@@ -135,7 +135,7 @@ directives.directive('field', function ($compile) {
                     });
 
                     var filterQuery = filter ? "&filter="+filter : '';
-                    var url = '/service/' + objectName +(dataId?('/'+dataId):'')+'/?columns=' + columnsCsv + filterQuery;
+                    var url = settings.getServiceRootUrl() + objectName +(dataId?('/'+dataId):'')+'/?columns=' + columnsCsv + filterQuery;
 
                     CosmosService.get(url, function (data) {
                             $scope[modelName] = data;
@@ -150,7 +150,7 @@ directives.directive('field', function ($compile) {
                     var configObjectName = settings.getConfigObjectName(configName);
 
                     settings.getAppSettings($scope.appPath, configObjectName, function (objectName) {
-                            var url = '/service/' + objectName + '/' + itemId + '/';
+                            var url = settings.getServiceRootUrl()  + objectName + '/' + itemId + '/';
                             CosmosService.get(url, function (data) {
                                     if(onSuccess) {
                                         onSuccess(data);
@@ -195,7 +195,7 @@ directives.directive('field', function ($compile) {
                     });
 
                     var filterParam = (filter)?'&filter='+ JSON.stringify(filter):'';
-                    var url = '/service/' + objectName + '/?columns=' + columnsCsv + filterParam;
+                    var url = settings.getServiceRootUrl() + objectName + '/?columns=' + columnsCsv + filterParam;
 
                     CosmosService.get(url, function (data) {
                             $scope.data = data;
@@ -284,7 +284,7 @@ directives.directive('field', function ($compile) {
                     angular.forEach(columns, function (column, index) {
                         columnsCsv += column.name + ",";
                     });
-                    var url = '/service/' + objectName + '/?columns=' + columnsCsv;
+                    var url = settings.getServiceRootUrl() + objectName + '/?columns=' + columnsCsv;
 
                     CosmosService.get(url, function (data) {
                             $scope.data = data;

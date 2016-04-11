@@ -2,11 +2,11 @@
  * Created by maruf on 4/3/16.
  */
 
-controllers.controller('FileManagerCtrl', ['$scope', '$modal', '$routeParams', 'CosmosService',
-    function ($scope, $modal, $routeParams, CosmosService) {
+controllers.controller('FileManagerCtrl', ['$scope', '$modal', '$routeParams', 'CosmosService','cosmos.settings',
+    function ($scope, $modal, $routeParams, CosmosService, settings) {
 
         $scope.fileObjectName = $routeParams.fileObjectName;
-        $scope.rootPath = "/gridfs/";
+        $scope.rootPath = settings.getGridFSRootUrl();
 
         $scope.init = function(rootPath){
             if(rootPath){

@@ -2,7 +2,8 @@
  * Created by maruf on 10/28/14.
  */
 
-controllers.controller('ListCtrl', ['$scope', '$routeParams', '$modal', 'CosmosService', function ($scope, $routeParams, $modal, CosmosService) {
+controllers.controller('ListCtrl', ['$scope', '$routeParams', '$modal', 'CosmosService','cosmos.settings',
+    function ($scope, $routeParams, $modal, CosmosService, settings) {
 
     $scope.serviceName = "lists";
 
@@ -19,7 +20,7 @@ controllers.controller('ListCtrl', ['$scope', '$routeParams', '$modal', 'CosmosS
     };
 
     $scope.getData = function () {
-        var url = '/service/cosmos.listconfigurations/';
+        var url = settings.getServiceRootUrl() + 'cosmos.listconfigurations/';
 
         CosmosService.get(url, function (data) {
                 $scope.lists = data;

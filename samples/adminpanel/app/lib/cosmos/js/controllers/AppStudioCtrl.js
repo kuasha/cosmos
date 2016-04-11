@@ -68,7 +68,7 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
                 var appPath = app.path;
 
                 settings.getAppSettings(appPath, itemConfigName, function (objectName) {
-                        var url = '/service/' + objectName + '/';
+                        var url = settings.getServiceRootUrl() + objectName + '/';
                         if(itemConfigName === "widgetobject" || itemConfigName === "sourcecolname"
                             || itemConfigName === "interceptorconigobject" || itemConfigName === "appendpointconigobject" ){
                             url = url + '?filter={"app_id":"'+app.id+'"}';
@@ -152,7 +152,7 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
 
                 settings.getAppSettings(appPath, itemConfigName,
                     function (objectName) {
-                        var url = '/service/' + objectName + '/' + _id + '/';
+                        var url = settings.getServiceRootUrl() + objectName + '/' + _id + '/';
                         CosmosService.delete(url, function (data) {
                                 if(onSuccess){
                                     onSuccess(data);
@@ -182,7 +182,7 @@ controllers.controller('AppStudioCtrl', ['$scope', '$routeParams', '$templateCac
         };
 
         $scope.deleteSourceFile = function(sourcefile) {
-            var fileUrl = "/gridfs/cosmos.sourcefiles/" + sourcefile.file_id + "/";
+            var fileUrl = settings.getGridFSRootUrl+  "cosmos.sourcefiles/" + sourcefile.file_id + "/";
 
             $scope.deleteItem(app, "source file", sourcefile.filename, "sourcecolname", sourcefile._id,
                 function (data) {

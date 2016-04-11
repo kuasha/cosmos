@@ -26,7 +26,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
 
             var widgetItemConfigName = $scope.getItemConfigName("widget");
             var widgetObjectname  = settings.getAppSettingsByApp($scope.app, widgetItemConfigName);
-            var widgetsLoaderUrl ="/service/"+widgetObjectname+"?columns=name";
+            var widgetsLoaderUrl =settings.getServiceRootUrl() + widgetObjectname+"?columns=name";
 
             /*
             var pageItemConfigName = $scope.getItemConfigName("page");
@@ -755,7 +755,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 },
                 "owner": "5415b4b7d70af3e2078df1c1",
                 "modifytime": "2014-10-26 19:21:49.707748",
-                "action": "/service/cosmos.applications",
+                "action": settings.getServiceRootUrl() + "cosmos.applications",
                 "_id": "544be3efedb05831be77e534",
                 "type": "form",
                 "createtime": "2014-10-26 18:18:16.677394"
@@ -786,7 +786,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
         $scope.processSourceFile = function(sourceModuleEntry){
 
             if(sourceModuleEntry && sourceModuleEntry.type === "gridfile"){
-                var url = "/gridfs/cosmos.sourcefiles/"+sourceModuleEntry.file_id+"/";
+                var url = settings.getGridFSRootUrl() + "cosmos.sourcefiles/"+sourceModuleEntry.file_id+"/";
                 CosmosService.get(url, function (data) {
                         $scope.source.code = data;
                     },
@@ -815,7 +815,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
                 var itemConfigName = $scope.getItemConfigName($scope.itemType);
 
                 settings.getAppSettings($scope.appPath, itemConfigName, function (objectName) {
-                        var url = '/service/' + objectName + '/' + $scope.itemId+"/";
+                        var url = settings.getServiceRootUrl() + objectName + '/' + $scope.itemId+"/";
                         if($scope.itemType === "widget" || $scope.itemType === "interceptor"
                             || $scope.itemType === "sourcefiles" || $scope.itemType === "appendpoint"){
                             url = url + '?filter={"app_id":"'+$scope.app.id+'"}';
@@ -903,7 +903,7 @@ controllers.controller('ItemDesignCtrl', ['$scope', '$routeParams', '$templateCa
             var itemConfigName = $scope.getItemConfigName($scope.itemType);
 
             settings.getAppSettings($scope.appPath, itemConfigName, function (objectName) {
-                    var url = '/service/' + objectName + '/';
+                    var url = settings.getServiceRootUrl() + objectName + '/';
                     $scope.saveItemWithUrl(url);
                 },
                 function (status, data) {

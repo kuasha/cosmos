@@ -243,7 +243,7 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                 var appPath = $scope.appPath;
 
                 settings.getAppSettings(appPath, $scope.itemConfigName, function (objectName) {
-                        var url = '/service/' + objectName + '/' + $scope.formId + '/';
+                        var url = settings.getServiceRootUrl() + objectName + '/' + $scope.formId + '/';
 
                         CosmosService.get(url, function (data) {
                                 $scope.processForm(data);
@@ -322,7 +322,7 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             var appPath = $scope.appPath;
             settings.getAppSettings(appPath, $scope.itemConfigName,
                 function (objectName) {
-                    var url = '/service/' + objectName + '/';
+                    var url = settings.getServiceRootUrl() + objectName + '/';
 
                     if (form_id) {
                         url = url + form_id;

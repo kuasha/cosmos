@@ -41,7 +41,7 @@ class ValidationError(ValueError):
 
 """
 
-CLIENT_APPLICATIONS_TABLE = "cosmos.auth.apps"
+AUTH_CLIENT_APPLICATION_OBJECT_NAME = "cosmos.auth.applications"
 
 
 def authorize(user, response_type, client_id, redirect_uri, **kwargs):

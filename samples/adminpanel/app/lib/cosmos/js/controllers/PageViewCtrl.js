@@ -27,11 +27,11 @@ controllers.controller('PageViewCtrl', ['$scope', '$routeParams', '$location', '
 
         $scope.getConfiguration = function () {
             settings.getAppSettings($scope.appPath, "pageconfigobject", function (objectName) {
-                    var url = '/service/' + objectName + '/' + $scope.pageId + '/';
+                    var url = settings.getServiceRootUrl()  + objectName + '/' + $scope.pageId + '/';
                     $scope.getConfigurationByUrl(url);
                 },
                 function (status, data) {
-                    var url = '/service/cosmos.pages/' + $scope.pageId + '/';
+                    var url = settings.getServiceRootUrl() + 'cosmos.pages/' + $scope.pageId + '/';
                     $scope.getConfigurationByUrl(url);
                 }
             );

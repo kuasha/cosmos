@@ -19,7 +19,7 @@ controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'Cos
                 $scope.getAppConfiguration();
             }
             else {
-                var url = '/service/cosmos.globalsettings/';
+                var url = settings.getServiceRootUrl() + 'cosmos.globalsettings/';
 
                 CosmosService.get(url, function (returnedData) {
                         if (!returnedData || returnedData.length != 1) {
@@ -41,10 +41,10 @@ controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'Cos
         $scope.getAppConfiguration = function () {
             var url;
             if ($scope.appId) {
-                url = '/service/cosmos.applications/?filter={"id":"' + $scope.appId + '"}';
+                url = settings.getServiceRootUrl() + 'cosmos.applications/?filter={"id":"' + $scope.appId + '"}';
             }
             else if ($scope.appPath) {
-                url = '/service/cosmos.applications/?filter={"path":"' + $scope.appPath + '"}';
+                url = settings.getServiceRootUrl() + 'cosmos.applications/?filter={"path":"' + $scope.appPath + '"}';
             }
             else {
                 $location.path('/applist/');
