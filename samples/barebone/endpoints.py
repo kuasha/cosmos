@@ -9,6 +9,7 @@ from cosmos.service.gridfsservice import *
 from cosmos.service.appservice import *
 import settings
 from views import *
+from systemviews import SystemSetupHandler
 
 END_POINTS = [
     (r"/login/google/", GoogleOAuth2LoginHandler),
@@ -17,6 +18,7 @@ END_POINTS = [
     (r"/login/github/", GithubOAuth2LoginHandler),
     (r"/login/authp/", AuthpOAuth2LoginHandler),
     (r"/login/", LoginHandler),
+    (r"/user/changepassword/", ChangePasswordHandler),
     (r"/logout/", LogoutHandler),
     (settings.LOCAL_OAUTH2_SERVICE_URL, OAuth2ServiceHandler),
     (settings.AUTH_PUBLIC_KEY_PEM_URL, AuthPublicKeyHandler),
@@ -29,6 +31,7 @@ END_POINTS = [
     #TODO: authenticaion and authorization required for change monitor and handler.
     (r"/changemonitor", ChangeMonitor),
     (r"/handlechange", ChangeRequestHandler),
+    (r"/system/setup/", SystemSetupHandler),
     (r"/",  IndexHandler),
     (r'/(.*)', tornado.web.StaticFileHandler, {'path': settings.STATIC_PATH}),
 ]

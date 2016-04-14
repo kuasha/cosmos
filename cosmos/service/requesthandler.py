@@ -27,6 +27,12 @@ class RequestHandler(tornado.web.RequestHandler):
         #self.rbac_service = RbacService()
         self.object_service = self.settings["object_service"]
 
+    def json_encode_result(self, result, is_list=False):
+        if is_list:
+            return {"_d": MongoObjectJSONEncoder().encode(result), "_cosmos_service_array_result_": True}
+        else:
+            return MongoObjectJSONEncoder().encode(result)
+
     def check_access(self, user, object_name, properties, access):
         if user:
             username = tornado.escape.xhtml_escape(user.get("name", None))

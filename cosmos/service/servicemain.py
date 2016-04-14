@@ -12,6 +12,7 @@ import tornado.template
 import tornado.websocket
 from cosmos.dataservice.objectservice import *
 from cosmos.datamonitor.monitor import *
+from cosmos.msgq.rabbitmq import RabbitMQClient
 from cosmos.service import BootLoader
 import cosmos.service.auth
 
@@ -21,12 +22,19 @@ def init_observers(db, object_service, observers):
     loader.load_roles(object_service)
     loader.load_role_groups(object_service)
 
+
+def create_message_channel():
+    mq = RabbitMQClient(queue_name="worker_q")
+    mq.connect()
+    return mq
+
 def start_web_service(options):
 
     cosmos.service.auth.hmac_key = options.hmac_key
     object_service = ObjectService(rbac_service=RbacService(), db=options.db)
 
     init_observers(options.db, object_service, options.observers)
+    mq = create_message_channel()
 
     app_settings = dict(
                 db=options.db,
@@ -48,6 +56,7 @@ def start_web_service(options):
                 default_login_next_uri=options.default_login_next_uri,
                 tenant_id=options.tenant_id,
                 oauth2_settings=options.oauth2_settings,
+                message_queue=mq,
             )
 
     application = tornado.web.Application(

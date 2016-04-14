@@ -65,7 +65,7 @@ LOGIN_PAGE_TEMPLATE = """
       <md-card>
         <md-card-title>
           <md-card-title-text>
-            <span class="md-headline">Login</span>
+            <span class="md-headline">{{title}}</span>
           </md-card-title-text>
           <md-card-title-media>
           </md-card-title-media>
@@ -83,9 +83,15 @@ LOGIN_PAGE_TEMPLATE = """
                     <label>Password</label>
                     <input required type="password" id="password" name="password" />
             </md-input-container>
+            {% if repeat_password_field %}
+            <md-input-container class="md-block">
+                    <label>Password again</label>
+                    <input required type="password" id="password_re" name="password_re" />
+            </md-input-container>
+            {% end %}
         </md-card-content>
         <md-card-actions layout="row" layout-align="end center">
-          <input id="loginbtn" type="submit" value="Login" class="md-button md-raised md-primary"></input>
+          <input id="loginbtn" type="submit" value="{{ btnText }}" class="md-button md-raised md-primary"></input>
         </md-card-actions>
       </md-card>
     <md-content>
@@ -105,6 +111,7 @@ LOGIN_PAGE_TEMPLATE = """
 </body>
 </html>
 """
+
 
 hmac_key = None
 
@@ -476,7 +483,7 @@ class BasicLoginHandler(RequestHandler):
         if not login_template:
             login_template = self.settings.get('login_template', LOGIN_PAGE_TEMPLATE)
         t = Template(login_template)
-        html = t.generate(next=next, message=message)
+        html = t.generate(next=next, title="Sign In", btnText="Login",  message=message, repeat_password_field=False)
         self.write(html)
         self.finish()
 
@@ -520,6 +527,74 @@ class BasicLoginHandler(RequestHandler):
             del user["password"]
             self.set_current_user(user)
             self.redirect(redirect_url)
+
+
+class ChangePasswordHandler(RequestHandler):
+    @gen.coroutine
+    def get(self):
+        next = self.get_argument("next", '/')
+        self._show_change_password_window(next)
+
+    def _show_change_password_window(self, next="/", message=None, page_template=None):
+        if not page_template:
+            page_template = self.settings.get('change_password_template', LOGIN_PAGE_TEMPLATE)
+        t = Template(page_template)
+        html = t.generate(next=next, title="Change password", btnText="Change",  message=message, repeat_password_field=True)
+        self.write(html)
+        self.finish()
+
+    @gen.coroutine
+    def post(self):
+        username = self.get_argument("username", default=None)
+        password = self.get_argument("password", default=None)
+        redirect_url = self.get_argument("next", default='/')
+
+        if not username or len(username) < 1:
+            body = self.request.body
+            if type(body) is bytes:
+                body = body.decode('utf-8')
+            if body and len(body) > 32:
+                data = json.loads(body)
+                assert isinstance(data, dict)
+                username = data.get("username")
+                password = data.get("password")
+                new_password = data.get("new_password")
+                password_re = data.get("password_re")
+                redirect_url = data.get("next", "/")
+
+        if not username or not password:
+            self._show_change_password_window(message="Missing required values.")
+            return
+
+        if not password_re == password:
+            self._show_change_password_window(message="Password did not match.")
+            return
+
+        object_name = COSMOS_USERS_OBJECT_NAME
+        obj_serv = self.settings['object_service']
+
+        columns = ["username", "password", "roles"]
+        query = {"username": username}
+
+        cursor = obj_serv.find(SYSTEM_USER, object_name, query, columns)
+
+        found = yield cursor.fetch_next
+        if not found:
+            raise tornado.web.HTTPError(401, "Unauthorized")
+        else:
+            user = cursor.next_object()
+            loaded_password_hash = user.get(PASSWORD_COLUMN_NAME)
+            hmac_key= self.settings["hmac_key"]
+            validate_password(password, loaded_password_hash, hmac_key)
+            del user["password"]
+            self.set_current_user(user)
+            self.redirect(redirect_url)
+
+
+class ResetPasswordHandler(RequestHandler):
+    @gen.coroutine
+    def get(self):
+        pass
 
 
 def validate_password(password, saved_password_hash, hmac_key):

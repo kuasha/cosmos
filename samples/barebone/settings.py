@@ -30,6 +30,7 @@ STATIC_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "app")
 TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates")
 INDEX_HTML_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "app/index.html")
 LOGIN_HTML_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates/login.html")
+SYSTEM_SETUP_HTML_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates/setup.html")
 WEB_SERVER_LISTEN_PORT = 8080
 
 DB_CHANGE_PROCESSOR_ENDPOINT_FORMAT = "http://localhost:{0}/handlechange"
@@ -88,7 +89,7 @@ OAUTH2_TOKEN_EXPIRY_SECONDS = 600
 TENANT_ID = 'cosmosframework.com'
 
 OAUTH2_TRUSTED_REDIRECT_URLS = ['http://localhost:8080/oauth2client/authorize/']
-OAUTH2_SERVICE_URL = LOCAL_OAUTH2_SERVICE_URL
+OAUTH2_SERVICE_URL = "http://localhost:8080/"
 
 AUTH_PUBLIC_KEY_PEM_URL = r"/(?P<tenant_id>[^\/]+)/auth/key/"
 

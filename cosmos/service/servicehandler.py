@@ -19,12 +19,6 @@ from cosmos.dataservice.objectservice import *
 
 
 class ServiceHandler(requesthandler.RequestHandler):
-    def json_encode_result(self, result, is_list=False):
-        if is_list:
-            return {"_d": MongoObjectJSONEncoder().encode(result), "_cosmos_service_array_result_": True}
-        else:
-            return MongoObjectJSONEncoder().encode(result)
-
     @gen.coroutine
     def get(self, object_path):
         params = object_path.split('/')
