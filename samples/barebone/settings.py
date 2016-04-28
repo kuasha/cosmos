@@ -93,6 +93,31 @@ OAUTH2_SERVICE_URL = "http://localhost:8080/"
 
 AUTH_PUBLIC_KEY_PEM_URL = r"/(?P<tenant_id>[^\/]+)/auth/key/"
 
+"""
+sudo rabbitmqctl add_user workflow_user workflow_password
+sudo rabbitmqctl add_vhost workflow_vhost
+sudo rabbitmqctl set_user_tags workflow_user workflow_tag
+sudo rabbitmqctl set_permissions -p workflow_vhost workflow_user ".*" ".*" ".*"
+"""
+
+ENABLE_WORKFLOW_ENGINES = False
+
+WORKFLOW_ENGINES = [
+    {
+        "enabled": True,
+        "engine_type": "celery",
+        "name": "workflow_engine",
+        "parameters":
+        {
+            "username": "workflow_user",
+            "password": "workflow_password",
+            "vhost": "workflow_vhost",
+            "tag": "workflow_tag",
+            "broker_urls": ['amqp://workflow_user:workflow_password@localhost:5672/workflow_vhost']
+        }
+    }
+]
+
 #TODO: You should remove this processon in production environment
 def test_observer(user, object_service, object_name, data, access_type, columns = None, *args, **kwargs):
     assert object_name == "test"

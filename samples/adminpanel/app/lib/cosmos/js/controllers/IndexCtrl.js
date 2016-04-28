@@ -4,8 +4,8 @@
 
 
 controllers.controller('IndexCtrl', ['$scope', '$routeParams', '$location', 'CosmosService', 'message',
-    'cosmos.cachedloader','cosmos.utils',
-    function ($scope, $routeParams, $location, CosmosService, message, cachedloader, utils) {
+    'cosmos.cachedloader','cosmos.utils','cosmos.settings',
+    function ($scope, $routeParams, $location, CosmosService, message, cachedloader, utils, settings) {
 
         $scope.pageRefs = [];
         $scope.appPath = $routeParams.appPath;

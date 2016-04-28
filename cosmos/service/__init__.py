@@ -95,12 +95,6 @@ class BootLoader():
             except ValueError as ve:
                 logging.exception("Role group {0} could not be loaded.".format(role_group_def.get("name")))
 
-    def config_mongolog(self, db_uri, db_name, log_col_name, log_level):
-        c_sync = pymongo.MongoClient(db_uri, w=0)
-        col = c_sync[db_name][log_col_name]
-        logging.getLogger().addHandler(MongoHandler.to(collection=col))
-        logging.getLogger().setLevel(log_level)
-
 @gen.coroutine
 def after_role_insert_update_delete(object_service, object_name, result, access_type):
     assert object_name == COSMOS_ROLE_OBJECT_NAME

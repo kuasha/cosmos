@@ -35,7 +35,7 @@ def new_project(path, type=None):
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
         with open(file_path, 'w') as content_file:
-            content_file.write(data)
+            content_file.write(data.decode())
 
     if type == "angular":
         print("-----------Cloning angular seed project--------------\n")

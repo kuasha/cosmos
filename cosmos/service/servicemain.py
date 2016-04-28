@@ -34,7 +34,6 @@ def start_web_service(options):
     object_service = ObjectService(rbac_service=RbacService(), db=options.db)
 
     init_observers(options.db, object_service, options.observers)
-    mq = create_message_channel()
 
     app_settings = dict(
                 db=options.db,
@@ -56,7 +55,6 @@ def start_web_service(options):
                 default_login_next_uri=options.default_login_next_uri,
                 tenant_id=options.tenant_id,
                 oauth2_settings=options.oauth2_settings,
-                message_queue=mq,
             )
 
     application = tornado.web.Application(
