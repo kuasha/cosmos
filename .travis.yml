@@ -22,6 +22,8 @@ install:
   - pip install future
   - pip install pycrypto
   - pip install python_jwt
+  - pip install pika
+  - pip install celery
   - npm install karma
   - npm install karma-cli
   - npm install karma-jasmine
