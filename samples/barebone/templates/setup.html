@@ -24,6 +24,7 @@
 </head>
 <body ng-app="setupApp" ng-cloak>
 <md-tabs md-align-tabs="top" flex layout="column" layout-fill>
+    {%  if show_create_admin_form %}
     <md-tab id="tabCreateAdmin">
         <md-tab-label>Create admin</md-tab-label>
         <md-tab-body>
@@ -52,6 +53,23 @@
             </form>
         </md-tab-body>
     </md-tab>
+    {% end %}
+    </md-tab>
+    <md-tab id="tabSystem">
+        <md-tab-label>System</md-tab-label>
+        <md-tab-body>
+            {%  if show_system_form %}
+            <form action="." method="POST">
+                <div>
+                    <button type="submit" name="command" value="restart_service"
+                            class="md-button md-raised md-primary">Restart service
+                    </button>
+                </div>
+            </form>
+            {% else %}
+                <p>Please login as admin to view system commands.</p>
+            {% end %}
+        </md-tab-body>
     </md-tab>
     <md-tab id="tabSettings">
         <md-tab-label>Settings</md-tab-label>
@@ -85,6 +103,8 @@
         </md-tab-body>
     </md-tab>
 </md-tabs>
+
+
 
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
