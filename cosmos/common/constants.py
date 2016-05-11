@@ -14,6 +14,7 @@ COSMOS_SOURCE_MODULES_OBJECT_NAME = "cosmos.sourcemodules"
 COSMOS_SOURCE_MODULES_TYPE_EMBEDDED = "embedded"
 COSMOS_SOURCE_MODULES_TYPE_GRIDFILE = "gridfile"
 COSMOS_WORKFLOWS_OBJECT_NAME = "cosmos.workflows"
+COSMOS_SYSTEM_SETTINGS_OBJECT_NAME = "cosmos.system.settings"
 
 
 #Application export / import constants

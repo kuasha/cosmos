@@ -1,3 +1,12 @@
+"""
+ Copyright (C) 2016 Maruf Maniruzzaman
+ Website: http://cosmosframework.com
+ Author: Maruf Maniruzzaman
+ License :: OSI Approved :: MIT License
+"""
+
+import os
+import sys
 import logging
 import json
 import settings
@@ -5,10 +14,10 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.template import Template
 
 import cosmos
-from cosmos.rbac.object import COSMOS_USERS_OBJECT_NAME, SYSTEM_USER, ADMIN_USER_ROLE_SID, AccessType
+from cosmos.common.constants import COSMOS_SYSTEM_SETTINGS_OBJECT_NAME
+from cosmos.rbac.object import COSMOS_USERS_OBJECT_NAME, SYSTEM_USER, ADMIN_USER_ROLE_SID, AccessType, \
+    SETTINGS_ACCESS_ROLE_SID
 from cosmos.service.auth import BasicLoginHandler
-
-__author__ = 'Maruf Maniruzzaman'
 
 import tornado
 from tornado import gen
@@ -25,7 +34,14 @@ class SystemSetupHandler(RequestHandler):
             with open(settings.SYSTEM_SETUP_HTML_PATH) as f:
                 login_template = f.read()
                 t = Template(login_template)
-                html = t.generate(message=message)
+                user = self.get_current_user()
+                if user:
+                    show_settings_form = self.has_access(COSMOS_SYSTEM_SETTINGS_OBJECT_NAME, [], AccessType.READ)
+                else:
+                    show_settings_form = False
+
+                html = t.generate(message=message, configurable_settings=settings.CONFIGURABLE_SETTINGS,
+                                  show_settings_form=show_settings_form)
                 self.write(html)
                 self.finish()
         except IOError as e:
@@ -76,3 +92,28 @@ class SystemSetupHandler(RequestHandler):
                 result = yield promise
                 data = self.json_encode_result(result)
                 self.write(data)
+
+        if command == "apply_settings":
+            user = self.get_current_user()
+            if user:
+                self.check_access(user, COSMOS_SYSTEM_SETTINGS_OBJECT_NAME, [], AccessType.UPDATE)
+            else:
+                raise tornado.web.HTTPError(401, "Unauthorized")
+
+            cur_dir = os.path.dirname(os.path.realpath(__file__))
+            local_settings_filename = os.path.join(cur_dir, "local_settings.py")
+            sf = open('workfile', 'w')
+
+            for config in settings.CONFIGURABLE_SETTINGS:
+                k = config.get("name")
+                attr = config.get("settings")
+                quoted = attr.get("quoted", True)
+                if k:
+                    v = self.get_argument(k, default=getattr(settings, k, None))
+
+                    if v:
+                        if quoted:
+                            sf.write('{0}="""{1}"""\n'.format(k, v))
+                        else:
+                            sf.write('{0}={1}\n'.format(k, v))
+            sf.close()

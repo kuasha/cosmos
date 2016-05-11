@@ -107,6 +107,13 @@ class RoleItemTest(LoggedTestCase):
 
         self.failUnlessEqual(found, True)
 
+    def test_clear_non_system_roles(self):
+        pass
+
+    def test_clear_non_system_role_groups(self):
+        pass
+
+
 
 if __name__ == "__main__":
     unittest.main()

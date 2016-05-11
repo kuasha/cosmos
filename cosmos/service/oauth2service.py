@@ -41,6 +41,8 @@ OAUTH2_TOKENS_OBJECT_NAME = "cosmos.auth.oauth2.tokens"
 OAUTH2_CODE_STATUS_OBJECT_NAME = "cosmos.auth.oauth2.codestatus"
 OAUTH2_MAX_CODE_RESPONSE_LENGTH = 200
 
+APPLICATION_RESOURCE_COL_NAME = "cosmos.service.applications"
+
 class OAuth2RequestException(Exception):
     pass
 
@@ -83,6 +85,7 @@ class OAuth2ServiceHandler(RequestHandler):
                 redirect_url = urlparse.urlunparse(parts)
 
                 self.initiate_login(redirect_url)
+                return
 
             if function == "authorize":
                 yield self._do_authorize(user, auth_request)
@@ -108,7 +111,7 @@ class OAuth2ServiceHandler(RequestHandler):
         state = params.get("state", None)
         resource = params.get("resource", None)
 
-        trusted = yield self.is_trusted_redirect_url(redirect_uri)
+        trusted = yield self.is_trusted_redirect_url(redirect_uri, resource)
 
         if not trusted:
             raise OAuth2RequestException("Redirect URL is not trusted. URL = {}".format(redirect_uri))
@@ -188,7 +191,7 @@ class OAuth2ServiceHandler(RequestHandler):
 
         oauth2_settings = self.settings['oauth2_settings']
         oauth2_token_issuer = oauth2_settings.get("oauth2_token_issuer", request_host)
-        oauth2_token_expiry_seconds = oauth2_settings.get("oauth2_token_expiry_seconds")
+        oauth2_token_expiry_seconds = oauth2_settings.get("oauth2_token_expiry_seconds", 600)
 
         exp = datetime.timedelta(seconds=oauth2_token_expiry_seconds)
 
@@ -348,7 +351,7 @@ class OAuth2ServiceHandler(RequestHandler):
         raise gen.Return(user)
 
     @gen.coroutine
-    def is_trusted_redirect_url(self, full_redirect_url):
+    def is_trusted_redirect_url(self, full_redirect_url, resource):
         parts = list(urlparse.urlparse(full_redirect_url))
         parts[3] = ''
         parts[4] = ''
@@ -358,7 +361,21 @@ class OAuth2ServiceHandler(RequestHandler):
         oauth2_settings = self.settings['oauth2_settings']
         trusted_redirect_urls = oauth2_settings.get("oauth2_trusted_redirect_urls", [])
 
-        raise gen.Return(redirect_url in trusted_redirect_urls)
+        if redirect_url in trusted_redirect_urls:
+            raise gen.Return(True)
+
+        obj_serv = self.settings['object_service']
+        cursor = obj_serv.find(SYSTEM_USER, APPLICATION_RESOURCE_COL_NAME, {"resource": resource}, [])
+        app = None
+        if (yield cursor.fetch_next):
+            app = cursor.next_object()
+
+        if not app:
+            raise gen.Return(False)
+
+        app_redirect_urls = app.get("redirect_urls", [])
+
+        raise gen.Return(redirect_url in app_redirect_urls)
 
     def get_private_key_pem(self):
         oauth2_settings = self.settings['oauth2_settings']

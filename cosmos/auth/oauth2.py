@@ -76,33 +76,12 @@ def get_token(**kwargs):
         "ver": "1.0"
     }
 
-    iss = kwargs.get("iss", None)
-    if iss:
-        token_payload["iss"] = iss
+    allowed_keys = ["iss", "nbf", "oid", "sub", "tid", "unique_name", "upn"]
 
-    nbf = kwargs.get("nbf", None)
-    if nbf:
-        token_payload["nbf"] = nbf
-
-    oid = kwargs.get("oid", None)
-    if oid:
-        token_payload["oid"] = oid
-
-    sub = kwargs.get("sub", None)
-    if sub:
-        token_payload["sub"] = sub
-
-    tid = kwargs.get("tid", None)
-    if tid:
-        token_payload["tid"] = tid
-
-    unique_name = kwargs.get("unique_name", None)
-    if unique_name:
-        token_payload["unique_name"] = unique_name
-
-    upn = kwargs.get("upn", None)
-    if upn:
-        token_payload["upn"] = upn
+    for k in allowed_keys:
+        v = kwargs.get(k, None)
+        if v:
+            token_payload[k] = v
 
     priv_key = RSA.importKey(service_private_pem)
     token = jwt.generate_jwt(token_payload, priv_key, 'RS256', exp)

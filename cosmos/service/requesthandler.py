@@ -21,10 +21,10 @@ from cosmos.rbac.service import RbacService
 from cosmos.service.constants import *
 from cosmos.service.utils import MongoObjectJSONEncoder
 
+
 class RequestHandler(tornado.web.RequestHandler):
     def __init__(self, *args, **kwargs):
         tornado.web.RequestHandler.__init__(self, *args, **kwargs)
-        #self.rbac_service = RbacService()
         self.object_service = self.settings["object_service"]
 
     def json_encode_result(self, result, is_list=False):
@@ -34,16 +34,14 @@ class RequestHandler(tornado.web.RequestHandler):
             return MongoObjectJSONEncoder().encode(result)
 
     def check_access(self, user, object_name, properties, access):
-        if user:
-            username = tornado.escape.xhtml_escape(user.get("name", None))
-        else:
-            username = None
-
-        role = self.rbac_service.get_roles(username)
-        has_access = self.object_service.has_access(role, object_name, properties, access)
+        has_access = self.object_service.check_access(user, object_name, properties, access)
 
         if not has_access:
             raise tornado.web.HTTPError(401, "Unauthorized")
+
+    def has_access(self, object_name, properties, access):
+        user = self.get_current_user()
+        return self.object_service.check_access(user, object_name, properties, access)
 
     def get_current_user(self):
         user_json = self.get_secure_cookie(USER_COOKIE_NAME)

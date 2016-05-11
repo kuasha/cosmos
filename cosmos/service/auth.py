@@ -4,15 +4,14 @@
  Author: Maruf Maniruzzaman
  License :: OSI Approved :: MIT License
 """
+
 from builtins import bytes
 
 from tornado.httpclient import AsyncHTTPClient
 from tornado.template import Template
-
+import logging
 import cosmos
 from cosmos.rbac.object import *
-
-__author__ = 'Maruf Maniruzzaman'
 
 import tornado.web
 from tornado import gen
@@ -414,6 +413,7 @@ class AuthpOAuth2LoginHandler(CosmosAuthHandler):
             self.redirect(auth_url)
         elif token:
             pub_key_url = self.get_public_key_url()
+            logging.debug("Downloading public key from [{0}]".format(pub_key_url))
             http_client = AsyncHTTPClient()
             resp = yield http_client.fetch(pub_key_url)
 

@@ -50,7 +50,7 @@ class OAuth2DummyClientHandler(RequestHandler):
         protocol = self.request.protocol
         host = self.request.host
         #oauth2_service_host = protocol + "://"+ host
-        oauth2_service_host = "http://authp.com"
+        oauth2_service_host = settings.OAUTH2_SERVICE_URL
 
         tenant_id = settings.TENANT_ID
         self.write(self.request.uri + " <br />" + function + "<br />")
@@ -60,7 +60,9 @@ class OAuth2DummyClientHandler(RequestHandler):
         token = self.get_argument("access_token", default=None)
         if token:
             http_client = AsyncHTTPClient()
-            resp = yield http_client.fetch("{0}/{1}/auth/key/".format(oauth2_service_host, tenant_id))
+            url = "{0}/{1}/auth/key/".format(oauth2_service_host, tenant_id)
+            logging.debug("Fetching public key from {0}".format(url))
+            resp = yield http_client.fetch(url)
 
             if not resp or not resp.code == 200 or resp.body is None:
                 self.write("Could not get auth server public key")

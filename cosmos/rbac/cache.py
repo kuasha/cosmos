@@ -71,7 +71,6 @@ class RoleCache():
         role_group = RoleGroup(**role_group_def)
         return role_group
 
-
     def replace_role(self, new_role):
         new_active_roles = [new_role if existing_role.sid == new_role.sid else existing_role for existing_role in
                             self.active_roles]
@@ -89,7 +88,6 @@ class RoleCache():
     def clear_non_system_role_groups(self):
         self.active_role_groups = None
         self.init_role_groups()
-
 
     def update_role_cache(self, role_defn):
         if not self.active_roles:
