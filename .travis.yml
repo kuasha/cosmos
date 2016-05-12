@@ -21,7 +21,9 @@ install:
   - pip install requests
   - pip install future
   - pip install pycrypto
+  - pip install funcsigs
   - pip install python_jwt
+  - pip install pbr
   - pip install pika
   - pip install celery
   - npm install karma
