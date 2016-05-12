@@ -228,6 +228,7 @@ class OAuth2ServiceHandler(RequestHandler):
 
         if code_status.get("used_at"):
             code_status["duplicate_attempt"] = True
+            logging.warning("Code already used for code status Id={}".format(code_status_id))
             yield self.update_code_status(code_status)
             raise OAuth2RequestException("Code already used")
 
@@ -236,7 +237,8 @@ class OAuth2ServiceHandler(RequestHandler):
         code_status["used_at"] = current_utc_time
         saved = yield self.update_code_status(code_status)
         if not saved:
-            logging.error("Could not save code status Id={}".format(code_status_id))
+            logging.critical("Could not save code status Id={}".format(code_status_id))
+            raise tornado.web.HTTPError(500, "Server error")
 
         resource = code_dict.get("resource")
         oauth2_private_key_pem = self.get_private_key_pem()

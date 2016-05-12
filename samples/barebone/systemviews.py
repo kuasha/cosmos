@@ -8,23 +8,14 @@
 import os
 import sys
 import logging
-import json
-import settings
-from tornado.httpclient import AsyncHTTPClient
 from tornado.template import Template
-
-import cosmos
-from cosmos.common.constants import COSMOS_SYSTEM_SETTINGS_OBJECT_NAME
-from cosmos.rbac.object import COSMOS_USERS_OBJECT_NAME, SYSTEM_USER, ADMIN_USER_ROLE_SID, AccessType, \
-    SETTINGS_ACCESS_ROLE_SID
-from cosmos.service.auth import BasicLoginHandler
-
 import tornado
 from tornado import gen
-import json
 
+from cosmos.common.constants import COSMOS_SYSTEM_SETTINGS_OBJECT_NAME
+from cosmos.rbac.object import COSMOS_USERS_OBJECT_NAME, SYSTEM_USER, ADMIN_USER_ROLE_SID, AccessType
 from cosmos.service.requesthandler import RequestHandler
-
+import settings
 
 class SystemSetupHandler(RequestHandler):
     @gen.coroutine

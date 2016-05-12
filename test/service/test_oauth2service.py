@@ -236,6 +236,37 @@ class OAuth2ServiceTest(AsyncHTTPTestCase):
 
             self.assertEqual(response.code, 400)
 
+    def test_get_authorize_bad_response_type(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "1213425367"}
+
+            response = self.fetch(
+                '/example.com/oauth2/authorize/?response_type=bad&redirect_uri=example.com/authorize',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
+    def test_get_authorize_untrusted_redirect_url(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "1213425367"}
+            promise = Future()
+            promise.set_result(False)
+
+            class Test:
+                pass
+
+            result = Test()
+            result.fetch_next = promise
+            self.object_service.find = MagicMock(return_value=result)
+
+            response = self.fetch(
+                '/example.com/oauth2/authorize/?response_type=code&redirect_uri=untrusted.com/authorize',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
     def test_get_token(self):
         user_id = "1213425367"
         user = {'_id': user_id}
@@ -277,6 +308,36 @@ class OAuth2ServiceTest(AsyncHTTPTestCase):
             location = response.headers.get("Location")
             self.assertTrue(location.startswith("example.com/authorize?"))
 
+    def test_get_token_bad_code_request(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "3748236"}
+            response = self.fetch(
+                '/example.com/oauth2/token/?grant_type=code&redirect_uri=example.com/authorize',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
+    def test_get_token_bad_refresh_token_request(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "3748236"}
+            response = self.fetch(
+                '/example.com/oauth2/token/?grant_type=refresh_token&redirect_uri=example.com/authorize',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
+    def test_get_token_bad_grant_type_request(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "3748236"}
+            response = self.fetch(
+                '/example.com/oauth2/token/?grant_type=badreq&redirect_uri=example.com/authorize',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
     def test_get_unknown_function(self):
         with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
             rh.return_value = {'_id': "1213425367"}
@@ -288,6 +349,131 @@ class OAuth2ServiceTest(AsyncHTTPTestCase):
 
             self.assertEqual(response.code, 400)
 
+    def test_get_token_bad_user(self):
+        user_id = "1213425367"
+        user = {'_id': user_id}
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = user
+
+            promise = Future()
+            promise.set_result(None)
+            self.object_service.load = MagicMock(return_value=promise)
+
+            code = 'aP3VZe8B6_mjS5mfRsCSmVOaVcJkMeMugDCoYTQNjoX31ChtyONc-jCFb1Rv_KqXlFCL' \
+                   'jmW_r29ozITP51k2BscNsJr9xdn0DvuB_pEO13CJZPZ57mh5PtxpUidvC5y3tyQ_IfBd' \
+                   'k99-TjmPhOZ9-QtVTfkrryB072zo9IwNvRfmCE13j0IYO_5NEdg2lRlbN9mOkZXEsduJ' \
+                   'CMSbROSC66wxGfPYcVHjHtoN1OIWrsxPMH3SoLZse8zpFWiNzAlkmYi6pOnOX2VZukGj' \
+                   'zeGb-sNDxYwp9DddFylljZQSMVM9nJGt8RcQohMLejJiCqNdMMjLQ3v-Yzym9B3761nA' \
+                   'dA%3D%3D'
+
+            response = self.fetch(
+                '/example.com/oauth2/token/?grant_type=code&redirect_uri=example.com/authorize&code=' + code,
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
+    def test_get_token_different_user(self):
+        user_id = "538475238764"
+        user = {'_id': user_id}
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = user
+
+            user_promise = Future()
+            user_promise.set_result(user)
+
+            self.object_service.load = MagicMock(return_value=user_promise)
+            promise = Future()
+            promise.set_result("8675342635")
+            self.object_service.save = MagicMock(return_value=promise)
+
+            code = 'aP3VZe8B6_mjS5mfRsCSmVOaVcJkMeMugDCoYTQNjoX31ChtyONc-jCFb1Rv_KqXlFCL' \
+                   'jmW_r29ozITP51k2BscNsJr9xdn0DvuB_pEO13CJZPZ57mh5PtxpUidvC5y3tyQ_IfBd' \
+                   'k99-TjmPhOZ9-QtVTfkrryB072zo9IwNvRfmCE13j0IYO_5NEdg2lRlbN9mOkZXEsduJ' \
+                   'CMSbROSC66wxGfPYcVHjHtoN1OIWrsxPMH3SoLZse8zpFWiNzAlkmYi6pOnOX2VZukGj' \
+                   'zeGb-sNDxYwp9DddFylljZQSMVM9nJGt8RcQohMLejJiCqNdMMjLQ3v-Yzym9B3761nA' \
+                   'dA%3D%3D'
+
+            response = self.fetch(
+                '/example.com/oauth2/token/?grant_type=code&redirect_uri=example.com/authorize&code=' + code,
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
+    def test_get_token_bad_code_status(self):
+        user_id = "1213425367"
+        user = {'_id': user_id}
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = user
+
+            def load(*args):
+                promise = Future()
+                if args[1] == COSMOS_USERS_OBJECT_NAME:
+                    promise.set_result(user)
+                elif args[1] == OAUTH2_CODE_STATUS_OBJECT_NAME:
+                    promise.set_result(None)
+                return promise
+
+            self.object_service.load = MagicMock(side_effect=load)
+            promise = Future()
+            promise.set_result("8675342635")
+            self.object_service.save = MagicMock(return_value=promise)
+
+            code = 'aP3VZe8B6_mjS5mfRsCSmVOaVcJkMeMugDCoYTQNjoX31ChtyONc-jCFb1Rv_KqXlFCL' \
+                   'jmW_r29ozITP51k2BscNsJr9xdn0DvuB_pEO13CJZPZ57mh5PtxpUidvC5y3tyQ_IfBd' \
+                   'k99-TjmPhOZ9-QtVTfkrryB072zo9IwNvRfmCE13j0IYO_5NEdg2lRlbN9mOkZXEsduJ' \
+                   'CMSbROSC66wxGfPYcVHjHtoN1OIWrsxPMH3SoLZse8zpFWiNzAlkmYi6pOnOX2VZukGj' \
+                   'zeGb-sNDxYwp9DddFylljZQSMVM9nJGt8RcQohMLejJiCqNdMMjLQ3v-Yzym9B3761nA' \
+                   'dA%3D%3D'
+
+            response = self.fetch(
+                '/example.com/oauth2/token/?grant_type=code&redirect_uri=example.com/authorize&code=' + code,
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
+    def test_get_token_save_code_status_failed(self):
+        user_id = "1213425367"
+        user = {'_id': user_id}
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = user
+
+            def load(*args):
+                promise = Future()
+                if args[1] == COSMOS_USERS_OBJECT_NAME:
+                    promise.set_result(user)
+                elif args[1] == OAUTH2_CODE_STATUS_OBJECT_NAME:
+                    client_id = None
+                    resource = None
+                    current_utc_time = ''
+                    code_status = {"user_id": user_id, "client_id": client_id, "resource": resource,
+                                   "iat": current_utc_time}
+
+                    promise.set_result(code_status)
+                return promise
+
+            self.object_service.load = MagicMock(side_effect=load)
+            promise = Future()
+            promise.set_result(None)
+            self.object_service.save = MagicMock(return_value=promise)
+
+            code = 'aP3VZe8B6_mjS5mfRsCSmVOaVcJkMeMugDCoYTQNjoX31ChtyONc-jCFb1Rv_KqXlFCL' \
+                   'jmW_r29ozITP51k2BscNsJr9xdn0DvuB_pEO13CJZPZ57mh5PtxpUidvC5y3tyQ_IfBd' \
+                   'k99-TjmPhOZ9-QtVTfkrryB072zo9IwNvRfmCE13j0IYO_5NEdg2lRlbN9mOkZXEsduJ' \
+                   'CMSbROSC66wxGfPYcVHjHtoN1OIWrsxPMH3SoLZse8zpFWiNzAlkmYi6pOnOX2VZukGj' \
+                   'zeGb-sNDxYwp9DddFylljZQSMVM9nJGt8RcQohMLejJiCqNdMMjLQ3v-Yzym9B3761nA' \
+                   'dA%3D%3D'
+
+            response = self.fetch(
+                '/example.com/oauth2/token/?grant_type=code&redirect_uri=example.com/authorize&code=' + code,
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 500)
+
+
     def raise_oauth_exception(self):
         raise OAuth2RequestException()
 
@@ -297,37 +483,6 @@ class OAuth2ServiceTest(AsyncHTTPTestCase):
 
             response = self.fetch(
                 '/example.com/oauth2/doesnotexist/?response_type=code&redirect_uri=example.com/authorize',
-                method='GET',
-                follow_redirects=False)
-
-            self.assertEqual(response.code, 400)
-
-    def test_get_authorize_bad_response_type(self):
-        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
-            rh.return_value = {'_id': "1213425367"}
-
-            response = self.fetch(
-                '/example.com/oauth2/authorize/?response_type=bad&redirect_uri=example.com/authorize',
-                method='GET',
-                follow_redirects=False)
-
-            self.assertEqual(response.code, 400)
-
-    def test_get_authorize_untrusted_redirect_url(self):
-        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
-            rh.return_value = {'_id': "1213425367"}
-            promise = Future()
-            promise.set_result(False)
-
-            class Test:
-                pass
-
-            result = Test()
-            result.fetch_next = promise
-            self.object_service.find = MagicMock(return_value=result)
-
-            response = self.fetch(
-                '/example.com/oauth2/authorize/?response_type=code&redirect_uri=untrusted.com/authorize',
                 method='GET',
                 follow_redirects=False)
 
