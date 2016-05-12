@@ -112,7 +112,7 @@ class SystemSetupHandler(RequestHandler):
                     if quoted:
                         sf.write('{0}="""{1}"""\n'.format(k, v))
                     else:
-                        sf.write('{0}={1}\n'.format(k, v))
+                        sf.write('{0} = {1}\n'.format(k, v))
         sf.close()
         self.write("Settings saved. Please restart service.")
 

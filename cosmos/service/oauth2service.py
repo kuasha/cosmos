@@ -8,7 +8,6 @@
  Also for more information look at The OAuth 2.0 Authorization Framework (http://tools.ietf.org/html/rfc6749)
 """
 
-import ast
 import base64
 import json
 
@@ -43,36 +42,33 @@ OAUTH2_MAX_CODE_RESPONSE_LENGTH = 200
 
 APPLICATION_RESOURCE_COL_NAME = "cosmos.service.applications"
 
+
 class OAuth2RequestException(Exception):
     pass
 
-#TODO: security check for entire class
 
+# TODO: security check for entire class
 class OAuth2ServiceHandler(RequestHandler):
-
     @gen.coroutine
     def get(self, tenant_id, function):
         try:
-            req_id = None
-            auth_request = None
             serve_request = self.get_argument("serve_request", None)
-            if not (serve_request):
+            if not serve_request:
                 auth_request = self._collect_auth_request_parameters(tenant_id, function)
 
                 req_id = yield self.insert_auth_request(auth_request)
 
                 if not req_id:
                     logging.critical("Could not save OAuth2 request to database.")
-                    raise tornado.web.HTTPError(500, "Server error")
+                    raise tornado.web.HTTPError(500, "Server error. Error code = DB1001")
 
                 logging.debug("Request saved in db {0}".format(str(req_id)))
             else:
                 req_id = self.get_argument("serve_request")
                 auth_request = yield self.load_auth_request(req_id)
                 if not auth_request:
-                    self.write("Could not find auth request. Correlation id {}".format(req_id))
-                    self.finish()
-                    return
+                    logging.warning("Could not find auth request. Correlation id {}".format(req_id))
+                    raise tornado.web.HTTPError(400, "Bad request")
 
             user = self.get_current_user()
 
@@ -94,11 +90,12 @@ class OAuth2ServiceHandler(RequestHandler):
                 yield self._do_token(user, auth_request)
                 return
             else:
-                raise tornado.web.HTTPError(404, "Not found")
+                raise tornado.web.HTTPError(400, "Bad request. Function not found.")
         except OAuth2RequestException as re:
             self.clear()
             self.set_status(400)
-            self.finish("<html><body>400 Bad Request<br/>{}</body></html>".format(str(re)))
+            self.write("<html><body>400 Bad Request<br/>{}</body></html>".format(str(re)))
+            self.finish()
 
     @gen.coroutine
     def _do_authorize(self, user, params):
@@ -116,15 +113,9 @@ class OAuth2ServiceHandler(RequestHandler):
         if not trusted:
             raise OAuth2RequestException("Redirect URL is not trusted. URL = {}".format(redirect_uri))
 
-        code_attributes = ["user_id", "client_id", "resource", "iat", "code_status_id"]
-
         current_utc_time = self.get_current_utc_time()
 
-        response = {}
-        response.update({"user_id": user["_id"]})
-        response["client_id"] = client_id
-        response["resource"] = resource
-        response["iat"] = current_utc_time
+        response = {"user_id": user["_id"], "client_id": client_id, "resource": resource, "iat": current_utc_time}
 
         code_status_id = yield self.insert_code_status(response)
         if not code_status_id:
@@ -132,13 +123,14 @@ class OAuth2ServiceHandler(RequestHandler):
             raise tornado.web.HTTPError(500, "Server error")
 
         response["code_status_id"] = str(code_status_id)
+        code_attributes = ["user_id", "client_id", "resource", "iat", "code_status_id"]
 
-        code_response = { k: response.get(k) for k in code_attributes }
+        code_response = {k: response.get(k) for k in code_attributes}
 
-        str_response = json.dumps(code_response)
+        str_response = self.to_json_string(code_response)
         bytes_resp = str_response.encode()
 
-        if(len(bytes_resp) > OAUTH2_MAX_CODE_RESPONSE_LENGTH):
+        if len(bytes_resp) > OAUTH2_MAX_CODE_RESPONSE_LENGTH:
             raise tornado.web.HTTPError(414, "Request-URI Too Long")
 
         oauth2_public_key_handler = self.get_public_key_handler()
@@ -147,21 +139,23 @@ class OAuth2ServiceHandler(RequestHandler):
         b64_enc_response_bytes = base64.urlsafe_b64encode(enc_response[0])
         b64_enc_response = b64_enc_response_bytes.decode()
 
-        url = redirect_uri
         session_state = str(user.get("session_id", str(uuid.uuid4())))
 
-        params = {response_type: b64_enc_response, "session_state": session_state}
+        result_params = {response_type: b64_enc_response, "session_state": session_state}
         if state:
-            params["state"] = state
+            result_params["state"] = state
 
-        parts = list(urlparse.urlparse(url))
+        parts = list(urlparse.urlparse(redirect_uri))
         query = dict(urlparse.parse_qsl(parts[4]))
-        query.update(params)
+        query.update(result_params)
         parts[4] = urlencode(query)
 
         redirect_url = urlparse.urlunparse(parts)
 
         self.redirect(redirect_url)
+
+    def to_json_string(self, obj):
+        return json.dumps(obj)
 
     @gen.coroutine
     def _do_token(self, requesting_user, params):
@@ -213,16 +207,17 @@ class OAuth2ServiceHandler(RequestHandler):
         if not user:
             raise OAuth2RequestException("Invalid code")
 
-        #TODO: allow use of secret - otherwise its not secure
+        # TODO: allow use of secret - otherwise its not secure
         if client_id and client_secret:
             app = yield self.load_client_application(client_id)
             if not app:
                 raise OAuth2RequestException("Invalid application (client_id/client_secret)")
 
-        if(not user_id or user_id != requesting_user.get("_id")):
-            raise OAuth2RequestException("Invalid request. Requesting user not found or is different than logged in user.")
+        if not user_id or user_id != requesting_user.get("_id"):
+            raise OAuth2RequestException(
+                "Invalid request. Requesting user not found or is different than logged in user.")
 
-        #Make sure the code was not used earlier - otherwise its not secure
+        # Make sure the code was not used earlier - otherwise its not secure
         code_status_id = code_dict.get("code_status_id")
         if not code_status_id:
             raise OAuth2RequestException("Invalid code")
@@ -247,27 +242,28 @@ class OAuth2ServiceHandler(RequestHandler):
         oauth2_private_key_pem = self.get_private_key_pem()
 
         response = get_token(aud=client_id,
-                                     exp=exp,
-                                     family_name=user.get("family_name"),
-                                     given_name=user.get("given_name"),
-                                     iat=str(current_utc_time),
-                                     iss=oauth2_token_issuer,
-                                     nbf=str(current_utc_time),
-                                     oid=str(user.get("_id")),
-                                     sub=str(user.get("_id")),
-                                     tid=tid,
-                                     unique_name=user.get("username"),
-                                     upn=user.get("username"),
-                                     service_private_pem=oauth2_private_key_pem)
-        url = redirect_uri
+                             exp=exp,
+                             family_name=user.get("family_name"),
+                             given_name=user.get("given_name"),
+                             iat=str(current_utc_time),
+                             iss=oauth2_token_issuer,
+                             nbf=str(current_utc_time),
+                             oid=str(user.get("_id")),
+                             sub=str(user.get("_id")),
+                             tid=tid,
+                             unique_name=user.get("username"),
+                             upn=user.get("username"),
+                             service_private_pem=oauth2_private_key_pem)
+
         session_state = user.get("session_id", str(uuid.uuid4()))
         response_type = "access_token"
-        params = {response_type: response, "session_state": session_state, "token_type": token_type, "resource": resource}
+        params = {response_type: response, "session_state": session_state, "token_type": token_type,
+                  "resource": resource}
 
         if state:
             params["state"] = state
 
-        parts = list(urlparse.urlparse(url))
+        parts = list(urlparse.urlparse(redirect_uri))
         query = dict(urlparse.parse_qsl(parts[4]))
         query.update(params)
         parts[4] = urlencode(query)

@@ -21,7 +21,8 @@ from cosmos.service.auth import get_hmac_password, validate_password, add_params
 import cosmos.auth.oauth2
 import Crypto.PublicKey.RSA as RSA, datetime
 
-from cosmos.service.oauth2service import OAuth2ServiceHandler, OAUTH2_CODE_STATUS_OBJECT_NAME
+from cosmos.service.oauth2service import OAuth2ServiceHandler, OAUTH2_CODE_STATUS_OBJECT_NAME, OAuth2RequestException, \
+    OAUTH2_REQUESTS_OBJECT_NAME, OAUTH2_MAX_CODE_RESPONSE_LENGTH
 
 try:
     import urlparse  # py2
@@ -33,11 +34,10 @@ try:
 except ImportError:
     import urllib as urllib_parse  # py2
 
-
 from test import LoggedTestCase
 
-class OAuth2ServiceTest(AsyncHTTPTestCase):
 
+class OAuth2ServiceTest(AsyncHTTPTestCase):
     def __init__(self, *args, **kwargs):
         AsyncHTTPTestCase.__init__(self, *args, **kwargs)
 
@@ -111,19 +111,12 @@ class OAuth2ServiceTest(AsyncHTTPTestCase):
     def get_app(self):
         return self.app
 
-    @tornado.testing.gen_test
-    def test_http_fetch(self):
-        client = AsyncHTTPClient(self.io_loop)
-        response = yield client.fetch("http://www.tornadoweb.org")
-        # Test contents of response
-        self.assertIn("FriendFeed", response.body.decode())
-
     def test_get_authorize(self):
         with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
             rh.return_value = {'_id': "1213425367"}
 
             response = self.fetch(
-                '/example.com/oauth2/authorize/?response_type=code&redirect_uri=example.com/authorize',
+                '/example.com/oauth2/authorize/?response_type=code&state=teststate1&redirect_uri=example.com/authorize',
                 method='GET',
                 follow_redirects=False)
 
@@ -133,14 +126,115 @@ class OAuth2ServiceTest(AsyncHTTPTestCase):
             self.assertTrue(location.startswith("example.com/authorize?"))
 
     def test_get_authorize_login_redirect(self):
+        response = self.fetch(
+            '/example.com/oauth2/authorize/?response_type=code&redirect_uri=example.com/authorize',
+            method='GET',
+            follow_redirects=False)
+
+        self.assertEqual(response.code, 302)
+        location = response.headers.get("Location")
+        self.assertTrue(location.startswith("/login/?next=%2Fexample.com%2Foauth2%2Fauthorize%2F%3Fserve_request%3"))
+
+    def test_get_authorize_insert_request_failed(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "1213425367"}
+
+            promise = Future()
+            promise.set_result(None)
+            self.object_service.insert = MagicMock(return_value=promise)
+
             response = self.fetch(
                 '/example.com/oauth2/authorize/?response_type=code&redirect_uri=example.com/authorize',
                 method='GET',
                 follow_redirects=False)
 
+            self.assertEqual(response.code, 500)
+
+    def test_get_authorize_insert_code_status_failed(self):
+        user_id = "1213425367"
+        user = {'_id': user_id}
+
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "1213425367"}
+
+            def insert(*args):
+                promise = Future()
+                if args[1] == COSMOS_USERS_OBJECT_NAME:
+                    promise.set_result(user)
+                elif args[1] == OAUTH2_REQUESTS_OBJECT_NAME:
+                    promise.set_result({"_id": 53245425345})
+                elif args[1] == OAUTH2_CODE_STATUS_OBJECT_NAME:
+                    promise.set_result(None)
+                return promise
+
+            self.object_service.insert = MagicMock(side_effect=insert)
+
+            response = self.fetch(
+                '/example.com/oauth2/authorize/?response_type=code&redirect_uri=example.com/authorize',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 500)
+
+    def test_get_authorize_too_big_code_response(self):
+
+        resp = ""
+        while len(resp)<(OAUTH2_MAX_CODE_RESPONSE_LENGTH+1):
+            resp += "uyeiuereiwury ewyr oiweyreoireior eiry oiewyt rioeytioreytiry tioyretiyerityerityerityweuywei"
+
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "1213425367"}
+
+            with mock.patch.object(OAuth2ServiceHandler, 'to_json_string') as to_js:
+                to_js.return_value = resp
+
+                response = self.fetch(
+                    '/example.com/oauth2/authorize/?response_type=code&redirect_uri=example.com/authorize',
+                    method='GET',
+                    follow_redirects=False)
+
+                self.assertEqual(response.code, 414)
+
+    def test_get_authorize_serve_saved_request(self):
+        request = {'request_protocol': 'http',
+                   'tenant_id': 'example.com',
+                   'request_uri': '/example.com/oauth2/authorize/?response_type=code&redirect_uri=example.com/authorize',
+                   'request_host': 'localhost:8080',
+                   'response_type': 'code',
+                   'function': 'authorize',
+                   'redirect_uri': 'example.com/authorize'}
+
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "1213425367"}
+
+            promise = Future()
+            promise.set_result(request)
+            self.object_service.load = MagicMock(return_value=promise)
+
+            response = self.fetch(
+                '/example.com/oauth2/authorize/?serve_request=1234567',
+                method='GET',
+                follow_redirects=False)
+
             self.assertEqual(response.code, 302)
             location = response.headers.get("Location")
-            self.assertTrue(location.startswith("/login/?next=%2Fexample.com%2Foauth2%2Fauthorize%2F%3Fserve_request%3"))
+            print(location)
+            self.assertTrue(location.startswith("example.com/authorize?"))
+
+    def test_get_authorize_serve_saved_request_load_error(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "1213425367"}
+
+            promise = Future()
+            promise.set_result(None)
+            self.object_service.load = MagicMock(return_value=promise)
+
+            response = self.fetch(
+                '/example.com/oauth2/authorize/?serve_request=1234567',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
 
     def test_get_token(self):
         user_id = "1213425367"
@@ -156,7 +250,8 @@ class OAuth2ServiceTest(AsyncHTTPTestCase):
                     client_id = None
                     resource = None
                     current_utc_time = ''
-                    code_status = {"user_id": user_id, "client_id": client_id, "resource": resource, "iat": current_utc_time}
+                    code_status = {"user_id": user_id, "client_id": client_id, "resource": resource,
+                                   "iat": current_utc_time}
 
                     promise.set_result(code_status)
                 return promise
@@ -174,10 +269,66 @@ class OAuth2ServiceTest(AsyncHTTPTestCase):
                    'dA%3D%3D'
 
             response = self.fetch(
-                '/example.com/oauth2/token/?grant_type=code&redirect_uri=example.com/authorize&code='+code,
+                '/example.com/oauth2/token/?grant_type=code&redirect_uri=example.com/authorize&code=' + code,
                 method='GET',
                 follow_redirects=False)
 
             self.assertEqual(response.code, 302)
             location = response.headers.get("Location")
             self.assertTrue(location.startswith("example.com/authorize?"))
+
+    def test_get_unknown_function(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "1213425367"}
+
+            response = self.fetch(
+                '/example.com/oauth2/doesnotexist/?response_type=code&redirect_uri=example.com/authorize',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
+    def raise_oauth_exception(self):
+        raise OAuth2RequestException()
+
+    def test_get_exception(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.side_effect = self.raise_oauth_exception
+
+            response = self.fetch(
+                '/example.com/oauth2/doesnotexist/?response_type=code&redirect_uri=example.com/authorize',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
+    def test_get_authorize_bad_response_type(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "1213425367"}
+
+            response = self.fetch(
+                '/example.com/oauth2/authorize/?response_type=bad&redirect_uri=example.com/authorize',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
+
+    def test_get_authorize_untrusted_redirect_url(self):
+        with mock.patch.object(OAuth2ServiceHandler, 'get_current_user') as rh:
+            rh.return_value = {'_id': "1213425367"}
+            promise = Future()
+            promise.set_result(False)
+
+            class Test:
+                pass
+
+            result = Test()
+            result.fetch_next = promise
+            self.object_service.find = MagicMock(return_value=result)
+
+            response = self.fetch(
+                '/example.com/oauth2/authorize/?response_type=code&redirect_uri=untrusted.com/authorize',
+                method='GET',
+                follow_redirects=False)
+
+            self.assertEqual(response.code, 400)
