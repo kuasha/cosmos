@@ -134,5 +134,5 @@ class SystemSetupHandler(RequestHandler):
 
             promise = obj_serv.insert(SYSTEM_USER, object_name, data)
             result = yield promise
-            data = self.json_encode_result(result)
+            data = json_encode_result(result)
             self.write(data)

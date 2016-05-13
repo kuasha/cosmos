@@ -14,6 +14,7 @@ import tornado.template
 import tornado.websocket
 from tornado import gen
 
+from cosmos.service.requesthandler import json_encode_result
 from cosmos.service.utils import MongoObjectJSONEncoder
 from cosmos.dataservice.objectservice import *
 
@@ -59,10 +60,12 @@ class ServiceHandler(requesthandler.RequestHandler):
         processor_list = obj_serv.get_operation_processor(object_name, AccessType.READ)
         assert isinstance(processor_list, list)
 
-        if processor_list and len(processor_list) == 1:
-            processor = processor_list[0]
-        else:
-            if len(processor_list) > 1:
+        processor_list_len = len(processor_list)
+
+        if processor_list:
+            if processor_list_len == 1:
+                processor = processor_list[0]
+            elif processor_list_len > 1:
                 logging.critical("More than one READ processor found for object {}.".format(object_name))
                 raise ValueError("More than one READ processor found for object {}.".format(object_name))
 
@@ -77,7 +80,7 @@ class ServiceHandler(requesthandler.RequestHandler):
             result = yield cursor
             if not result:
                 raise tornado.web.HTTPError(404, "Not found")
-            data = self.json_encode_result(result)
+            data = json_encode_result(result)
         else:
             if processor:
                 cursor = processor(self.current_user, obj_serv, object_name, query, AccessType.READ, columns)
@@ -90,7 +93,7 @@ class ServiceHandler(requesthandler.RequestHandler):
                 qry_result = cursor.next_object()
                 result_list.append(qry_result)
             result = result_list
-            data = self.json_encode_result(result_list, True)
+            data = json_encode_result(result_list, True)
 
         post_processor_list = obj_serv.get_operation_postprocessor(object_name, AccessType.READ)
         for post_processor in post_processor_list:
@@ -145,7 +148,7 @@ class ServiceHandler(requesthandler.RequestHandler):
             promise = obj_serv.insert(self.current_user, object_name, data)
 
         result = yield promise
-        data = self.json_encode_result(result)
+        data = json_encode_result(result)
 
         post_processor_list = obj_serv.get_operation_postprocessor(object_name, AccessType.INSERT)
         for post_processor in post_processor_list:

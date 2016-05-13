@@ -22,16 +22,20 @@ from cosmos.service.constants import *
 from cosmos.service.utils import MongoObjectJSONEncoder
 
 
+def json_encode_result(result, is_list=False):
+    if is_list:
+        return {"_d": MongoObjectJSONEncoder().encode(result), "_cosmos_service_array_result_": True}
+    else:
+        return MongoObjectJSONEncoder().encode(result)
+
+
 class RequestHandler(tornado.web.RequestHandler):
     def __init__(self, *args, **kwargs):
         tornado.web.RequestHandler.__init__(self, *args, **kwargs)
         self.object_service = self.settings["object_service"]
 
     def json_encode_result(self, result, is_list=False):
-        if is_list:
-            return {"_d": MongoObjectJSONEncoder().encode(result), "_cosmos_service_array_result_": True}
-        else:
-            return MongoObjectJSONEncoder().encode(result)
+        return json_encode_result(result, is_list)
 
     def check_access(self, user, object_name, properties, access):
         has_access = self.object_service.check_access(user, object_name, properties, access)

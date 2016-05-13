@@ -473,7 +473,6 @@ class OAuth2ServiceTest(AsyncHTTPTestCase):
 
             self.assertEqual(response.code, 500)
 
-
     def raise_oauth_exception(self):
         raise OAuth2RequestException()
 
