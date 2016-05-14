@@ -19,6 +19,14 @@ from cosmos.service.utils import MongoObjectJSONEncoder
 from cosmos.dataservice.objectservice import *
 
 
+def clean_data(data):
+    assert isinstance(data, dict)
+    reserved_words = ["_id", "createtime", "modifytime", "owner", "g-recaptcha-response"]
+    for word in reserved_words:
+        if word in data:
+            del data[word]
+
+
 class ServiceHandler(requesthandler.RequestHandler):
     @gen.coroutine
     def get(self, object_path):
@@ -103,13 +111,6 @@ class ServiceHandler(requesthandler.RequestHandler):
         self.write(data)
         self.finish()
 
-    def clean_data(self, data):
-        assert isinstance(data, dict)
-        reserved_words = ["_id", "createtime", "modifytime", "owner", "g-recaptcha-response"]
-        for word in reserved_words:
-            if word in data:
-                del data[word]
-
     @gen.coroutine
     def post(self, object_path):
         params = object_path.split('/')
@@ -123,7 +124,7 @@ class ServiceHandler(requesthandler.RequestHandler):
 
         # It is important that _id is not passed to save method, insert method is ok to use.
         # If _id is passed to save method it could overwrite object owned by other user
-        self.clean_data(data)
+        clean_data(data)
 
         obj_serv = self.settings['object_service']
 
@@ -169,7 +170,7 @@ class ServiceHandler(requesthandler.RequestHandler):
         except ValueError as ve:
             raise tornado.web.HTTPError(400, ve.message)
 
-        self.clean_data(data)
+        clean_data(data)
 
         obj_serv = self.settings['object_service']
 
