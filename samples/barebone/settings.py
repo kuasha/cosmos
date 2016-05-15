@@ -44,15 +44,6 @@ facebook_scope = "email,public_profile,user_friends"
 facebook_redirect_uri = None
 DEFAULT_LOGIN_NEXT_URI = "/"
 
-"""
-# pip install pycrypto for Crypto
-# then from python console generate private_pem and public_pen and assign to SERVICE_PRIVATE_KEY and SERVICE_PUBLIC_KEY
-import  Crypto.PublicKey.RSA as RSA
-key = RSA.generate(2048)
-private_pem = key.exportKey()
-public_pem = key.publickey().exportKey()
-
-"""
 # TODO: set both keys below. Private key backup must be kept in a secure place and should never be shared
 # If private key is compromised, this service and all other services that trust this will be compromised
 # Public key is to share publicly for verification
@@ -178,9 +169,23 @@ GOOGLE_OAUTH2_SETTINGS = {"key": GOOGLE_OAUTH2_CLIENT_ID, "secret": GOOGLE_OAUTH
 GITHUB_OAUTH_SETTINGS = {"client_id": GITHUB_CLIENT_ID, "secret": GITHUB_CLIENT_SECRET,
                          "redirect_uri": GITHUB_OAUTH2_CALLBACK_URI}
 
+"""
+# pip install pycrypto for Crypto
+# then from python console generate private_pem and public_pen and assign to SERVICE_PRIVATE_KEY and SERVICE_PUBLIC_KEY
+
+"""
+
 if not OAUTH2_PRIVATE_KEY_PEM or not OAUTH2_PUBLIC_KEY_PEM:
-    logging.warning("OAuth2 private ker and public key is not set. OAuth2 service may not work. Exiting.")
-    exit(0)
+    logging.warning("OAuth2 private ker and public key is not set. OAuth2 may not work. Generating temporary keys.")
+
+    import Crypto.PublicKey.RSA as RSA
+    key = RSA.generate(2048)
+    private_pem = key.exportKey()
+    public_pem = key.publickey().exportKey()
+
+    OAUTH2_PRIVATE_KEY_PEM = private_pem.decode()
+    OAUTH2_PUBLIC_KEY_PEM = public_pem.decode()
+
 
 
 # This must be the last item in settings file for the settings page to work poroperly

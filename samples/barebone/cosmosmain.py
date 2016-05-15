@@ -76,8 +76,10 @@ def init_webservice_options(sync_db, port):
     options.db = init_database(options)
     init_logging(options)
 
+    app_endpoints = []
+    if sync_db:
+        app_endpoints = load_app_endpoints(sync_db)
 
-    app_endpoints = load_app_endpoints(sync_db)
     options.endpoints = app_endpoints + endpoints.END_POINTS
 
     return options
@@ -85,11 +87,13 @@ def init_webservice_options(sync_db, port):
 
 def prepare(port):
         sync_db = get_sync_db(settings.DATABASE_URI, settings.DB_NAME)
-        init_source_modules(sync_db)
+        db_observers = []
+
+        if sync_db:
+            init_source_modules(sync_db)
+            db_observers = load_interceptors(sync_db)
 
         options = init_webservice_options(sync_db, port)
-
-        db_observers = load_interceptors(sync_db)
 
         options.observers = db_observers + settings.observers
 

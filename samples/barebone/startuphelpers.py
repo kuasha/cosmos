@@ -125,10 +125,12 @@ def load_workflows(db):
     return source_modules
 
 
-
 def get_sync_db(db_uri, db_name):
-    client = MongoClient(db_uri)
-    return client[db_name]
+    try:
+        client = MongoClient(db_uri)
+        return client[db_name]
+    except Exception as ex:
+        return None
 
 
 def load_app_endpoints(db):

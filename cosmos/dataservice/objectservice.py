@@ -311,7 +311,7 @@ class ObjectService:
         else:
             self.create_access_log(user, collection_name, AccessType.INSERT)
 
-        return self.data_provider.save_file(self.db, user, collection_name, file_object, properties, file_id)
+        return self.data_provider.save_file(user, collection_name, file_object, properties, file_id)
 
     def load_file(self, user, collection_name, file_id, ignore_col_name=False):
         logging.debug("ObjectService::load_file::{0}".format(collection_name))

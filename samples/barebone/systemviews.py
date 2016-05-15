@@ -27,7 +27,7 @@ class SystemSetupHandler(RequestHandler):
                 t = Template(login_template)
                 show_create_admin_form = True
                 user = self.get_current_user()
-                if user:
+                if user or not self.local_settings_file_exists():
                     show_settings_form = self.has_access(COSMOS_SYSTEM_SETTINGS_OBJECT_NAME, [], AccessType.READ)
                     show_create_admin_form = False
                 else:
@@ -61,15 +61,18 @@ class SystemSetupHandler(RequestHandler):
         if command == "apply_settings":
             self.execute_apply_settings()
         if command == "restart_service":
-            self.restart_service()
+            self.execute_restart_service()
 
-    def restart_service(self):
+    def execute_restart_service(self):
         user = self.get_current_user()
         if user:
             self.check_access(user, COSMOS_SYSTEM_SETTINGS_OBJECT_NAME, [], AccessType.UPDATE)
         else:
             raise tornado.web.HTTPError(401, "Unauthorized")
 
+        self.restart_service()
+
+    def restart_service(self):
         self.write("System is now restarting.")
         self.finish()
         cur_dir = os.path.dirname(os.path.realpath(__file__))
@@ -83,14 +86,16 @@ class SystemSetupHandler(RequestHandler):
         os.execl(executable, executable, *arg)
 
     def execute_apply_settings(self):
+        local_settings_filename = self.get_local_settings_path()
         user = self.get_current_user()
-        if user:
+        if not self.local_settings_file_exists(local_settings_filename):
+            logging.info("First time settings.")
+            force_restart = True
+        elif user:
             self.check_access(user, COSMOS_SYSTEM_SETTINGS_OBJECT_NAME, [], AccessType.UPDATE)
         else:
             raise tornado.web.HTTPError(401, "Unauthorized")
 
-        cur_dir = os.path.dirname(os.path.realpath(__file__))
-        local_settings_filename = os.path.join(cur_dir, "local_settings.py")
         sf = open(local_settings_filename, 'w')
         for config in settings.CONFIGURABLE_SETTINGS:
             k = config.get("name")
@@ -105,7 +110,18 @@ class SystemSetupHandler(RequestHandler):
                     else:
                         sf.write('{0} = {1}\n'.format(k, v))
         sf.close()
-        self.write("Settings saved. Please restart service.")
+        self.write("Settings saved. Restart service initiated. ")
+        self.restart_service()
+
+    def local_settings_file_exists(self, local_settings_filename=None):
+        if not local_settings_filename:
+            local_settings_filename = self.get_local_settings_path()
+        return os.path.isfile(local_settings_filename)
+
+    def get_local_settings_path(self):
+        cur_dir = os.path.dirname(os.path.realpath(__file__))
+        local_settings_filename = os.path.join(cur_dir, "local_settings.py")
+        return local_settings_filename
 
     @gen.coroutine
     def execute_new_admin(self):
