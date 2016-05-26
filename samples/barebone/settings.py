@@ -187,7 +187,6 @@ if not OAUTH2_PRIVATE_KEY_PEM or not OAUTH2_PUBLIC_KEY_PEM:
     OAUTH2_PUBLIC_KEY_PEM = public_pem.decode()
 
 
-
 # This must be the last item in settings file for the settings page to work poroperly
 CONFIGURABLE_SETTINGS = [
     {"name": 'DEBUG', "value": DEBUG, "settings": {"type": "boolean", "quoted": False}},
@@ -213,4 +212,21 @@ CONFIGURABLE_SETTINGS = [
 
     {"name": 'INDEX_HTML_PATH', "value": INDEX_HTML_PATH, "settings": {"type": "text", "quoted": True}},
     {"name": 'STATIC_PATH',  "value": STATIC_PATH, "settings": {"type": "text", "quoted": True}},
+
+    {"name": 'login_url',  "value": login_url, "settings": {"type": "text", "quoted": True}},
+    {"name": 'DEFAULT_LOGIN_NEXT_URI',  "value": DEFAULT_LOGIN_NEXT_URI, "settings": {"type": "text", "quoted": True}},
+
+    {"name": 'facebook_client_id',  "value": facebook_client_id, "settings": {"type": "text", "quoted": True}},
+    {"name": 'facebook_client_secret',  "value": facebook_client_secret, "settings": {"type": "text", "quoted": True}},
+    {"name": 'facebook_scope',  "value": facebook_scope, "settings": {"type": "text", "quoted": True}},
+    {"name": 'facebook_redirect_uri',  "value": facebook_redirect_uri, "settings": {"type": "text", "quoted": True}},
+
+    {"name": 'GOOGLE_OAUTH2_CLIENT_ID', "value": GOOGLE_OAUTH2_CLIENT_ID, "settings": {"type": "text", "quoted": True}},
+    {"name": 'GOOGLE_OAUTH2_CLIENT_SECRET',  "value": GOOGLE_OAUTH2_CLIENT_SECRET, "settings": {"type": "text", "quoted": True}},
+    {"name": 'GOOGLE_OAUTH2_REDIRECT_URI',  "value": GOOGLE_OAUTH2_REDIRECT_URI, "settings": {"type": "text", "quoted": True}},
+
+    {"name": 'GITHUB_CLIENT_ID',  "value": GITHUB_CLIENT_ID, "settings": {"type": "text", "quoted": True}},
+    {"name": 'GITHUB_CLIENT_SECRET',  "value": GITHUB_CLIENT_SECRET, "settings": {"type": "text", "quoted": True}},
+    {"name": 'GITHUB_OAUTH2_CALLBACK_URI',  "value": GITHUB_OAUTH2_CALLBACK_URI, "settings": {"type": "text", "quoted": True}},
+
 ]

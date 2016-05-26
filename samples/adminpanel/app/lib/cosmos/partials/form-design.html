@@ -106,6 +106,25 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="likert-field.html">
+    <div ng-click="selectItem(field); $event.stopPropagation();">
+        <label class="control-label">{{ field.label }}</label>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <tr>
+                    <td>&nbsp;</td>
+                    <td ng-repeat="scale in field.scales">{{ scale.label }}</td>
+                </tr>
+                <tr ng-repeat="option in field.options">
+                    <td>{{ option.label }}</td>
+                    <td ng-repeat="scale in field.scales"><input type="radio" disabled="disabled" /> {{ scale.value }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</script>
+
+
 <script type="text/ng-template" id="select-field.html">
     <div ng-click="selectItem(field); $event.stopPropagation();">
         <label class="control-label">{{field.label}}</label>

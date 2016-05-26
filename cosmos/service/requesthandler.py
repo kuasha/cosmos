@@ -6,6 +6,8 @@
 """
 import uuid
 
+from cosmos.dataservice.objectservice import ACCESS_TYPE_ROLE, ACCESS_TYPE_OWNER_ONLY
+
 try:
     import urlparse  # py2
     from urllib import urlencode
@@ -43,9 +45,16 @@ class RequestHandler(tornado.web.RequestHandler):
         if not has_access:
             raise tornado.web.HTTPError(401, "Unauthorized")
 
-    def has_access(self, object_name, properties, access):
+    def has_access(self, object_name, properties, access, owner_access=False):
         user = self.get_current_user()
-        return self.object_service.check_access(user, object_name, properties, access)
+        acc_type = self.object_service.get_access(user, object_name, properties, access)
+        if acc_type == ACCESS_TYPE_ROLE:
+            return True
+        if acc_type == ACCESS_TYPE_OWNER_ONLY and owner_access:
+            return True
+
+        return False
+
 
     def get_current_user(self):
         user_json = self.get_secure_cookie(USER_COOKIE_NAME)

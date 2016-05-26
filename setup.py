@@ -5,10 +5,11 @@ except ImportError:
 
 setup(
     name='cosmos',
-    version='0.01.090.06',
+    version='0.01.093.02',
     packages=['cosmos', 'cosmos.common', 'cosmos.admin', 'cosmos.auth', 'cosmos.admin.samples',
               'cosmos.datamonitor', 'cosmos.dataservice','cosmos.rbac', 'cosmos.schema',
-              'cosmos.service', 'cosmos.processors', 'cosmos.msgq', 'cosmos.bees', 'cosmos.bees.celery', 'test'],
+              'cosmos.certmgr', 'cosmos.service', 'cosmos.processors', 'cosmos.msgq', 'cosmos.bees',
+              'cosmos.bees.celery', 'test'],
     url='http://cosmosframework.com',
     license='MIT License',
     author='Maruf Maniruzzaman',
@@ -33,7 +34,7 @@ setup(
     ],
 
     install_requires=['tornado', 'motor', 'mongolog', 'mock', 'requests', 'python-memcached', 'pycrypto', 'python_jwt',
-                      'funcsigs', 'pbr', 'pika', 'celery'],
+                      'funcsigs', 'pbr', 'pika', 'celery', 'pyopenssl'],
     # python 2 - pip install future
 
     entry_points = {

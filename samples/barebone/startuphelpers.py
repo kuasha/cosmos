@@ -8,6 +8,8 @@
 import sys
 import os
 
+from six import exec_
+
 try:
     import settings
 except ImportError as ie:
@@ -59,23 +61,30 @@ def init_source_modules(sync_db):
     for source_module in source_modules:
         load_source_module(sync_db, source_module)
 
+
 def load_python_module(fullname, code):
     py_module = imp.new_module(fullname)
-    exec(code in py_module.__dict__)
+    if isinstance(code, bytes):
+        scode = code.decode("utf-8")
+    else:
+        scode = code
+    exec_(scode, py_module.__dict__)
     sys.modules[fullname] = py_module
     return py_module
+
 
 def get_grid_file_content(db, file_id):
     fs = gridfs.GridFS(db)
     _id = ObjectId(file_id)
     return fs.get(_id).read()
 
+
 #TODO: add signing mechanism to avoid loading untrusted code
 def load_source_module(db, source_module):
     module_name = source_module.get("fullname")
     module_type = source_module.get("type")
     try:
-        print("Loading source module " + module_name + " " + module_type + "\n")
+        print("Loading source module " + str(module_name) + " " + str(module_type) + "\n")
         print( "--------------------------------------\n")
         source_code = None
 
@@ -135,6 +144,7 @@ def get_sync_db(db_uri, db_name):
 
 def load_app_endpoints(db):
     collection_name = COSMOS_APPLICATION_ENDPOINT_LIST_OBJECT_NAME
+    #COSMOS_SOURCE_MODULES_OBJECT_NAME
     app_enfpoints = []
 
     cursor = db[collection_name].find()
@@ -144,7 +154,9 @@ def load_app_endpoints(db):
             app_module = importlib.import_module(endpoint_def["handler_module"])
             globals().update(app_module.__dict__)
             handler_func = getattr(app_module, endpoint_def["handler_name"])
-            app_enfpoints.append((str(endpoint_def["uri_pattern"]), handler_func))
+            endpoint = (str(endpoint_def["uri_pattern"]), handler_func)
+            print(endpoint)
+            app_enfpoints.append(endpoint)
         except Exception as ex:
             print("Unable to load app request handler." + str(ex))
 

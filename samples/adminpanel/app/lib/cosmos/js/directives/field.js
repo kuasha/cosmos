@@ -602,6 +602,24 @@ directives.directive('field', function ($compile) {
                             }
                             break;
 
+                        case "likert":
+                            template = ''+
+                                '<label class="control-label">{{item.label}}</label>' +
+                                '<div class="table-responsive">'+
+                                '<table class="table table-striped">' +
+                                    '<tr>' +
+                                        '<td>&nbsp;</td>' +
+                                        '<td ng-repeat="scale in item.scales">{{scale.label}}</td>' +
+                                    '</tr>'+
+                                    '<tr ng-repeat="option in item.options">' +
+                                        '<td>{{option.label}}</td>' +
+                                        '<td ng-repeat="scale in item.scales"><input type="radio" ng-value="scale.value" ng-model="$parent.val[option.value]" /> {{scale.value}}</td>' +
+                                    '</tr>'+
+                                '</table>'+
+                                '</div>'+
+                                    '';
+                            break;
+
                         case "pageref":
                             template = '' +
                                 '<page pageid="item.pageId"></page>';
@@ -841,6 +859,10 @@ directives.directive('field', function ($compile) {
             if (scope.item.type === "menuref") {
                 scope.menuConfiguration = {"brandtitle": "", "type": "menu", "fields": []};
                 scope.getMenuConfiguration();
+            }
+
+            if (scope.item.type === "likert"){
+                scope.val={};
             }
 
             //console.log("Field template" + template);

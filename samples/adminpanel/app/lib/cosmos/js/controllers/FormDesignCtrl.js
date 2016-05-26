@@ -159,7 +159,22 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
                 ], "name": "options"}
             ]
             },
+            "likert": {"label": "Select Options", "type": "form", "fields": [
+                {"htmltype": "text", "type": "input", "label": "Label", "name": "label"},
+                {"htmltype": "text", "type": "input", "label": "Name", "name": "name"},
+                {"label": "Options", "type": "array", "options": {}, "fields": [
 
+                        {"label": "Label", "htmltype": "text", "type": "input", "name": "label"},
+                        {"label": "Value", "htmltype": "text", "type": "input", "name": "value"}
+                ], "name": "options"},
+                {"label": "Scales", "type": "array", "options": {}, "fields": [
+
+                        {"label": "Label", "htmltype": "text", "type": "input", "name": "label"},
+                        {"label": "Value", "htmltype": "text", "type": "input", "name": "value"}
+                ], "name": "scales"}
+
+            ]
+            },
             "filectrl":{
                  "label": "File Select Options", "type": "form",
                  "fields": [
@@ -202,7 +217,8 @@ controllers.controller('FormDesignController', ['$scope', '$routeParams', '$temp
             {label: 'Group', type: "composite", options: {}, fields: []},
             {label: 'Array', type: "array", options: {}, fields: []},
             {label: 'Lookup', type: "lookup", options: {}, fields: []},
-            {"label": "Condition", "type": "condition", fields: [], elsefields: []}
+            {"label": "Condition", "type": "condition", fields: [], elsefields: []},
+            {"label": "Likert", "type": "likert", fields: [], elsefields: []}
         ];
 
         $scope.components = jQuery.extend(true, [], $scope.toolsList);

@@ -2,6 +2,7 @@ import tornado
 
 from cosmos.datamonitor.monitor import ChangeMonitor, ChangeRequestHandler
 from cosmos.service.auth import *
+from cosmos.service.certservice import CertificateVaultHandler
 from cosmos.service.oauth2service import OAuth2ServiceHandler
 from cosmos.service.search import SearchHandler
 from cosmos.service.servicehandler import *
@@ -24,6 +25,7 @@ END_POINTS = [
     (r"/(?P<tenant_id>[^\/]+)/auth/key/", AuthPublicKeyHandler),
     (r"/oauth2client/(?P<function>[^\/]+)/", OAuth2DummyClientHandler),
     (r"/service/(.*)", ServiceHandler),
+    (r"/vault/certificate/(?P<operation>[^\/]+)", CertificateVaultHandler),
     (r"/search/(.*)/", SearchHandler),
     (r"/gridfs/(.*)", GridFSServiceHandler),
     (r"/application/install/", AppInstallHandler),

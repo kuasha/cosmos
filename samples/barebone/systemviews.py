@@ -14,7 +14,7 @@ from tornado import gen
 
 from cosmos.common.constants import COSMOS_SYSTEM_SETTINGS_OBJECT_NAME
 from cosmos.rbac.object import COSMOS_USERS_OBJECT_NAME, SYSTEM_USER, ADMIN_USER_ROLE_SID, AccessType
-from cosmos.service.requesthandler import RequestHandler
+from cosmos.service.requesthandler import RequestHandler, json_encode_result
 import settings
 
 class SystemSetupHandler(RequestHandler):
@@ -27,7 +27,10 @@ class SystemSetupHandler(RequestHandler):
                 t = Template(login_template)
                 show_create_admin_form = True
                 user = self.get_current_user()
-                if user or not self.local_settings_file_exists():
+                if not self.local_settings_file_exists():
+                    show_settings_form = True
+                    show_create_admin_form = False
+                elif user:
                     show_settings_form = self.has_access(COSMOS_SYSTEM_SETTINGS_OBJECT_NAME, [], AccessType.READ)
                     show_create_admin_form = False
                 else:

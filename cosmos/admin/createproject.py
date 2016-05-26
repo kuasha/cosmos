@@ -10,19 +10,20 @@ import subprocess
 
 from cosmos.admin.samples import barebonedef, simpledef, angulardef, angularbasicdef, adminpaneldef
 
-def new_project(path, type=None):
+
+def new_project(ppath, ptype=None):
     file_data_list = barebonedef.file_data_list
 
-    if type == None:
-        type = "adminpanel"
+    if ptype == None:
+        ptype = "adminpanel"
 
-    if type == "angular":
+    if ptype == "angular":
         file_data_list.extend(angulardef.file_data_list)
-    elif type == "angularbasic":
+    elif ptype == "angularbasic":
         file_data_list.extend(angularbasicdef.file_data_list)
-    elif type == "adminpanel":
+    elif ptype == "adminpanel":
         file_data_list.extend(adminpaneldef.file_data_list)
-    elif type == "simple":
+    elif ptype == "simple":
         file_data_list.extend(simpledef.file_data_list)
 
     for file_data in file_data_list:
@@ -30,21 +31,21 @@ def new_project(path, type=None):
         data = file_data["data"]
         if filename[0]=='/':
             filename = filename[1:]
-        file_path = os.path.join(path, filename)
+        file_path = os.path.join(ppath, filename)
         dir_name = os.path.dirname(file_path)
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
         with open(file_path, 'w') as content_file:
-            content_file.write(data.decode())
+            content_file.write(data.decode("utf-8"))
 
-    if type == "angular":
+    if ptype == "angular":
         print("-----------Cloning angular seed project--------------\n")
         try:
             subprocess.check_call(['git', "clone", "https://github.com/angular/angular-seed.git"])
             print('----------- You should run "npm install" from angular-seed directory now -------------\n')
         except subprocess.CalledProcessError:
             print ("Clone failed (is git installed?). You may try to clone manually using 'git clone https://github.com/angular/angular-seed.git'")
-    elif type == "adminpanel":
+    elif ptype == "adminpanel":
         print("---------------------------------------------------------------------------------------\n")
         print('----------- You should run "bower install" from the project directory now -------------\n')
         print('Bower or any other npm package is NOT required on production. Only for development purpose.\n')
