@@ -11,10 +11,16 @@ before_install:
   - sh -e /etc/init.d/xvfb start
   - sleep 3
 
+addons:
+  apt:
+    packages:
+    - build-essential
+    - libssl-dev
+    - libffi-dev
+    - python-dev
 
 # command to install dependencies
 install:
-  - apt-get install build-essential libssl-dev libffi-dev python-dev
   - pip install tornado
   - pip install motor
   - pip install mongolog
