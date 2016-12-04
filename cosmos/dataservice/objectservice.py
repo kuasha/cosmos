@@ -97,7 +97,7 @@ class ObjectService():
 
         return result
 
-    def find(self, user, object_name, query, columns, limit=5000):
+    def find(self, user, object_name, query, columns, limit=5000, skip=0):
         logging.debug("ObjectService::find::{0}".format(object_name))
         #assert inspect.ismethod(callback)
 
@@ -117,7 +117,8 @@ class ObjectService():
         else:
             columns_dict = None
 
-        result = self.db[object_name].find(query, columns_dict).limit(limit)
+        # result = self.db[object_name].find(query, columns_dict).limit(limit)
+        result = self.db[object_name].find(query, columns_dict).skip(skip).limit(limit)
 
         return result
 

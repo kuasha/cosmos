@@ -88,7 +88,8 @@ class ServiceHandler(requesthandler.RequestHandler):
             if processor:
                 cursor = processor(self.current_user, obj_serv, object_name, query, AccessType.READ, columns)
             else:
-                cursor = obj_serv.find(self.current_user, object_name, query, columns)
+                cursor = obj_serv.find(self.current_user, object_name, query, columns, limit, skip)
+                # cursor = obj_serv.find(self.current_user, object_name, query, columns)
 
             # TODO: use to_list to create list
             result_list = []
